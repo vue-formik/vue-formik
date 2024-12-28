@@ -1,7 +1,7 @@
 {
   "name": "vue-formik",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "vite",
