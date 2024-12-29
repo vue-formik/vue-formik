@@ -1,6 +1,6 @@
 {
   "name": "vue-formik",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "keywords": [
     "vue",
     "formik",
@@ -25,9 +25,9 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/vue-formik.es.js",
-      "require": "./dist/vue-formik.cjs.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/vue-formik.cjs.js"
     }
   },
   "scripts": {

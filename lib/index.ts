@@ -1,5 +1,3 @@
-import useFormik from '@/composables/useFormik'
+import useFormik from "@/composables/useFormik";
 
-export {
-  useFormik
-}
+export { useFormik };

@@ -2,9 +2,9 @@
 const updateNestedProperty = (
   object: Record<string, unknown>,
   path: string,
-  value: unknown
+  value: unknown,
 ): void => {
-  const keys = path.split('.');
+  const keys = path.split(".");
   keys.reduce<Record<string, unknown>>((acc, key, index) => {
     if (index === keys.length - 1) {
       (acc as Record<string, unknown>)[key] = value;
@@ -18,8 +18,9 @@ const updateNestedProperty = (
   }, object);
 };
 
+// eslint-disable-next-line
 const getNestedValue = (obj: Record<string, any>, path: string) => {
-  return path.split('.').reduce((o, key) => (o ? o[key] : undefined), obj);
+  return path.split(".").reduce((o, key) => (o ? o[key] : undefined), obj);
 };
 
 export { updateNestedProperty, getNestedValue };
