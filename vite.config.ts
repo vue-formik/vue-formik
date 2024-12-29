@@ -32,7 +32,7 @@ export default defineConfig({
       formats: ['es', 'cjs', 'umd'], // Multiple module formats
     },
     rollupOptions: {
-      external: ['vue', 'yup'], // Specify external dependencies here
+      external: ['vue'], // Specify external dependencies here
       output: {
         globals: {
           vue: 'Vue',
