@@ -1,8 +1,33 @@
 {
   "name": "vue-formik",
   "version": "0.0.1",
+  "keywords": [
+    "vue",
+    "formik",
+    "vue3",
+    "vue3-formik",
+    "vue-formik",
+    "formik-vue",
+    "vue-formik-vue",
+    "vue-formik-form",
+    "vue-formik-forms",
+    "vue-formik-formik"
+  ],
+  "description": "Vue 3 Formik",
   "private": false,
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/vue-formik-index.cjs.js",
+  "module": "dist/vue-formik-index.es.js",
+  "types": "dist/vue-formik-index.d.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-formik-index.es.js",
+      "require": "./dist/vue-formik-index.cjs.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
@@ -16,10 +41,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kiranparajuli589/vue-formik"
+    "url": "https://github.com/vue-formik/vue-formik"
   },
   "bugs": {
-    "url": "https://github.com/kiranparajuli589/vue-formik/issues",
+    "url": "https://github.com/vue-formik/vue-formik/issues",
     "email": "kiranparajuli589@gmail.com"
   },
   "author": {

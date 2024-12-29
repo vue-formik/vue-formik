@@ -12,9 +12,13 @@ export default defineConfig({
     vueJsx(),
     vueDevTools(),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    },
-  },
+  build: {
+    lib: {
+      entry: [
+        fileURLToPath(new URL('./lib/index.ts', import.meta.url)),
+        fileURLToPath(new URL('./lib/types/index.d.ts', import.meta.url)),
+      ],
+      fileName: (format, entryName) => `vue-formik-${entryName}.${format}.js`
+    }
+  }
 })
