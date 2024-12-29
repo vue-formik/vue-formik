@@ -1,7 +1,7 @@
 import { computed, reactive, toRaw, watch } from 'vue'
 import { ObjectSchema } from 'yup'
-import type { FormikHelpers, IUseFormik, ValidationRule } from './types'
-import { getNestedValue, updateNestedProperty } from './helpers'
+import { getNestedValue, updateNestedProperty } from '@/helpers'
+import type { FormikHelpers, IUseFormik, ValidationRule } from '@/types'
 
 const useFormik = <T extends object>({
   initialValues,

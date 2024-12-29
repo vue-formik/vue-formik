@@ -1,4 +1,4 @@
-import useFormik from './useFormik.ts'
+import useFormik from '@/composables/useFormik'
 
 export {
   useFormik

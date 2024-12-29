@@ -1,9 +1,9 @@
-import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import dts from 'vite-plugin-dts'
+import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,14 +11,33 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
+    dts({
+      include: 'lib/**',
+      exclude: ['node_modules', 'dist'],
+      entryRoot: "lib",
+      outDir: "dist",
+      insertTypesEntry: true,
+    })
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './lib'),
+    },
+  },
   build: {
     lib: {
-      entry: [
-        fileURLToPath(new URL('./lib/index.ts', import.meta.url)),
-        fileURLToPath(new URL('./lib/types/index.d.ts', import.meta.url)),
-      ],
-      fileName: (format, entryName) => `vue-formik-${entryName}.${format}.js`
-    }
+      entry: './lib/index.ts', // Path to your main file exporting `useFormik`
+      name: 'VueFormik',
+      fileName: (format) => `vue-formik.${format}.js`,
+      formats: ['es', 'cjs', 'umd'], // Multiple module formats
+    },
+    rollupOptions: {
+      external: ['vue', 'yup'], // Specify external dependencies here
+      output: {
+        globals: {
+          vue: 'Vue',
+        },
+      },
+    },
   }
 })
