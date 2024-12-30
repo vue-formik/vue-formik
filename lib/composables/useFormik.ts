@@ -1,6 +1,6 @@
-import { computed, reactive, toRaw, watch } from "vue";
+import { computed, reactive, toRaw, watch, ref } from "vue";
 import { ObjectSchema } from "yup";
-import { getNestedValue, updateNestedProperty } from "@/helpers";
+import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
 import { FormikHelpers, ValidationRule } from "@/types";
 
 const useFormik = <T extends object>(options: {
@@ -42,9 +42,10 @@ const useFormik = <T extends object>(options: {
     return validationErrors;
   };
 
-  const values = reactive(initialValues);
+  const values = reactive({...initialValues});
   const errors = reactive(validate(initialValues));
   const touched = reactive({} as Partial<Record<keyof T, boolean>>);
+  const isSubmitting = ref(false);
 
   const setValues = (newValues: T) => {
     Object.assign(values, newValues);
@@ -56,8 +57,8 @@ const useFormik = <T extends object>(options: {
   };
 
   const reset = () => {
-    Object.assign(values, initialValues);
-    Object.assign(errors, validate(initialValues));
+    setValues({ ...initialValues });
+    clearReactiveObject(touched);
   };
 
   const setFieldValue = (field: string, value: unknown) => {
@@ -68,14 +69,20 @@ const useFormik = <T extends object>(options: {
     updateNestedProperty(touched as Record<string, unknown>, field, touchedValue);
   };
 
+  const setSubmitting = (value: boolean) => {
+    isSubmitting.value = value;
+  };
+
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    setSubmitting(true);
     onSubmit(
       toRaw(values) as T,
       {
         setErrors,
         reset,
         setValues,
+        setSubmitting
       } as FormikHelpers<T>,
     );
   };
@@ -115,12 +122,16 @@ const useFormik = <T extends object>(options: {
   const hasFieldError = (field: string) => {
     const errorValue = getNestedValue(errors, field);
     const touchedValue = getNestedValue(touched, field);
-    return errorValue[field] !== undefined && touchedValue[field] === true;
+
+    return errorValue !== undefined &&
+      touchedValue !== undefined &&
+      errorValue &&
+      !!touchedValue;
   };
 
   const getFieldError = (field: string) => {
     if (hasFieldError(field)) {
-      return errors[field as keyof typeof errors];
+      return getNestedValue(errors, field);
     } else {
       return "";
     }
@@ -142,7 +153,9 @@ const useFormik = <T extends object>(options: {
     isValid,
     isDirty,
     fieldHandlers,
+    isSubmitting,
     setValues,
+    setErrors,
     reset,
     setFieldValue,
     setFieldTouched,

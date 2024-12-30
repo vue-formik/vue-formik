@@ -1,0 +1,100 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useFormik > should initialize form with initial values 1`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Kiran",
+}
+`;
+
+exports[`useFormik > should reset form 1`] = `
+{
+  "email": "updated@mail.cc",
+  "name": "Updated Name",
+}
+`;
+
+exports[`useFormik > should reset form 2`] = `
+{
+  "email": true,
+  "name": true,
+}
+`;
+
+exports[`useFormik > should reset form 3`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Kiran",
+}
+`;
+
+exports[`useFormik > should reset form 4`] = `{}`;
+
+exports[`useFormik > should set errors 1`] = `
+{
+  "name": "Value must be less than 255 characters",
+}
+`;
+
+exports[`useFormik > should set field touched 1`] = `
+{
+  "name": true,
+}
+`;
+
+exports[`useFormik > should set field value 1`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Updated Name",
+}
+`;
+
+exports[`useFormik > should set values 1`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Updated Name",
+}
+`;
+
+exports[`useFormik > should validate form with validation schema 1`] = `
+{
+  "email": "Email is required",
+  "name": "Name is required",
+}
+`;
+
+exports[`useFormik > should validate form with validation schema 2`] = `{}`;
+
+exports[`useFormik > should validate form with validation schema 3`] = `
+{
+  "email": "Email is required",
+}
+`;
+
+exports[`useFormik > should validate form with validation schema 4`] = `
+{
+  "name": true,
+}
+`;
+
+exports[`useFormik > should validate form with validation schema 5`] = `
+{
+  "email": "Invalid email",
+}
+`;
+
+exports[`useFormik > should validate form with validation schema 6`] = `
+{
+  "email": true,
+  "name": true,
+}
+`;
+
+exports[`useFormik > should validate form with validation schema 7`] = `{}`;
+
+exports[`useFormik > should validate form with validation schema 8`] = `
+{
+  "email": true,
+  "name": true,
+}
+`;

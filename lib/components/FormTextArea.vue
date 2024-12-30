@@ -21,7 +21,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
 defineProps<{
   formik: any;
   name: string;

@@ -23,4 +23,16 @@ const getNestedValue = (obj: Record<string, any>, path: string) => {
   return path.split(".").reduce((o, key) => (o ? o[key] : undefined), obj);
 };
 
-export { updateNestedProperty, getNestedValue };
+function clearReactiveObject(obj: Record<string, any>): void {
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      if (value && typeof value === 'object') {
+        clearReactiveObject(value); // Recursively clear nested objects
+      }
+      delete obj[key]; // Delete the property
+    }
+  }
+}
+
+export { updateNestedProperty, getNestedValue, clearReactiveObject };
