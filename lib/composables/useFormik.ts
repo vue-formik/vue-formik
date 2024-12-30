@@ -42,7 +42,7 @@ const useFormik = <T extends object>(options: {
     return validationErrors;
   };
 
-  const values = reactive({...initialValues});
+  const values = reactive({ ...initialValues });
   const errors = reactive(validate(initialValues));
   const touched = reactive({} as Partial<Record<keyof T, boolean>>);
   const isSubmitting = ref(false);
@@ -82,7 +82,7 @@ const useFormik = <T extends object>(options: {
         setErrors,
         reset,
         setValues,
-        setSubmitting
+        setSubmitting,
       } as FormikHelpers<T>,
     );
   };
@@ -123,10 +123,7 @@ const useFormik = <T extends object>(options: {
     const errorValue = getNestedValue(errors, field);
     const touchedValue = getNestedValue(touched, field);
 
-    return errorValue !== undefined &&
-      touchedValue !== undefined &&
-      errorValue &&
-      !!touchedValue;
+    return errorValue !== undefined && touchedValue !== undefined && errorValue && !!touchedValue;
   };
 
   const getFieldError = (field: string) => {
@@ -144,7 +141,7 @@ const useFormik = <T extends object>(options: {
   const fieldHandlers = computed(() => ({
     onBlur: handleBlur,
     onChange: handleChange,
-  }))
+  }));
 
   return {
     values,
