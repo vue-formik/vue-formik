@@ -21,8 +21,8 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
 defineProps<{
+  // eslint-disable-next-line
   formik: any;
   name: string;
   label?: string;
@@ -39,12 +39,12 @@ defineProps<{
   &--field {
     display: flex;
     flex-direction: column;
-    gap: .5rem;
+    gap: 0.5rem;
   }
   &--input {
-    padding: .5rem;
+    padding: 0.5rem;
     border: 1px solid #ccc;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     font-size: 1rem;
 
     &--error {
@@ -53,7 +53,7 @@ defineProps<{
   }
   &--error {
     color: red;
-    font-size: .875rem;
+    font-size: 0.875rem;
   }
 }
 </style>

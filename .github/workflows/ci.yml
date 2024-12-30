@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true
+      - name: Lint
+        run: pnpm lint
+      - name: Format
+        run: pnpm format
+      - name: Test
+        run: pnpm test:unit
+      - name: Type Check
+        run: pnpm type-check
+      - name: Build
+        run: pnpm build
