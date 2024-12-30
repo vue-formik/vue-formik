@@ -24,9 +24,9 @@ jobs:
         run: pnpm lint
       - name: Format
         run: pnpm format
+      - name: Test
+        run: pnpm test:unit
       - name: Type Check
         run: pnpm type-check
       - name: Build
         run: pnpm build
-      - name: Test
-        run: pnpm test:unit
