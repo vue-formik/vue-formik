@@ -1,6 +1,16 @@
 # 🌟Vue-Formik
+![example workflow](https://github.com/vue-formik/vue-formik/actions/workflows/ci.yml/badge.svg)
+[![GitHub stars](https://img.shields.io/github/stars/Naereen/StrapDown.js.svg?style=social&label=Star&maxAge=2592000)](https://GitHub.com/vue-formik/vue-formik/stargazers/)
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![Npm package version](https://badgen.net/npm/v/vue-formik)](https://npmjs.com/package/vue-formik)
+[![Npm package yearly downloads](https://badgen.net/npm/dy/vue-formik)](https://npmjs.com/package/vue-formik)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/vue-formik/vue-formik/compare)
+[![Issues](https://img.shields.io/github/issues-raw/tterb/PlayMusic.svg?maxAge=25000)](https://github.com/vue-formik/vue-formik/issues)
 
-Inspired by the powerful Formik library in React, Vue-Formik brings a simple and flexible way to handle form validation and form state management to Vue.js. 🚀
+
+Vue-Formik is a form management library for Vue.js.
+
+Inspired by the powerful [Formik](https://formik.org/) library in React, Vue-Formik brings a simple and flexible way to handle form validation and form state management to Vue.js. 🚀
 
 ## 🚧 Project Status
 
@@ -37,6 +47,4 @@ Follow the project for updates:
 
 ✨ New features, bug fixes, and a roadmap for the future!
 
-## 👨‍💻 Happy Coding! ❤️
-
-This version adds structured sections, uses icons for emphasis, and provides a polished and modern look.
+👨‍💻 Happy Coding! ❤️
