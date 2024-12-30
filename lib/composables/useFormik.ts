@@ -115,7 +115,7 @@ const useFormik = <T extends object>(options: {
   const hasFieldError = (field: string) => {
     const errorValue = getNestedValue(errors, field);
     const touchedValue = getNestedValue(touched, field);
-    return errorValue !== undefined && !!touchedValue;
+    return errorValue[field] !== undefined && touchedValue[field] === true;
   };
 
   const getFieldError = (field: string) => {
@@ -126,12 +126,22 @@ const useFormik = <T extends object>(options: {
     }
   };
 
+  const getFieldValue = (field: string) => {
+    return getNestedValue(values, field);
+  };
+
+  const fieldHandlers = computed(() => ({
+    onBlur: handleBlur,
+    onChange: handleChange,
+  }))
+
   return {
     values,
     errors,
     touched,
     isValid,
     isDirty,
+    fieldHandlers,
     setValues,
     reset,
     setFieldValue,
@@ -141,6 +151,7 @@ const useFormik = <T extends object>(options: {
     handleSubmit,
     hasFieldError,
     getFieldError,
+    getFieldValue,
   };
 };
 
