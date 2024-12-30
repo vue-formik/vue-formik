@@ -41,7 +41,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --check lib/",
-    "format:fix": "prettier --write lib/",
+    "format:fix": "prettier --write lib/"
   },
   "repository": {
     "type": "git",

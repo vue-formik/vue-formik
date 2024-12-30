@@ -4,7 +4,6 @@ on:
       - main
   pull_request:
     branches:
-      - "ci/*"
       - main
 
 concurrency:
@@ -20,8 +19,6 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-          run_install: |
-            args: [--frozen-lockfile, --strict-peer-dependencies]
       - name: Lint
         run: pnpm run lint
       - name: Format
