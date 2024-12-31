@@ -5,7 +5,7 @@
       :id="name"
       :name="name"
       :placeholder="placeholder"
-      :value="formik.getFieldValue(name)"
+      :value="inputValue"
       v-on="formik.fieldHandlers"
       :class="{
         'v-formik--input': true,
@@ -22,39 +22,17 @@
 
 <script lang="ts" setup>
 import useFormik from "@/composables/useFormik";
+import { computed } from "vue";
 
-defineProps<{
-  formik: ReturnType<typeof useFormik>;
+const props = defineProps<{
+  formik: ReturnType<typeof useFormik<any>>;
   name: string;
   label?: string;
-  type: string;
-  placeholder: string;
-  value: string;
-  rows: number;
+  type?: string;
+  placeholder?: string;
+  rows?: number | string;
   inputProps?: Record<string, never>;
 }>();
+
+const inputValue = computed(() => props.formik.getFieldValue(props.name) as any as string);
 </script>
-
-<style lang="scss">
-.v-formik {
-  &--field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  &--input {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
-    font-size: 1rem;
-
-    &--error {
-      border-color: red;
-    }
-  }
-  &--error {
-    color: red;
-    font-size: 0.875rem;
-  }
-}
-</style>

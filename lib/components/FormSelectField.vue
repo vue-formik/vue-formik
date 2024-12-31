@@ -1,11 +1,9 @@
 <template>
-  <div class="v-formik--field v-formik--text-field">
+  <div class="v-formik--field v-formik--select-field">
     <label v-if="label" :for="name">{{ label }}</label>
-    <input
+    <select
       :id="name"
       :name="name"
-      :type="type"
-      :placeholder="placeholder"
       :value="inputValue"
       @input="formik.handleChange"
       @blur="formik.handleBlur"
@@ -14,7 +12,11 @@
         'v-formik--input--error': formik.hasFieldError(name),
       }"
       v-bind="inputProps"
-    />
+    >
+      <option v-for="option in options" :key="option.value" :value="option.value">
+        {{ option.label }}
+      </option>
+    </select>
     <p v-if="formik.hasFieldError(name)" class="v-formik--error">
       {{ formik.getFieldError(name) }}
     </p>
@@ -22,14 +24,14 @@
 </template>
 
 <script lang="ts" setup>
-import useFormik from "@/composables/useFormik";
 import { computed } from "vue";
+import useFormik from "@/composables/useFormik";
 
 const props = defineProps<{
   formik: ReturnType<typeof useFormik<any>>;
   name: string;
   label?: string;
-  type?: string;
+  options: Array<{ label: string; value: string | number }>;
   placeholder?: string;
   inputProps?: Record<string, never>;
 }>();

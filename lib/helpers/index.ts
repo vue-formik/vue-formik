@@ -29,14 +29,33 @@ const getNestedValue = <T, R = unknown>(
   }, obj as unknown) as R | undefined;
 };
 
-function clearReactiveObject<T extends Record<string, unknown>>(obj: T): void {
+function clearReactiveObject<T>(obj: T): void {
+  if (typeof obj !== "object" || obj === null) {
+    return; // Skip non-object or null values
+  }
+
+  // Skip unsupported types like Map, Set, WeakMap, WeakSet
+  if (
+    obj instanceof Map ||
+    obj instanceof WeakMap ||
+    obj instanceof Set ||
+    obj instanceof WeakSet
+  ) {
+    return;
+  }
+
+  // Check for Vue's reactive types and unwrap them if needed
+  if ("__v_isRef" in obj || "__v_isReactive" in obj) {
+    return;
+  }
+
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      const value = obj[key];
+      const value = obj[key as keyof T];
       if (value && typeof value === "object" && !Array.isArray(value)) {
-        clearReactiveObject(value as Record<string, unknown>); // Recursively clear nested objects
+        clearReactiveObject(value); // Recursively clear nested objects
       }
-      delete obj[key]; // Delete the property
+      delete obj[key as keyof T]; // Delete the property
     }
   }
 }
