@@ -21,9 +21,10 @@
 </template>
 
 <script lang="ts" setup>
+import useFormik from "@/composables/useFormik";
+
 defineProps<{
-  // eslint-disable-next-line
-  formik: any;
+  formik: ReturnType<typeof useFormik>;
   name: string;
   label?: string;
   type: string;

@@ -1,35 +1,40 @@
-// Utility function to update nested properties
-const updateNestedProperty = (
-  object: Record<string, unknown>,
+const updateNestedProperty = <T extends Record<string, unknown>>(
+  object: T,
   path: string,
-  value: unknown,
+  value: unknown
 ): void => {
   const keys = path.split(".");
-  keys.reduce<Record<string, unknown>>((acc, key, index) => {
+  keys.reduce((acc: Record<string, unknown>, key, index) => {
     if (index === keys.length - 1) {
-      (acc as Record<string, unknown>)[key] = value;
+      acc[key] = value;
     } else {
-      if (!(acc as Record<string, unknown>)[key]) {
-        (acc as Record<string, unknown>)[key] = {};
+      if (!acc[key] || typeof acc[key] !== "object") {
+        acc[key] = {};
       }
-      return (acc as Record<string, unknown>)[key] as Record<string, unknown>;
+      return acc[key] as Record<string, unknown>;
     }
     return acc;
-  }, object);
+  }, object as Record<string, unknown>);
 };
 
-// eslint-disable-next-line
-const getNestedValue = (obj: Record<string, any>, path: string) => {
-  return path.split(".").reduce((o, key) => (o ? o[key] : undefined), obj);
+const getNestedValue = <T, R = unknown>(
+  obj: T,
+  path: string
+): R | undefined => {
+  return path.split(".").reduce((o, key) => {
+    if (o && typeof o === "object" && key in o) {
+      return (o as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj as unknown) as R | undefined;
 };
 
-// eslint-disable-next-line
-function clearReactiveObject(obj: Record<string, any>): void {
+function clearReactiveObject<T extends Record<string, unknown>>(obj: T): void {
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const value = obj[key];
-      if (value && typeof value === "object") {
-        clearReactiveObject(value); // Recursively clear nested objects
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        clearReactiveObject(value as Record<string, unknown>); // Recursively clear nested objects
       }
       delete obj[key]; // Delete the property
     }

@@ -58,7 +58,7 @@ const useFormik = <T extends object>(options: {
 
   const reset = () => {
     setValues({ ...initialValues });
-    clearReactiveObject(touched);
+    Object.assign(touched, {});
   };
 
   const setFieldValue = (field: string, value: unknown) => {
