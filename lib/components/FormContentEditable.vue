@@ -8,11 +8,23 @@
       'vf-field--readonly': readonly,
     }"
   >
-    <label v-if="label" :for="name">{{ label }}</label>
+    <label
+      v-if="label"
+      :for="name"
+      :id="name + '-label'"
+    >
+      {{ label }}
+    </label>
     <div class="vf-input">
       <div
         :id="name"
-        aria-label="content-editable"
+        role="textbox"
+        :aria-labelledby="label ? name + '-label' : undefined"
+        :aria-describedby="formik.hasFieldError(name) ? name + '-error' : undefined"
+        :aria-invalid="formik.hasFieldError(name) ? 'true' : 'false'"
+        :aria-required="contentProps?.required ? 'true' : undefined"
+        :aria-disabled="disabled ? 'true' : undefined"
+        :aria-readonly="readonly ? 'true' : undefined"
         :contenteditable="!disabled && !readonly"
         :class="{
           'vf-input--error': formik.hasFieldError(name),
@@ -29,14 +41,13 @@
         <span v-if="!hasValue">{{ placeholder }}</span>{{ inputValue }}
       </div>
     </div>
-    <p v-if="formik.hasFieldError(name)" class="vf--error">
+    <p v-if="formik.hasFieldError(name)" class="vf--error" :id="name + '-error'">
       {{ formik.getFieldError(name) }}
     </p>
   </div>
 </template>
 
 <script lang="ts" setup>
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { computed } from "vue";
 import useFormik from "@/composables/useFormik";
 

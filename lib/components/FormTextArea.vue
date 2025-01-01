@@ -5,7 +5,13 @@
       'vf-field--error': formik.hasFieldError(name),
     }"
   >
-    <label v-if="label" :for="name">{{ label }}</label>
+    <label
+      v-if="label"
+      :for="name"
+      :id="name + '-label'"
+    >
+      {{ label }}
+    </label>
     <div class="vf-input">
       <slot name="prepend" />
       <textarea
@@ -24,10 +30,16 @@
         :disabled="disabled"
         :rows="rows"
         v-bind="inputProps"
-      />
+        :aria-labelledby="label ? name + '-label' : undefined"
+        :aria-describedby="formik.hasFieldError(name) ? name + '-error' : undefined"
+        :aria-invalid="formik.hasFieldError(name) ? 'true' : 'false'"
+        :aria-required="inputProps?.required ? 'true' : undefined"
+        :aria-readonly="readonly ? 'true' : undefined"
+        :aria-disabled="disabled ? 'true' : undefined"
+      ></textarea>
       <slot name="append" />
     </div>
-    <p v-if="formik.hasFieldError(name)" class="vf-field__error">
+    <p v-if="formik.hasFieldError(name)" class="vf-field__error" :id="name + '-error'">
       {{ formik.getFieldError(name) }}
     </p>
     <slot />

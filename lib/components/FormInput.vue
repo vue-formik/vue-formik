@@ -6,7 +6,13 @@
       'vf-field--error': formik.hasFieldError(name),
     }"
   >
-    <label v-if="label" :for="name">{{ label }}</label>
+    <label
+      v-if="label"
+      :for="name"
+      :id="name + '-label'"
+    >
+      {{ label }}
+    </label>
 
     <div class="vf-input">
       <slot name="prepend" />
@@ -27,12 +33,18 @@
           'vf-input--disabled': disabled,
         }"
         v-bind="inputProps"
+        :aria-labelledby="label ? name + '-label' : undefined"
+        :aria-describedby="formik.hasFieldError(name) ? name + '-error' : undefined"
+        :aria-invalid="formik.hasFieldError(name) ? 'true' : 'false'"
+        :aria-required="inputProps?.required ? 'true' : undefined"
+        :aria-readonly="readonly ? 'true' : undefined"
+        :aria-disabled="disabled ? 'true' : undefined"
       />
 
       <slot name="append" />
     </div>
 
-    <p v-if="formik.hasFieldError(name)" class="vf-error">
+    <p v-if="formik.hasFieldError(name)" class="vf-error" :id="name + '-error'">
       {{ formik.getFieldError(name) }}
     </p>
 
@@ -51,12 +63,12 @@ const props = defineProps<{
   label?: string;
   type?: string;
   placeholder?: string;
-  inputProps?: Record<string, any>;
   readonly?: boolean;
   disabled?: boolean;
+  inputProps?: Record<string, any>;
 }>();
 
-const inputValue = computed(() => props.formik.getFieldValue(props.name) as any as string);
+const inputValue = computed(() => props.formik.getFieldValue(props.name) as string);
 
 const handleInput = (e: Event) => {
   const value = (e.target as HTMLInputElement).value;
