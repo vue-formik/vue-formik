@@ -1,21 +1,21 @@
 .v-formik--field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .v-formik--input {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
-    font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  font-size: 1rem;
 }
 
 .v-formik--input--error {
-    border-color: red;
+  border-color: red;
 }
 
 .v-formik--error {
-    color: red;
-    font-size: 0.875rem;
+  color: red;
+  font-size: 0.875rem;
 }
