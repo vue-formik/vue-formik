@@ -9,13 +9,6 @@ const FormField = {
   TextArea: FormTextField,
   Select: FormSelectField,
   ContentEditable: FormContentEditable,
-}
-
-export {
-  useFormik,
-  FormTextArea,
-  FormTextField,
-  FormSelectField,
-  FormContentEditable,
-  FormField
 };
+
+export { useFormik, FormTextArea, FormTextField, FormSelectField, FormContentEditable, FormField };

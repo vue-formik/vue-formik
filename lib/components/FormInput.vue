@@ -6,11 +6,7 @@
       'vf-field--error': formik.hasFieldError(name),
     }"
   >
-    <label
-      v-if="label"
-      :for="name"
-      :id="name + '-label'"
-    >
+    <label v-if="label" :for="name" :id="name + '-label'">
       {{ label }}
     </label>
 
@@ -75,5 +71,5 @@ const handleInput = (e: Event) => {
   props.formik.setFieldValue(props.name, value);
 };
 
-const typeClass = computed(() => `vf-${props.type || 'text'}-field`);
+const typeClass = computed(() => `vf-${props.type || "text"}-field`);
 </script>

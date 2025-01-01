@@ -5,11 +5,7 @@
       'vf-field--error': formik.hasFieldError(name),
     }"
   >
-    <label
-      v-if="label"
-      :for="name"
-      :id="name + '-label'"
-    >
+    <label v-if="label" :for="name" :id="name + '-label'">
       {{ label }}
     </label>
     <div class="vf-input">
@@ -35,21 +31,13 @@
         <option v-if="placeholder" disabled value="">
           {{ placeholder }}
         </option>
-        <option
-          v-for="option in options"
-          :key="option.value"
-          :value="option.value"
-        >
+        <option v-for="option in options" :key="option.value" :value="option.value">
           {{ option.label }}
         </option>
       </select>
       <slot name="append" />
     </div>
-    <p
-      v-if="formik.hasFieldError(name)"
-      class="vf-error"
-      :id="name + '-error'"
-    >
+    <p v-if="formik.hasFieldError(name)" class="vf-error" :id="name + '-error'">
       {{ formik.getFieldError(name) }}
     </p>
     <slot />
@@ -57,6 +45,7 @@
 </template>
 
 <script lang="ts" setup>
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { computed } from "vue";
 import useFormik from "@/composables/useFormik";
 

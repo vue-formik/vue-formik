@@ -8,11 +8,7 @@
       'vf-field--readonly': readonly,
     }"
   >
-    <label
-      v-if="label"
-      :for="name"
-      :id="name + '-label'"
-    >
+    <label v-if="label" :for="name" :id="name + '-label'">
       {{ label }}
     </label>
     <div class="vf-input">
@@ -38,7 +34,8 @@
         @focus="handleFocus"
         :tabindex="disabled ? -1 : 0"
       >
-        <span v-if="!hasValue">{{ placeholder }}</span>{{ inputValue }}
+        <span v-if="!hasValue">{{ placeholder }}</span
+        >{{ inputValue }}
       </div>
     </div>
     <p v-if="formik.hasFieldError(name)" class="vf--error" :id="name + '-error'">
@@ -48,6 +45,7 @@
 </template>
 
 <script lang="ts" setup>
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { computed } from "vue";
 import useFormik from "@/composables/useFormik";
 

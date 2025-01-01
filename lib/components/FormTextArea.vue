@@ -5,11 +5,7 @@
       'vf-field--error': formik.hasFieldError(name),
     }"
   >
-    <label
-      v-if="label"
-      :for="name"
-      :id="name + '-label'"
-    >
+    <label v-if="label" :for="name" :id="name + '-label'">
       {{ label }}
     </label>
     <div class="vf-input">
