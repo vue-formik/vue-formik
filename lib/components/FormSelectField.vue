@@ -28,7 +28,7 @@ import { computed } from "vue";
 import useFormik from "@/composables/useFormik";
 
 const props = defineProps<{
-  formik: ReturnType<typeof useFormik<any>>;
+  formik: ReturnType<typeof useFormik<never>>;
   name: string;
   label?: string;
   options: Array<{ label: string; value: string | number }>;
@@ -36,5 +36,5 @@ const props = defineProps<{
   inputProps?: Record<string, never>;
 }>();
 
-const inputValue = computed(() => props.formik.getFieldValue(props.name) as any as string);
+const inputValue = computed(() => props.formik.getFieldValue(props.name) as never as string);
 </script>

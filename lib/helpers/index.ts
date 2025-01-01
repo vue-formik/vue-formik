@@ -1,26 +1,26 @@
 const updateNestedProperty = <T extends Record<string, unknown>>(
   object: T,
   path: string,
-  value: unknown
+  value: unknown,
 ): void => {
   const keys = path.split(".");
-  keys.reduce((acc: Record<string, unknown>, key, index) => {
-    if (index === keys.length - 1) {
-      acc[key] = value;
-    } else {
-      if (!acc[key] || typeof acc[key] !== "object") {
-        acc[key] = {};
+  keys.reduce(
+    (acc: Record<string, unknown>, key, index) => {
+      if (index === keys.length - 1) {
+        acc[key] = value;
+      } else {
+        if (!acc[key] || typeof acc[key] !== "object") {
+          acc[key] = {};
+        }
+        return acc[key] as Record<string, unknown>;
       }
-      return acc[key] as Record<string, unknown>;
-    }
-    return acc;
-  }, object as Record<string, unknown>);
+      return acc;
+    },
+    object as Record<string, unknown>,
+  );
 };
 
-const getNestedValue = <T, R = unknown>(
-  obj: T,
-  path: string
-): R | undefined => {
+const getNestedValue = <T, R = unknown>(obj: T, path: string): R | undefined => {
   return path.split(".").reduce((o, key) => {
     if (o && typeof o === "object" && key in o) {
       return (o as Record<string, unknown>)[key];
