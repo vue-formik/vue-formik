@@ -5,7 +5,7 @@ import { FormikHelpers, ValidationRule } from "@/types";
 
 const useFormik = <T extends object>(options: {
   initialValues: T;
-  validationSchema: Record<keyof T, ValidationRule<T[keyof T]>> | ObjectSchema<T>;
+  validationSchema?: Partial<Record<keyof T, ValidationRule<T[keyof T]>>> | ObjectSchema<T>;
   onSubmit: (values: T, helpers: FormikHelpers<T>) => void;
 }) => {
   const { initialValues, validationSchema, onSubmit } = options;
