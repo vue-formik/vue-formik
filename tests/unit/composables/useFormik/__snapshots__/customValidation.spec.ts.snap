@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useFormik custom validation > should validate array field with custom validation schema 1`] = `
+{
+  "contacts": [
+    "Contact is required",
+    "Contact is required",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > should validate form with custom validation schema 1`] = `
+{
+  "contact": "Contact is required",
+}
+`;
+
+exports[`useFormik custom validation > should validate object field with custom validation schema 1`] = `
+{
+  "address": {
+    "city": "City is required",
+    "street": "Street is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate array field on value update with custom validation schema 1`] = `
+{
+  "contacts": [
+    "Contact is required",
+    "Contact is required",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate array field on value update with custom validation schema 2`] = `
+{
+  "contacts": [
+    "Contact must be at least 3 characters",
+    "Contact must be at least 3 characters",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate array field on value update with custom validation schema 3`] = `{}`;
+
+exports[`useFormik custom validation > validation on value update > should validate form on value update with custom validation schema 1`] = `
+{
+  "contact": "Contact is required",
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate form on value update with custom validation schema 2`] = `
+{
+  "contact": "Contact must be at least 3 characters",
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate form on value update with custom validation schema 3`] = `{}`;
+
+exports[`useFormik custom validation > validation on value update > should validate object field on value update with custom validation schema 1`] = `
+{
+  "address": {
+    "city": "City is required",
+    "street": "Street is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate object field on value update with custom validation schema 2`] = `
+{
+  "address": {
+    "city": "City is required",
+    "street": "Street must be at least 3 characters",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate object field on value update with custom validation schema 3`] = `{}`;
