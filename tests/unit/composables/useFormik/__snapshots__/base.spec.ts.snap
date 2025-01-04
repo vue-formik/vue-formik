@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useFormik base features > should initialize form with initial values 1`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Kiran",
+}
+`;
+
+exports[`useFormik base features > should reset form 1`] = `
+{
+  "email": "updated@mail.cc",
+  "name": "Updated Name",
+}
+`;
+
+exports[`useFormik base features > should reset form 2`] = `
+{
+  "email": true,
+  "name": true,
+}
+`;
+
+exports[`useFormik base features > should reset form 3`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Kiran",
+}
+`;
+
+exports[`useFormik base features > should reset form 4`] = `{}`;
+
+exports[`useFormik base features > should set errors 1`] = `
+{
+  "name": "Value must be less than 255 characters",
+}
+`;
+
+exports[`useFormik base features > should set field touched 1`] = `
+{
+  "name": true,
+}
+`;
+
+exports[`useFormik base features > should set field value 1`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Updated Name",
+}
+`;
+
+exports[`useFormik base features > should set values 1`] = `
+{
+  "email": "kiran@parajuli.cc",
+  "name": "Updated Name",
+}
+`;

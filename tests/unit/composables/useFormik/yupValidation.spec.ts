@@ -41,4 +41,22 @@ describe("yupValidation", async () => {
     const {errors} = useFormik({ initialValues, validationSchema, onSubmit })
     expect(errors).toMatchSnapshot()
   })
+  test("should validate object array field with validation schema", async () => {
+    const initialValues = {
+      contacts: [
+        { code: "", number: "" },
+        { code: "", number: "" }
+      ]
+    }
+    const validationSchema = Yup.object().shape({
+      contacts: Yup.array().of(
+        Yup.object().shape({
+          code: Yup.string().required("Code is required"),
+          number: Yup.string().required("Number is required")
+        })
+      )
+    })
+    const {errors} = useFormik({ initialValues, validationSchema, onSubmit })
+    expect(errors).toMatchSnapshot()
+  })
 })

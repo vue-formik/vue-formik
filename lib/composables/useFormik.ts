@@ -6,14 +6,15 @@ import { FormikHelpers, ValidationRule } from "@/types";
 const useFormik = <T extends object>(options: {
   initialValues: T;
   validationSchema?: Partial<Record<keyof T, ValidationRule<T[keyof T]>>> | ObjectSchema<T>;
-  onSubmit: (values: T, helpers: FormikHelpers<T>) => void;
+  onSubmit?: (values: T, helpers: FormikHelpers<T>) => void;
 }) => {
   const { initialValues, validationSchema, onSubmit } = options;
+  const yupMode = computed(() => validationSchema instanceof ObjectSchema);
 
   const validate = (values: T): Partial<Record<keyof T, string>> => {
     const validationErrors: Partial<Record<keyof T, string>> = {};
 
-    if (validationSchema instanceof ObjectSchema) {
+    if (yupMode.value) {
       try {
         const vSchema = validationSchema as ObjectSchema<T>;
         vSchema.validateSync(values, { abortEarly: false });
@@ -25,11 +26,17 @@ const useFormik = <T extends object>(options: {
           });
         }
       }
-    } else if (validationSchema) {
-      for (const key in validationSchema) {
-        const value = values[key as keyof T];
-        const rule = validationSchema[key as keyof T] as ValidationRule<T[keyof T]>;
+    }
 
+    if (
+      !yupMode.value && validationSchema &&
+      typeof validationSchema === "object" &&
+      Object.keys(validationSchema).length > 0
+    ) {
+      const schema = validationSchema as Partial<Record<keyof T, ValidationRule<T[keyof T]>>>;
+      for (const key in schema) {
+        const value = values[key as keyof T];
+        const rule = schema[key as keyof T];
         if (typeof rule === "function") {
           const error = rule(value);
           if (error) {
@@ -47,6 +54,14 @@ const useFormik = <T extends object>(options: {
   const touched = reactive({} as Partial<Record<keyof T, boolean>>);
   const isSubmitting = ref(false);
 
+  const isValid = computed(() => {
+    return Object.keys(errors).length === 0;
+  });
+
+  const isDirty = computed(() => {
+    return JSON.stringify(values) !== JSON.stringify(initialValues);
+  });
+
   const setValues = (newValues: T) => {
     Object.assign(values, newValues);
     Object.assign(errors, validate(newValues));
@@ -56,24 +71,32 @@ const useFormik = <T extends object>(options: {
     Object.assign(errors, newErrors);
   };
 
+  const setTouched = (newTouched: Partial<Record<keyof T, boolean>>) => {
+    Object.assign(touched, newTouched);
+  }
+
   const reset = () => {
     setValues({ ...initialValues });
     clearReactiveObject(touched);
   };
 
-  const setFieldValue = (field: string, value: unknown) => {
-    updateNestedProperty(values as Record<string, unknown>, field, value);
+  const setFieldValue = (field: keyof T, value: unknown) => {
+    updateNestedProperty(values as Record<string, unknown>, field as string, value);
   };
 
-  const setFieldTouched = (field: string, touchedValue: boolean) => {
-    updateNestedProperty(touched as Record<string, unknown>, field, touchedValue);
+  const setFieldTouched = (field: keyof T, touchedValue: boolean) => {
+    updateNestedProperty(touched as Record<string, unknown>, field as string, touchedValue);
+    console.log(touched)
   };
 
   const setSubmitting = (value: boolean) => {
     isSubmitting.value = value;
   };
 
-  const handleSubmit = (e: Event) => {
+  const handleFormSubmit = (e: Event) => {
+    if (typeof onSubmit !== "function") {
+      return;
+    }
     e.preventDefault();
     setSubmitting(true);
     onSubmit(
@@ -87,36 +110,34 @@ const useFormik = <T extends object>(options: {
     );
   };
 
-  const handleBlur = (e: FocusEvent) => {
+  const handleFieldBlur = (e: FocusEvent) => {
     const fieldName = (e.target as HTMLInputElement).name as keyof T;
-    setFieldTouched(fieldName.toString(), true);
+    setFieldTouched(fieldName, true);
   };
 
-  const handleChange = (e: Event) => {
+  const handleFieldChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const fieldName = target.name as keyof T;
     const value = target.type === "checkbox" ? target.checked : target.value;
 
-    setFieldValue(fieldName.toString(), value as T[keyof T]);
+    setFieldValue(fieldName, value as T[keyof T]);
+    setFieldTouched(fieldName, true);
   };
-
-  const isValid = computed(() => {
-    return Object.keys(errors).length === 0;
-  });
-
-  const isDirty = computed(() => {
-    return JSON.stringify(values) !== JSON.stringify(initialValues);
-  });
 
   watch(
     () => values,
     () => {
       const validationErrors = validate(toRaw(values) as T);
-      //@ts-expect-error Object.keys(errors) is not iterable
-      Object.keys(errors).forEach((key) => delete errors[key]); // Clear existing errors
-      Object.assign(errors, validationErrors); // Assign new errors
+
+      // Clear existing errors
+      Object.keys(errors).forEach(key => {
+        delete (errors as Partial<Record<keyof T, string>>)[key as keyof T];
+      });
+
+      // Assign new validation errors
+      Object.assign(errors, validationErrors);
     },
-    { deep: true },
+    { deep: true }
   );
 
   const hasFieldError = (field: string) => {
@@ -139,8 +160,8 @@ const useFormik = <T extends object>(options: {
   };
 
   const fieldHandlers = computed(() => ({
-    onBlur: handleBlur,
-    onChange: handleChange,
+    onBlur: handleFieldBlur,
+    onChange: handleFieldChange,
   }));
 
   return {
@@ -151,14 +172,16 @@ const useFormik = <T extends object>(options: {
     isDirty,
     fieldHandlers,
     isSubmitting,
+    yupMode,
     setValues,
     setErrors,
+    setTouched,
     reset,
     setFieldValue,
     setFieldTouched,
-    handleBlur,
-    handleChange,
-    handleSubmit,
+    handleBlur: handleFieldBlur,
+    handleChange: handleFieldChange,
+    handleSubmit: handleFormSubmit,
     hasFieldError,
     getFieldError,
     getFieldValue,

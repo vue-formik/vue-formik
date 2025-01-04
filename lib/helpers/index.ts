@@ -1,35 +1,68 @@
-const updateNestedProperty = <T extends Record<string, unknown>>(
-  object: T,
-  path: string,
-  value: unknown,
-): void => {
-  const keys = path.split(".");
-  keys.reduce(
-    (acc: Record<string, unknown>, key, index) => {
-      if (index === keys.length - 1) {
-        acc[key] = value;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const getNestedValue = <T extends object>(obj: T, path: string) => {
+  if (!obj || typeof obj !== "object") return undefined;
+
+  if (path in obj) {
+    return obj[path as keyof T];
+  }
+
+  const keys = path.split('.'); // Split the path into keys
+
+  if (keys.length === 1) {
+    if (/^.*\[\d+]$/.test(keys[0])) {
+      const [key, index] = keys[0].split("[");
+      const i = parseInt(index.replace("]", ""), 10);
+      const element = obj[key as keyof T];
+      if (Array.isArray(element)) {
+        return element[i];
       } else {
-        if (!acc[key] || typeof acc[key] !== "object") {
-          acc[key] = {};
-        }
-        return acc[key] as Record<string, unknown>;
+        return undefined;
       }
-      return acc;
-    },
-    object as Record<string, unknown>,
-  );
-};
-
-const getNestedValue = <T, R = unknown>(obj: T, path: string): R | undefined => {
-  return path.split(".").reduce((o, key) => {
-    if (o && typeof o === "object" && key in o) {
-      return (o as Record<string, unknown>)[key];
     }
-    return undefined;
-  }, obj as unknown) as R | undefined;
+    return obj[keys[0] as keyof T];
+  }
+
+  return getNestedValue(obj[keys[0] as keyof T] as T, keys.slice(1).join('.')); // Recursively get the nested value
 };
 
-function clearReactiveObject<T>(obj: T): void {
+const updateNestedProperty = <T extends Record<string, any>>(
+  obj: T,
+  path: string,
+  value: any,
+): void => {
+  if (!obj || typeof obj !== "object") {
+    obj = {} as T;
+    obj[path as keyof T] = value;
+    return;
+  }
+
+  if (path in obj) {
+    // update object here
+    obj[path as keyof T] = value;
+    return;
+  }
+
+  const keys = path.split('.');
+
+  if (keys.length === 1) {
+    if (/^.*\[\d+]$/.test(keys[0])) {
+      const [key, index] = keys[0].split("[");
+      if (!Array.isArray(obj[key as keyof T])) {
+        obj[key as keyof T] = [];
+      }
+      const i = parseInt(index.replace("]", ""), 10);
+
+      obj[key as keyof T][i] = value;
+      return;
+    }
+    obj[keys[0] as keyof T] = value;
+    return;
+  }
+  // Split the path into keys
+  return updateNestedProperty(getNestedValue(obj, keys[0]), keys.slice(1).join('.'), value); // Recursively get the nested value
+};
+
+function clearReactiveObject<T extends object>(obj: T): void {
   if (typeof obj !== "object" || obj === null) {
     return; // Skip non-object or null values
   }
