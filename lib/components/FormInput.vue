@@ -22,7 +22,7 @@
         :readonly="readonly"
         :disabled="disabled"
         @input="handleInput"
-        @blur="formik.handleBlur"
+        @blur="formik.handleFieldBlur"
         :class="{
           'vf-input--error': formik.hasFieldError(name),
           'vf-input--readonly': readonly,

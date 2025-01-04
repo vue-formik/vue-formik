@@ -1,92 +1,104 @@
 import { describe, test, expect, beforeAll } from "vitest";
 import { useFormik } from "../../../../lib";
-import * as Yup from "yup";
 import { nextTick } from "vue";
+import {
+  initialValues1,
+  initialValues2,
+  validationSchema1,
+  validationSchema2,
+  validationSchema3
+} from "./fixtures";
 
 describe("useFormik error", async () => {
-  const initialValues = {
-    name: "",
-    email: ""
-  }
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required("This field is required")
-      .max(10, "Max 10 characters"),
-    email: Yup.string()
-      .required("This field is required.")
-      .email("Invalid email")
-  })
-
   test("reactivity on values changes", async () => {
-    const { errors, setFieldValue } = useFormik({ initialValues, validationSchema })
+    const { errors, setFieldValue } = useFormik({
+      initialValues: initialValues1,
+      validationSchema: validationSchema1,
+    });
 
-    await nextTick()
-    expect(errors).toMatchSnapshot()
-    setFieldValue("email", "kiran")
-    await nextTick()
-    expect(errors).toMatchSnapshot()
-  })
+    await nextTick();
+    expect(errors).toMatchSnapshot();
+
+    setFieldValue("email", "kiran");
+    await nextTick();
+    expect(errors).toMatchSnapshot();
+  });
 
   describe("getFieldError", async () => {
-    describe("string errors", async () => {
-      const { getFieldError, setFieldValue, setFieldTouched } = useFormik({ initialValues, validationSchema })
-      beforeAll(() => {
-        setFieldTouched("name", true)
-      })
+    const sharedTouchedFields = [
+      ["names[0]"],
+      ["names[1]"],
+      ["contacts[0].code"],
+      ["contacts[0].number"],
+      ["address.state"],
+      ["address.city"],
+      ["address.country"],
+    ];
+    const commonErrors = [
+      { field: "names[0]", error: "This field is required" },
+      { field: "names[1]", error: "This field is required" },
+      { field: "contacts[0].code", error: "This field is required" },
+      { field: "contacts[0].number", error: "This field is required" },
+      { field: "address.state", error: "This field is required" },
+      { field: "address.city", error: "This field is required" },
+      { field: "address.country", error: "This field is required" },
+    ]
 
+    test.each([
+      {
+        description: "returns error message for Yup validation",
+        validationSchema: validationSchema2,
+        initialValues: { ...initialValues2 },
+        errors: commonErrors,
+        updatedFields: [
+          { field: "names[0]", value: "kiran", errorAfterUpdate: "" },
+          { field: "address.state", value: "Karnataka", errorAfterUpdate: "" },
+        ],
+      },
+      {
+        description: "returns error message for custom validation",
+        validationSchema: validationSchema3,
+        initialValues: { ...initialValues2 },
+        errors: commonErrors,
+        updatedFields: [
+          { field: "names[0]", value: "kiran", errorAfterUpdate: "" },
+          { field: "address.state", value: "Karnataka", errorAfterUpdate: "" },
+        ],
+      },
+    ])("$description", async ({ validationSchema, initialValues, errors, updatedFields }) => {
+      // cleanup code
+      initialValues.names[0] = "";
+      initialValues.address.state = "";
 
-      test("returns error message", async () => {
-        expect(getFieldError("name")).toBe("This field is required")
-      })
+      const {
+        getFieldError,
+        setFieldValue,
+        setFieldTouched,
+        errors: e,
+        values: v,
+        touched: t,
+        reset,
+      } = useFormik({
+        initialValues,
+        validationSchema,
+      });
 
-      test("returns empty if no error", async () => {
-        setFieldValue("name", "kiran")
-        await nextTick()
-        expect(getFieldError("name")).toBe("")
-      })
-    })
+      sharedTouchedFields.forEach(([field]) => setFieldTouched(field, true));
 
-    describe("errors in array/object fields", async () => {
-      describe("yup validation", () => {
-        const { getFieldError, setFieldValue, setFieldTouched, errors, touched } = useFormik({
-          initialValues: {
-            names: ["", ""],
-            contacts: [
-              { code: "", number: "" },
-            ]
-          },
-          validationSchema: Yup.object().shape({
-            names: Yup.array().of(Yup.string().required("This is a required field")),
-            contacts: Yup.array().of(
-              Yup.object().shape({
-                code: Yup.string().required("Code is required"),
-                number: Yup.string().required("Number is required")
-              })
-            )
-          })
-        })
+      await nextTick();
+      console.log({ e, v, t });
 
-        beforeAll(() => {
-          setFieldTouched("names[0]", true)
-          setFieldTouched("names[1]", true)
+      errors.forEach(({ field, error }) => {
+        expect(getFieldError(field)).toBe(error);
+      });
 
-          setFieldTouched("contacts[0].code", true)
-          setFieldTouched("contacts[0].number", true)
-        })
-
-        test("returns error message", async () => {
-          expect(getFieldError("names[0]")).toBe("This is a required field")
-        })
-
-        test("returns empty if no error", async () => {
-          setFieldValue("names[0]", "kiran")
-          await nextTick()
-          expect(getFieldError("names[0]")).toBe("")
-        })
-
-        test("returns error message for nested fields", async () => {
-          expect(getFieldError("contacts[0].code")).toBe("Code is required")
-        })
-      })
-    })
-  })
-})
+      for (const { field, value, errorAfterUpdate } of updatedFields) {
+        setFieldValue(field, value);
+        await nextTick();
+        expect(getFieldError(field)).toBe(errorAfterUpdate);
+      }
+      reset()
+      await nextTick();
+    });
+  });
+});

@@ -30,7 +30,7 @@
         }"
         v-bind="contentProps"
         @input="handleInput"
-        @blur="formik.handleBlur"
+        @blur="formik.handleFieldBlur"
         @focus="handleFocus"
         :tabindex="disabled ? -1 : 0"
       >

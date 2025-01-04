@@ -1,12 +1,12 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`useFormik input actions > handleChange > should set field value 1`] = `
+exports[`useFormik input actions > handleFieldChange > should set field value 1`] = `
 {
   "contacts": "9876543210",
 }
 `;
 
-exports[`useFormik input actions > handleChange > should set field value 2`] = `
+exports[`useFormik input actions > handleFieldChange > should set field value 2`] = `
 {
   "contacts": [
     "9876543210",
@@ -14,7 +14,7 @@ exports[`useFormik input actions > handleChange > should set field value 2`] = `
 }
 `;
 
-exports[`useFormik input actions > handleChange > should set field value 3`] = `
+exports[`useFormik input actions > handleFieldChange > should set field value 3`] = `
 {
   "contacts": [
     {
@@ -25,4 +25,26 @@ exports[`useFormik input actions > handleChange > should set field value 3`] = `
 }
 `;
 
-exports[`useFormik input actions > handleChange > should set the field as touched 1`] = `{}`;
+exports[`useFormik input actions > handleFieldChange > should set the field as touched 1`] = `
+{
+  "contacts": true,
+}
+`;
+
+exports[`useFormik input actions > handleFieldChange > should set the field as touched 2`] = `
+{
+  "contacts": [
+    true,
+  ],
+}
+`;
+
+exports[`useFormik input actions > handleFieldChange > should set the field as touched 3`] = `
+{
+  "contacts": [
+    {
+      "number": true,
+    },
+  ],
+}
+`;

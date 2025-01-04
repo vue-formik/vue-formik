@@ -16,7 +16,7 @@
         :placeholder="placeholder"
         :value="inputValue"
         @input="handleInput"
-        @blur="formik.handleBlur"
+        @blur="formik.handleFieldBlur"
         :class="{
           'vf-input--disabled': disabled,
           'vf-input--readonly': readonly,

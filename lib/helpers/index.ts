@@ -22,7 +22,24 @@ const getNestedValue = <T extends object>(obj: T, path: string) => {
     return obj[keys[0] as keyof T];
   }
 
-  return getNestedValue(obj[keys[0] as keyof T] as T, keys.slice(1).join('.')); // Recursively get the nested value
+  let inner;
+  if (keys[0] in obj) {
+    inner = obj[keys[0] as keyof T];
+  } else if (/^.*\[\d+]$/.test(keys[0])) {
+    const [key, index] = keys[0].split("[");
+    const i = parseInt(index.replace("]", ""), 10);
+    const element = obj[key as keyof T];
+    if (Array.isArray(element)) {
+      inner = element[i];
+    } else {
+      return undefined;
+    }
+  }
+
+  return getNestedValue(
+    inner, // Get the nested object
+    keys.slice(1).join('.')
+  ); // Recursively get the nested value
 };
 
 const updateNestedProperty = <T extends Record<string, any>>(
@@ -31,35 +48,50 @@ const updateNestedProperty = <T extends Record<string, any>>(
   value: any,
 ): void => {
   if (!obj || typeof obj !== "object") {
-    obj = {} as T;
-    obj[path as keyof T] = value;
-    return;
-  }
-
-  if (path in obj) {
-    // update object here
-    obj[path as keyof T] = value;
-    return;
+    return; // If obj is not valid, we cannot proceed
   }
 
   const keys = path.split('.');
 
   if (keys.length === 1) {
     if (/^.*\[\d+]$/.test(keys[0])) {
+      // Handle array index
       const [key, index] = keys[0].split("[");
-      if (!Array.isArray(obj[key as keyof T])) {
-        obj[key as keyof T] = [];
-      }
       const i = parseInt(index.replace("]", ""), 10);
-
+      if (!Array.isArray(obj[key as keyof T])) {
+        obj[key as keyof T] = [] as unknown as T[keyof T]; // Initialize as an array
+      }
+      if (typeof obj[key as keyof T][i] !== "object") {
+        obj[key as keyof T][i] = {}; // Initialize array element as an object
+      }
       obj[key as keyof T][i] = value;
       return;
     }
+    // Simple key assignment
     obj[keys[0] as keyof T] = value;
     return;
   }
-  // Split the path into keys
-  return updateNestedProperty(getNestedValue(obj, keys[0]), keys.slice(1).join('.'), value); // Recursively get the nested value
+
+  const [currentKey, ...remainingPath] = keys;
+
+  if (/^.*\[\d+]$/.test(currentKey)) {
+    // Handle array index
+    const [key, index] = currentKey.split("[");
+    const i = parseInt(index.replace("]", ""), 10);
+    if (!Array.isArray(obj[key as keyof T])) {
+      obj[key as keyof T] = [] as unknown as T[keyof T]; // Initialize as an array
+    }
+    if (typeof obj[key as keyof T][i] !== "object") {
+      obj[key as keyof T][i] = {}; // Initialize array element as an object
+    }
+    updateNestedProperty(obj[key as keyof T][i], remainingPath.join("."), value);
+  } else {
+    // Handle object property
+    if (!obj[currentKey as keyof T]) {
+      obj[currentKey as keyof T] = {} as unknown as T[keyof T]; // Initialize as an object
+    }
+    updateNestedProperty(obj[currentKey as keyof T], remainingPath.join("."), value);
+  }
 };
 
 function clearReactiveObject<T extends object>(obj: T): void {

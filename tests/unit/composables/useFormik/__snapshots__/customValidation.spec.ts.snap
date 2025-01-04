@@ -15,8 +15,6 @@ exports[`useFormik custom validation > should validate form with custom validati
 }
 `;
 
-exports[`useFormik custom validation > should validate form with custom validation schema 2`] = `""`;
-
 exports[`useFormik custom validation > should validate object field with custom validation schema 1`] = `
 {
   "address": {

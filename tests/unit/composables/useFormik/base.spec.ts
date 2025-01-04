@@ -55,22 +55,22 @@ describe("useFormik base features", async () => {
 
   describe("status", () => {
     test("'isValid' should return true when form is valid", async () => {
-      const { isValid, handleChange, handleBlur } = useFormik({ initialValues, onSubmit, validationSchema })
+      const { isValid, handleFieldChange, handleFieldBlur } = useFormik({ initialValues, onSubmit, validationSchema })
       expect(isValid.value).toBe(true)
 
-      handleChange({ target: { name: "email", value: "Kiran" } })
-      handleBlur({ target: { name: "email" } })
+      handleFieldChange({ target: { name: "email", value: "Kiran" } })
+      handleFieldBlur({ target: { name: "email" } })
 
       await nextTick()
 
       expect(isValid.value).toBe(false)
     })
     test("'isDirty' should return true when form is dirty", async () => {
-      const { isDirty, handleChange, handleBlur, reset } = useFormik({ initialValues, onSubmit, validationSchema })
+      const { isDirty, handleFieldChange, handleFieldBlur, reset } = useFormik({ initialValues, onSubmit, validationSchema })
       expect(isDirty.value).toBe(false)
 
-      handleChange({ target: { name: "email", value: "Kiran" } })
-      handleBlur({ target: { name: "email" } })
+      handleFieldChange({ target: { name: "email", value: "Kiran" } })
+      handleFieldBlur({ target: { name: "email" } })
 
       await nextTick()
 

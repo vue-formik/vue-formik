@@ -14,8 +14,8 @@
         :id="name"
         :name="name"
         :value="inputValue"
-        @change="handleChange"
-        @blur="formik.handleBlur"
+        @change="handleFieldChange"
+        @blur="formik.handleFieldBlur"
         :class="{
           'vf-input--error': formik.hasFieldError(name),
           'vf-input--disabled': disabled,
@@ -61,7 +61,7 @@ const props = defineProps<{
 
 const inputValue = computed(() => props.formik.getFieldValue(props.name) as string);
 
-const handleChange = (e: Event) => {
+const handleFieldChange = (e: Event) => {
   const value = (e.target as HTMLSelectElement).value;
   props.formik.setFieldValue(props.name, value);
 };

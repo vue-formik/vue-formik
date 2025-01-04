@@ -24,6 +24,18 @@ describe("useFormik value setters", async () => {
       setFieldValue("contacts[0].code", "+91");
       expect(values.contacts[0].code).toBe("+91");
     })
+
+    test("object field", () => {
+      const {values, setFieldValue} = useFormik({
+        initialValues: { contact: { code: "", number: "" }, name: "" }
+      });
+      setFieldValue("contact.code", "+91");
+      expect(values.contact.code).toBe("+91");
+      setFieldValue("contact.number", "1234567890");
+      expect(values.contact.number).toBe("1234567890");
+      setFieldValue("name", "kiran");
+      expect(values).toEqual({ contact: { code: "+91", number: "1234567890" }, name: "kiran" });
+    })
   })
   describe("setValues", () => {
     test("array of objects", () => {

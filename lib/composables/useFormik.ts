@@ -3,12 +3,16 @@ import { ObjectSchema } from "yup";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
 import { FormikHelpers, ValidationRule } from "@/types";
 
-const useFormik = <T extends object>(options: {
+const useFormik = <T extends object>({
+  initialValues,
+  validationSchema,
+  onSubmit
+}: {
   initialValues: T;
   validationSchema?: Partial<Record<keyof T, ValidationRule<T[keyof T]>>> | ObjectSchema<T>;
   onSubmit?: (values: T, helpers: FormikHelpers<T>) => void;
 }) => {
-  const { initialValues, validationSchema, onSubmit } = options;
+  const initialValuesRef = ref({ ...initialValues });
   const yupMode = computed(() => validationSchema instanceof ObjectSchema);
 
   const validate = (values: T): Partial<Record<keyof T, string>> => {
@@ -59,7 +63,7 @@ const useFormik = <T extends object>(options: {
   });
 
   const isDirty = computed(() => {
-    return JSON.stringify(values) !== JSON.stringify(initialValues);
+    return JSON.stringify(values) !== JSON.stringify(initialValuesRef.value);
   });
 
   const setValues = (newValues: T) => {
@@ -75,8 +79,11 @@ const useFormik = <T extends object>(options: {
     Object.assign(touched, newTouched);
   }
 
-  const reset = () => {
-    setValues({ ...initialValues });
+  const reset = ({
+    values = initialValues,
+  } = {}) => {
+    setValues({ ...values });
+    initialValuesRef.value = { ...values };
     clearReactiveObject(touched);
   };
 
@@ -86,14 +93,13 @@ const useFormik = <T extends object>(options: {
 
   const setFieldTouched = (field: keyof T, touchedValue: boolean) => {
     updateNestedProperty(touched as Record<string, unknown>, field as string, touchedValue);
-    console.log(touched)
   };
 
   const setSubmitting = (value: boolean) => {
     isSubmitting.value = value;
   };
 
-  const handleFormSubmit = (e: Event) => {
+  const handleSubmit = (e: Event) => {
     if (typeof onSubmit !== "function") {
       return;
     }
@@ -179,9 +185,9 @@ const useFormik = <T extends object>(options: {
     reset,
     setFieldValue,
     setFieldTouched,
-    handleBlur: handleFieldBlur,
-    handleChange: handleFieldChange,
-    handleSubmit: handleFormSubmit,
+    handleFieldBlur,
+    handleFieldChange,
+    handleSubmit,
     hasFieldError,
     getFieldError,
     getFieldValue,
