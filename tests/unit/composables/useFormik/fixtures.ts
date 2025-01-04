@@ -46,12 +46,14 @@ export const validationSchema1 = Yup.object().shape({
 });
 export const validationSchema2 = Yup.object().shape({
   names: Yup.array().of(Yup.string().required("This field is required")),
-  contacts: Yup.array().of(
-    Yup.object().shape({
-      code: Yup.string().required("This field is required"),
-      number: Yup.string().required("This field is required"),
-    }),
-  ),
+  contacts: Yup.array()
+    .required("This field is required")
+    .of(
+      Yup.object().shape({
+        code: Yup.string().required("This field is required"),
+        number: Yup.string().required("This field is required"),
+      }),
+    ),
   address: Yup.object().shape({
     state: Yup.string().required("This field is required"),
     city: Yup.string().required("This field is required"),
@@ -72,7 +74,7 @@ export const validationSchema3 = {
       }
     }
 
-    return errs;
+    return errs.length ? errs : undefined;
   },
   contacts: (values: { code: string; number: string }[]) => {
     if (values.length === 0) {
@@ -80,19 +82,26 @@ export const validationSchema3 = {
     }
     const errs = [];
     for (let i = 0; i < values.length; i++) {
-      errs[i] = {};
+      const err = {
+        code: "",
+        number: "",
+      };
       if (!values[i].code) {
-        errs[i]["code"] = "This field is required";
+        err["code"] = "This field is required";
       }
       if (!values[i].number) {
-        errs[i]["number"] = "This field is required";
+        err["number"] = "This field is required";
       }
+      errs.push(err);
     }
-
-    return errs;
+    return errs.length ? errs : undefined;
   },
   address: (value: { state: string; city: string; country: string }) => {
-    const errs = {};
+    const errs = {
+      state: "",
+      city: "",
+      country: "",
+    };
     if (!value.state) {
       errs["state"] = "This field is required";
     }

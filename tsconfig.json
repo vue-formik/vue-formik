@@ -4,19 +4,21 @@
     "declarationDir": "dist",
     "emitDeclarationOnly": true,
     "outDir": "dist",
-    "module": "ESNext",
-    "target": "ESNext",
+    "module": "esnext",
+    "target": "esnext",
     "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["./lib/*"]
+      "@/*": ["./lib/*"],
+      "@/tests/*": ["./tests/*"]
     }
   },
   "include": [
-    "src/**/*",
-    "lib/**/*"
+    "lib/**/*",
+    "tests/**/*",
+    "vitest.config.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

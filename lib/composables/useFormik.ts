@@ -15,8 +15,8 @@ const useFormik = <T extends object>({
   const initialValuesRef = ref({ ...initialValues });
   const yupMode = computed(() => validationSchema instanceof ObjectSchema);
 
-  const validate = (values: T): Partial<Record<keyof T, string>> => {
-    const validationErrors: Partial<Record<keyof T, string>> = {};
+  const validate = (values: T): Partial<Record<keyof T, unknown>> => {
+    const validationErrors: Partial<Record<keyof T, unknown>> = {};
 
     if (yupMode.value) {
       try {
@@ -67,30 +67,36 @@ const useFormik = <T extends object>({
     return JSON.stringify(values) !== JSON.stringify(initialValuesRef.value);
   });
 
-  const setValues = (newValues: T) => {
+  const setValues = (newValues: Partial<T>) => {
     Object.assign(values, newValues);
-    Object.assign(errors, validate(newValues));
   };
 
-  const setErrors = (newErrors: Partial<Record<keyof T, string>>) => {
+  const setErrors = (newErrors: object) => {
     Object.assign(errors, newErrors);
   };
 
-  const setTouched = (newTouched: Partial<Record<keyof T, boolean>>) => {
+  const setTouched = (newTouched: object) => {
     Object.assign(touched, newTouched);
   };
 
-  const reset = ({ values = initialValues } = {}) => {
+  const reset = ({
+    values,
+  }: {
+    values?: Partial<T>;
+  } = {}) => {
+    if (!values) {
+      values = { ...initialValuesRef.value };
+    }
     setValues({ ...values });
-    initialValuesRef.value = { ...values };
+    Object.assign(initialValuesRef.value, values);
     clearReactiveObject(touched);
   };
 
-  const setFieldValue = (field: keyof T, value: unknown) => {
+  const setFieldValue = (field: string, value: unknown) => {
     updateNestedProperty(values as Record<string, unknown>, field as string, value);
   };
 
-  const setFieldTouched = (field: keyof T, touchedValue: boolean) => {
+  const setFieldTouched = (field: string, touchedValue: boolean) => {
     updateNestedProperty(touched as Record<string, unknown>, field as string, touchedValue);
   };
 
@@ -98,7 +104,7 @@ const useFormik = <T extends object>({
     isSubmitting.value = value;
   };
 
-  const handleSubmit = (e: Event) => {
+  const handleSubmit = (e: SubmitEvent) => {
     if (typeof onSubmit !== "function") {
       return;
     }
@@ -107,8 +113,8 @@ const useFormik = <T extends object>({
     onSubmit(
       toRaw(values) as T,
       {
-        setErrors,
         reset,
+        setErrors,
         setValues,
         setSubmitting,
       } as FormikHelpers<T>,
@@ -116,17 +122,16 @@ const useFormik = <T extends object>({
   };
 
   const handleFieldBlur = (e: FocusEvent) => {
-    const fieldName = (e.target as HTMLInputElement).name as keyof T;
+    const fieldName = (e.target as HTMLInputElement).name;
     setFieldTouched(fieldName, true);
   };
 
   const handleFieldChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
-    const fieldName = target.name as keyof T;
     const value = target.type === "checkbox" ? target.checked : target.value;
 
-    setFieldValue(fieldName, value as T[keyof T]);
-    setFieldTouched(fieldName, true);
+    setFieldValue(target.name, value as T[keyof T]);
+    setFieldTouched(target.name, true);
   };
 
   watch(
@@ -190,6 +195,7 @@ const useFormik = <T extends object>({
     hasFieldError,
     getFieldError,
     getFieldValue,
+    setSubmitting,
   };
 };
 

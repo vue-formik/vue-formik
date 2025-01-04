@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useFormik reset > should reset form values 1`] = `
+{
+  "address": {
+    "city": "New York",
+    "country": "USA",
+  },
+  "email": "jane@example.co",
+  "name": "Jane Doe",
+}
+`;
+
+exports[`useFormik reset > should reset form values with new values 1`] = `
+{
+  "address": {
+    "city": "New York",
+    "country": "USA",
+  },
+  "email": "jane@example.com",
+  "name": "Jane Doe",
+}
+`;
+
+exports[`useFormik reset > should reset form values with new values 2`] = `
+{
+  "address": {
+    "city": "New York",
+    "country": "USA",
+  },
+  "email": "alice@example.com",
+  "name": "Alice Hansen",
+}
+`;

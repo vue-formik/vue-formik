@@ -65,8 +65,8 @@ describe("useFormik base features", async () => {
       });
       expect(isValid.value).toBe(true);
 
-      handleFieldChange({ target: { name: "email", value: "Kiran" } });
-      handleFieldBlur({ target: { name: "email" } });
+      handleFieldChange({ target: { name: "email", value: "Kiran" } } as never as Event);
+      handleFieldBlur({ target: { name: "email" } } as never as FocusEvent);
 
       await nextTick();
 
@@ -80,8 +80,8 @@ describe("useFormik base features", async () => {
       });
       expect(isDirty.value).toBe(false);
 
-      handleFieldChange({ target: { name: "email", value: "Kiran" } });
-      handleFieldBlur({ target: { name: "email" } });
+      handleFieldChange({ target: { name: "email", value: "Kiran" } } as never as Event);
+      handleFieldBlur({ target: { name: "email" } } as never as FocusEvent);
 
       await nextTick();
 
@@ -92,6 +92,20 @@ describe("useFormik base features", async () => {
       await nextTick();
 
       expect(isDirty.value).toBe(false);
+    });
+  });
+  describe("setSubmitting", () => {
+    test("should set isSubmitting to true", () => {
+      const { setSubmitting, isSubmitting } = useFormik({ initialValues, onSubmit });
+      setSubmitting(true);
+      expect(isSubmitting.value).toBe(true);
+    });
+    test("should set isSubmitting to false", () => {
+      const { setSubmitting, isSubmitting } = useFormik({ initialValues, onSubmit });
+      setSubmitting(true);
+      expect(isSubmitting.value).toBe(true);
+      setSubmitting(false);
+      expect(isSubmitting.value).toBe(false);
     });
   });
 });

@@ -52,6 +52,7 @@ describe("useFormik custom validation", async () => {
         }),
     };
     const { errors } = useFormik({ initialValues, validationSchema });
+    await nextTick();
     expect(errors).toMatchSnapshot();
   });
 
@@ -65,6 +66,7 @@ describe("useFormik custom validation", async () => {
       expect(errors).toMatchSnapshot();
 
       setValues({ contact: "1" });
+      await nextTick();
       expect(errors).toMatchSnapshot();
 
       setValues({ contact: "123" });
@@ -81,6 +83,7 @@ describe("useFormik custom validation", async () => {
       expect(errors).toMatchSnapshot();
 
       setValues({ contacts: ["1", "12"] });
+      await nextTick();
       expect(errors).toMatchSnapshot();
 
       setValues({ contacts: ["123", "123"] });
@@ -97,7 +100,10 @@ describe("useFormik custom validation", async () => {
             city: validateRequiredField,
           }),
       };
-      const { errors, setValues } = useFormik({ initialValues, validationSchema });
+      const { errors, setValues } = useFormik({
+        initialValues,
+        validationSchema,
+      });
       await nextTick();
       expect(errors).toMatchSnapshot();
 

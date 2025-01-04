@@ -32,12 +32,12 @@ describe("useFormik input actions", async () => {
   describe("handleFieldChange", () => {
     it.each(cases)("should set field value", async ({ target, initialValues }) => {
       const { handleFieldChange, values } = useFormik({ initialValues });
-      handleFieldChange({ target });
+      handleFieldChange({ target } as never as Event);
       expect(values).toMatchSnapshot();
     });
     it.each(cases)("should set the field as touched", ({ target, initialValues }) => {
       const { handleFieldChange, touched } = useFormik({ initialValues });
-      handleFieldChange({ target });
+      handleFieldChange({ target } as never as Event);
       expect(touched).toMatchSnapshot();
     });
   });

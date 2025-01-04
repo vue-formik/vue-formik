@@ -25,7 +25,7 @@ jobs:
       - name: Format
         run: pnpm format
       - name: Test
-        run: pnpm test:unit
+        run: pnpm test:unit:ci
       - name: Type Check
         run: pnpm type-check
       - name: Build

@@ -70,23 +70,15 @@ describe("useFormik error", async () => {
       initialValues.names[0] = "";
       initialValues.address.state = "";
 
-      const {
-        getFieldError,
-        setFieldValue,
-        setFieldTouched,
-        errors: e,
-        values: v,
-        touched: t,
-        reset,
-      } = useFormik({
+      const { getFieldError, setFieldValue, setFieldTouched, reset } = useFormik({
         initialValues,
+        // @ts-expect-error: validationSchema is not a valid prop - todo: examine
         validationSchema,
       });
 
       sharedTouchedFields.forEach(([field]) => setFieldTouched(field, true));
 
       await nextTick();
-      console.log({ e, v, t });
 
       errors.forEach(({ field, error }) => {
         expect(getFieldError(field)).toBe(error);
@@ -99,6 +91,17 @@ describe("useFormik error", async () => {
       }
       reset();
       await nextTick();
+    });
+
+    test("if field is not touched, it should not show error", async () => {
+      const { getFieldError, setFieldTouched } = useFormik({
+        initialValues: { name: "", email: "" },
+        validationSchema: validationSchema1,
+      });
+
+      expect(getFieldError("name")).toBe("");
+      setFieldTouched("name", true);
+      expect(getFieldError("name")).toBe("This field is required");
     });
   });
 });

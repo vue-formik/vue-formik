@@ -8,6 +8,12 @@ export default mergeConfig(
     test: {
       environment: 'jsdom',
       root: fileURLToPath(new URL('./', import.meta.url)),
+      coverage: {
+        enabled: true,
+        provider: 'istanbul',
+        reporter: ['text', 'html'],
+        reportsDirectory: './coverage',
+      }
     },
   }),
 )
