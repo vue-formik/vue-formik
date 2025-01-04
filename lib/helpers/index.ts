@@ -6,7 +6,7 @@ const getNestedValue = <T extends object>(obj: T, path: string) => {
     return obj[path as keyof T];
   }
 
-  const keys = path.split('.'); // Split the path into keys
+  const keys = path.split("."); // Split the path into keys
 
   if (keys.length === 1) {
     if (/^.*\[\d+]$/.test(keys[0])) {
@@ -38,7 +38,7 @@ const getNestedValue = <T extends object>(obj: T, path: string) => {
 
   return getNestedValue(
     inner, // Get the nested object
-    keys.slice(1).join('.')
+    keys.slice(1).join("."),
   ); // Recursively get the nested value
 };
 
@@ -51,7 +51,7 @@ const updateNestedProperty = <T extends Record<string, any>>(
     return; // If obj is not valid, we cannot proceed
   }
 
-  const keys = path.split('.');
+  const keys = path.split(".");
 
   if (keys.length === 1) {
     if (/^.*\[\d+]$/.test(keys[0])) {

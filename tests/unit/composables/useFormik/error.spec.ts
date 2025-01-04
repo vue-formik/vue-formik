@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll } from "vitest";
+import { describe, test, expect } from "vitest";
 import { useFormik } from "../../../../lib";
 import { nextTick } from "vue";
 import {
@@ -6,7 +6,7 @@ import {
   initialValues2,
   validationSchema1,
   validationSchema2,
-  validationSchema3
+  validationSchema3,
 } from "./fixtures";
 
 describe("useFormik error", async () => {
@@ -42,7 +42,7 @@ describe("useFormik error", async () => {
       { field: "address.state", error: "This field is required" },
       { field: "address.city", error: "This field is required" },
       { field: "address.country", error: "This field is required" },
-    ]
+    ];
 
     test.each([
       {
@@ -97,7 +97,7 @@ describe("useFormik error", async () => {
         await nextTick();
         expect(getFieldError(field)).toBe(errorAfterUpdate);
       }
-      reset()
+      reset();
       await nextTick();
     });
   });

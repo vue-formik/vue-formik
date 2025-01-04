@@ -9,11 +9,14 @@ const validateMinLength = (value: string, minLength: number) =>
   value.length >= minLength ? undefined : `Must be at least ${minLength} characters`;
 
 const validateArrayField = (values: string[], minLength: number) =>
-  values.map(value => validateRequiredField(value) || validateMinLength(value, minLength));
+  values.map((value) => validateRequiredField(value) || validateMinLength(value, minLength));
 
-const validateObjectField = (value: { [key: string]: string }, rules: { [key: string]: (val: string) => string | undefined }) => {
+const validateObjectField = (
+  value: { [key: string]: string },
+  rules: { [key: string]: (val: string) => string | undefined },
+) => {
   const errors: { [key: string]: string } = {};
-  Object.keys(rules).forEach(key => {
+  Object.keys(rules).forEach((key) => {
     const error = rules[key](value[key]);
     if (error) errors[key] = error;
   });
@@ -24,7 +27,7 @@ describe("useFormik custom validation", async () => {
   test("should validate form with custom validation schema", async () => {
     const initialValues = { contact: "" };
     const validationSchema = {
-      contact: (value: string) => validateRequiredField(value)
+      contact: (value: string) => validateRequiredField(value),
     };
     const { errors } = useFormik({ initialValues, validationSchema });
     expect(errors).toMatchSnapshot();
@@ -33,7 +36,7 @@ describe("useFormik custom validation", async () => {
   test("should validate array field with custom validation schema", async () => {
     const initialValues = { contacts: ["", ""] };
     const validationSchema = {
-      contacts: (values: string[]) => validateArrayField(values, 3)
+      contacts: (values: string[]) => validateArrayField(values, 3),
     };
     const { errors } = useFormik({ initialValues, validationSchema });
     expect(errors).toMatchSnapshot();
@@ -44,9 +47,9 @@ describe("useFormik custom validation", async () => {
     const validationSchema = {
       address: (value: { street: string; city: string }) =>
         validateObjectField(value, {
-          street: val => validateRequiredField(val) || validateMinLength(val, 3),
-          city: validateRequiredField
-        })
+          street: (val) => validateRequiredField(val) || validateMinLength(val, 3),
+          city: validateRequiredField,
+        }),
     };
     const { errors } = useFormik({ initialValues, validationSchema });
     expect(errors).toMatchSnapshot();
@@ -56,8 +59,7 @@ describe("useFormik custom validation", async () => {
     test("should validate form on value update with custom validation schema", async () => {
       const initialValues = { contact: "" };
       const validationSchema = {
-        contact: (value: string) =>
-          validateRequiredField(value) || validateMinLength(value, 3)
+        contact: (value: string) => validateRequiredField(value) || validateMinLength(value, 3),
       };
       const { errors, setValues } = useFormik({ initialValues, validationSchema });
       expect(errors).toMatchSnapshot();
@@ -73,7 +75,7 @@ describe("useFormik custom validation", async () => {
     test("should validate array field on value update with custom validation schema", async () => {
       const initialValues = { contacts: ["", ""] };
       const validationSchema = {
-        contacts: (values: string[]) => validateArrayField(values, 3)
+        contacts: (values: string[]) => validateArrayField(values, 3),
       };
       const { errors, setValues } = useFormik({ initialValues, validationSchema });
       expect(errors).toMatchSnapshot();
@@ -91,9 +93,9 @@ describe("useFormik custom validation", async () => {
       const validationSchema = {
         address: (value: { street: string; city: string }) =>
           validateObjectField(value, {
-            street: val => validateRequiredField(val) || validateMinLength(val, 3),
-            city: validateRequiredField
-          })
+            street: (val) => validateRequiredField(val) || validateMinLength(val, 3),
+            city: validateRequiredField,
+          }),
       };
       const { errors, setValues } = useFormik({ initialValues, validationSchema });
       await nextTick();
@@ -113,8 +115,7 @@ describe("useFormik custom validation", async () => {
     test("should validate form on blur with custom validation schema", async () => {
       const initialValues = { contact: "" };
       const validationSchema = {
-        contact: (value: string) =>
-          validateRequiredField(value) || validateMinLength(value, 3)
+        contact: (value: string) => validateRequiredField(value) || validateMinLength(value, 3),
       };
       const { errors, setTouched } = useFormik({ initialValues, validationSchema });
       expect(errors).toMatchSnapshot();
@@ -126,7 +127,7 @@ describe("useFormik custom validation", async () => {
     test("should validate array field on blur with custom validation schema", async () => {
       const initialValues = { contacts: ["", ""] };
       const validationSchema = {
-        contacts: (values: string[]) => validateArrayField(values, 3)
+        contacts: (values: string[]) => validateArrayField(values, 3),
       };
       const { errors, setTouched } = useFormik({ initialValues, validationSchema });
       expect(errors).toMatchSnapshot();
@@ -140,9 +141,9 @@ describe("useFormik custom validation", async () => {
       const validationSchema = {
         address: (value: { street: string; city: string }) =>
           validateObjectField(value, {
-            street: val => validateRequiredField(val) || validateMinLength(val, 3),
-            city: validateRequiredField
-          })
+            street: (val) => validateRequiredField(val) || validateMinLength(val, 3),
+            city: validateRequiredField,
+          }),
       };
       const { errors, setTouched } = useFormik({ initialValues, validationSchema });
       expect(errors).toMatchSnapshot();

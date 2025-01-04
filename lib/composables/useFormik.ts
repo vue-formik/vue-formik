@@ -6,7 +6,7 @@ import { FormikHelpers, ValidationRule } from "@/types";
 const useFormik = <T extends object>({
   initialValues,
   validationSchema,
-  onSubmit
+  onSubmit,
 }: {
   initialValues: T;
   validationSchema?: Partial<Record<keyof T, ValidationRule<T[keyof T]>>> | ObjectSchema<T>;
@@ -33,7 +33,8 @@ const useFormik = <T extends object>({
     }
 
     if (
-      !yupMode.value && validationSchema &&
+      !yupMode.value &&
+      validationSchema &&
       typeof validationSchema === "object" &&
       Object.keys(validationSchema).length > 0
     ) {
@@ -77,11 +78,9 @@ const useFormik = <T extends object>({
 
   const setTouched = (newTouched: Partial<Record<keyof T, boolean>>) => {
     Object.assign(touched, newTouched);
-  }
+  };
 
-  const reset = ({
-    values = initialValues,
-  } = {}) => {
+  const reset = ({ values = initialValues } = {}) => {
     setValues({ ...values });
     initialValuesRef.value = { ...values };
     clearReactiveObject(touched);
@@ -136,14 +135,14 @@ const useFormik = <T extends object>({
       const validationErrors = validate(toRaw(values) as T);
 
       // Clear existing errors
-      Object.keys(errors).forEach(key => {
+      Object.keys(errors).forEach((key) => {
         delete (errors as Partial<Record<keyof T, string>>)[key as keyof T];
       });
 
       // Assign new validation errors
       Object.assign(errors, validationErrors);
     },
-    { deep: true }
+    { deep: true },
   );
 
   const hasFieldError = (field: string) => {

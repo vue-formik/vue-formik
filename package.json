@@ -40,8 +40,8 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "format": "prettier --check lib/",
-    "format:fix": "prettier --write lib/"
+    "format": "prettier --check lib/ tests/",
+    "format:fix": "prettier --write lib/ tests/"
   },
   "repository": {
     "type": "git",

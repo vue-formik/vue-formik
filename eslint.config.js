@@ -10,6 +10,11 @@ export default [
   },
 
   {
+    name: 'tests/files-to-lint',
+    files: ['tests/**/*.{ts,mts,tsx,vue}'],
+  },
+
+  {
     name: 'lib/files-to-ignore',
     ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**'],
   },
