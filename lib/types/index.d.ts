@@ -5,6 +5,12 @@ export interface FormikHelpers<T> {
   setSubmitting: (value: boolean) => void;
 }
 
-type ValidationRule<T> = (
-  value: T,
-) => string | undefined | (string | undefined)[] | Record<string, string | undefined>;
+type ValidationRule = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any,
+) =>
+  | string
+  | undefined
+  | (string | undefined)[]
+  | Record<string, string | undefined>
+  | Record<string, string | undefined>[];

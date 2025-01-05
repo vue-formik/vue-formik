@@ -55,3 +55,10 @@ exports[`useFormik base features > should set values 1`] = `
   "name": "Updated Name",
 }
 `;
+
+exports[`useFormik base features > validate on mount > should validate on mount when turned on 1`] = `
+{
+  "email": "Email is required",
+  "name": "This field is required",
+}
+`;

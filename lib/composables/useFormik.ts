@@ -7,18 +7,20 @@ const useFormik = <T extends object>({
   initialValues,
   validationSchema,
   onSubmit,
+  validateOnMount = true,
 }: {
   initialValues: T;
-  validationSchema?: Partial<Record<keyof T, ValidationRule<T[keyof T]>>> | ObjectSchema<T>;
+  validationSchema?: ObjectSchema<T> | Partial<Record<keyof T, ValidationRule>>;
   onSubmit?: (values: T, helpers: FormikHelpers<T>) => void;
+  validateOnMount?: boolean;
 }) => {
+  const isSubmitting = ref(false);
   const initialValuesRef = ref({ ...initialValues });
-  const yupMode = computed(() => validationSchema instanceof ObjectSchema);
 
   const validate = (values: T): Partial<Record<keyof T, unknown>> => {
     const validationErrors: Partial<Record<keyof T, unknown>> = {};
 
-    if (yupMode.value) {
+    if (validationSchema instanceof ObjectSchema) {
       try {
         const vSchema = validationSchema as ObjectSchema<T>;
         vSchema.validateSync(values, { abortEarly: false });
@@ -30,22 +32,17 @@ const useFormik = <T extends object>({
           });
         }
       }
-    }
+    } else {
+      if (typeof validationSchema === "object" && Object.keys(validationSchema).length > 0) {
+        for (const key in validationSchema) {
+          const value = values[key as keyof T];
+          const rules = validationSchema[key as keyof T];
 
-    if (
-      !yupMode.value &&
-      validationSchema &&
-      typeof validationSchema === "object" &&
-      Object.keys(validationSchema).length > 0
-    ) {
-      const schema = validationSchema as Partial<Record<keyof T, ValidationRule<T[keyof T]>>>;
-      for (const key in schema) {
-        const value = values[key as keyof T];
-        const rule = schema[key as keyof T];
-        if (typeof rule === "function") {
-          const error = rule(value);
-          if (error) {
-            validationErrors[key as keyof T] = error;
+          if (typeof rules === "function") {
+            const error = rules(value);
+            if (error) {
+              validationErrors[key as keyof T] = error;
+            }
           }
         }
       }
@@ -55,9 +52,8 @@ const useFormik = <T extends object>({
   };
 
   const values = reactive({ ...initialValues });
-  const errors = reactive(validate(initialValues));
-  const touched = reactive({} as Partial<Record<keyof T, boolean>>);
-  const isSubmitting = ref(false);
+  const errors = reactive<Partial<Record<keyof T, unknown>>>({});
+  const touched = reactive<Partial<Record<keyof T, unknown>>>({});
 
   const isValid = computed(() => {
     return Object.keys(errors).length === 0;
@@ -134,18 +130,26 @@ const useFormik = <T extends object>({
     setFieldTouched(target.name, true);
   };
 
+  const performCheck = () => {
+    const validationErrors = validate(toRaw(values) as T);
+
+    // Clear existing errors
+    Object.keys(errors).forEach((key) => {
+      delete (errors as Partial<Record<keyof T, string>>)[key as keyof T];
+    });
+
+    // Assign new validation errors
+    Object.assign(errors, validationErrors);
+  };
+
+  if (validateOnMount) {
+    performCheck();
+  }
+
   watch(
     () => values,
     () => {
-      const validationErrors = validate(toRaw(values) as T);
-
-      // Clear existing errors
-      Object.keys(errors).forEach((key) => {
-        delete (errors as Partial<Record<keyof T, string>>)[key as keyof T];
-      });
-
-      // Assign new validation errors
-      Object.assign(errors, validationErrors);
+      performCheck();
     },
     { deep: true },
   );
@@ -182,7 +186,6 @@ const useFormik = <T extends object>({
     isDirty,
     fieldHandlers,
     isSubmitting,
-    yupMode,
     setValues,
     setErrors,
     setTouched,

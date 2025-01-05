@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { useFormik } from "../../../../lib";
 import { nextTick } from "vue";
-import { initialValues, onSubmit, validationSchema } from "./fixtures";
+import { emptyInitialValues, initialValues, onSubmit, validationSchema } from "./fixtures";
 
 describe("useFormik base features", async () => {
   test("should initialize form with initial values", () => {
@@ -106,6 +106,27 @@ describe("useFormik base features", async () => {
       expect(isSubmitting.value).toBe(true);
       setSubmitting(false);
       expect(isSubmitting.value).toBe(false);
+    });
+  });
+
+  describe("validate on mount", () => {
+    test("should validate on mount when turned on", () => {
+      const { errors } = useFormik({
+        initialValues: emptyInitialValues,
+        onSubmit,
+        validationSchema,
+        validateOnMount: true,
+      });
+      expect(errors).toMatchSnapshot();
+    });
+    test("should not validate on mount when turned off", () => {
+      const { errors } = useFormik({
+        initialValues: emptyInitialValues,
+        onSubmit,
+        validationSchema,
+        validateOnMount: false,
+      });
+      expect(errors).toEqual({});
     });
   });
 });
