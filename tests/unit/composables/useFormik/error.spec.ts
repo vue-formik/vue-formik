@@ -72,7 +72,6 @@ describe("useFormik error", async () => {
 
       const { getFieldError, setFieldValue, setFieldTouched, reset } = useFormik({
         initialValues,
-        // @ts-expect-error: validationSchema is not a valid prop - todo: examine
         validationSchema,
       });
 
