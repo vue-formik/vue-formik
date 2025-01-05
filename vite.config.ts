@@ -25,6 +25,7 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: true,
     lib: {
       entry: './lib/index.ts', // Path to your main file exporting `useFormik`
       name: 'VueFormik',

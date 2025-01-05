@@ -1,4 +1,6 @@
-export interface FormikHelpers<T> {
+import { ObjectSchema } from "yup";
+
+interface FormikHelpers<T> {
   reset: () => void;
   setErrors: (errors: Partial<Record<keyof T, string | Record<string, string>>>) => void;
   setValues: (values: T) => void;
@@ -14,3 +16,9 @@ type ValidationRule = (
   | (string | undefined)[]
   | Record<string, string | undefined>
   | Record<string, string | undefined>[];
+
+type FormikValidationSchema<T extends object> =
+  | ObjectSchema<T>
+  | Partial<Record<keyof T, ValidationRule>>;
+
+type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;

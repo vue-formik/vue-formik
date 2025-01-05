@@ -1,18 +1,20 @@
 import { computed, reactive, toRaw, watch, ref } from "vue";
 import { ObjectSchema } from "yup";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
-import { FormikHelpers, ValidationRule } from "@/types";
+import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema } from "@/types";
 
 const useFormik = <T extends object>({
   initialValues,
   validationSchema,
   onSubmit,
   validateOnMount = true,
+  preventDefault = true,
 }: {
   initialValues: T;
-  validationSchema?: ObjectSchema<T> | Partial<Record<keyof T, ValidationRule>>;
-  onSubmit?: (values: T, helpers: FormikHelpers<T>) => void;
   validateOnMount?: boolean;
+  preventDefault?: boolean;
+  onSubmit?: FormikOnSubmit<T>;
+  validationSchema?: FormikValidationSchema<T>;
 }) => {
   const isSubmitting = ref(false);
   const initialValuesRef = ref({ ...initialValues });
@@ -20,7 +22,11 @@ const useFormik = <T extends object>({
   const validate = (values: T): Partial<Record<keyof T, unknown>> => {
     const validationErrors: Partial<Record<keyof T, unknown>> = {};
 
-    if (validationSchema instanceof ObjectSchema) {
+    if (
+      typeof validationSchema === "object" &&
+      (validationSchema instanceof ObjectSchema ||
+        ("type" in validationSchema && validationSchema.type === "object"))
+    ) {
       try {
         const vSchema = validationSchema as ObjectSchema<T>;
         vSchema.validateSync(values, { abortEarly: false });
@@ -32,22 +38,19 @@ const useFormik = <T extends object>({
           });
         }
       }
-    } else {
-      if (typeof validationSchema === "object" && Object.keys(validationSchema).length > 0) {
-        for (const key in validationSchema) {
-          const value = values[key as keyof T];
-          const rules = validationSchema[key as keyof T];
+    } else if (typeof validationSchema === "object" && Object.keys(validationSchema).length > 0) {
+      for (const key in validationSchema) {
+        const value = values[key as keyof T];
+        const rules = validationSchema[key as keyof T];
 
-          if (typeof rules === "function") {
-            const error = rules(value);
-            if (error) {
-              validationErrors[key as keyof T] = error;
-            }
+        if (typeof rules === "function") {
+          const error = rules(value);
+          if (error) {
+            validationErrors[key as keyof T] = error;
           }
         }
       }
     }
-
     return validationErrors;
   };
 
@@ -100,11 +103,13 @@ const useFormik = <T extends object>({
     isSubmitting.value = value;
   };
 
-  const handleSubmit = (e: SubmitEvent) => {
+  const handleSubmit = (e: Event) => {
     if (typeof onSubmit !== "function") {
       return;
     }
-    e.preventDefault();
+    if (preventDefault && e) {
+      e.preventDefault();
+    }
     setSubmitting(true);
     onSubmit(
       toRaw(values) as T,
