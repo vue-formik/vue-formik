@@ -12,18 +12,6 @@ Vue-Formik is a form management library for Vue.js.
 
 Inspired by the powerful [Formik](https://formik.org/) library in React, Vue-Formik brings a simple and flexible way to handle form validation and form state management to Vue.js. 🚀
 
-## 🚧 Project Status
-
-⚠️ Under Development
-
-Vue-Formik is currently in development and not ready for production use. Stay tuned for updates as we bring this project to life! 💻
-
-You can try out the latest version with:
-```bash
-pnpm install vue-formik
-```
-
-See [docs](https://github.com/vue-formik/docs) for more information.
 
 
 ## 🔥 Key Features
@@ -31,10 +19,9 @@ See [docs](https://github.com/vue-formik/docs) for more information.
 - ✅ Custom Validation: Seamlessly integrate your own validation logic or use popular libraries.
 - 🖼️ Vue 3 Powered: Built from the ground up for Vue.js v3.
 
-💡 Getting Started
+## 💡 Getting Started
+See the [docs](https://vue-formik.netlify.app/) for more information.
 
-## Coming Soon! 🛠️
-Documentation and examples will be available as we continue to build.
 
 ## 🤝 Contributing
 
@@ -43,8 +30,6 @@ Check out our CONTRIBUTING.md (link coming soon) for more details.
 
 ## 📢 Stay Updated
 
-Follow the project for updates:
-
-✨ New features, bug fixes, and a roadmap for the future!
+Follow the project for updates, ✨ new features, bug fixes, and a roadmap for the future!
 
 👨‍💻 Happy Coding! ❤️
