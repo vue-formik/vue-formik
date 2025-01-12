@@ -35,7 +35,7 @@
       ></textarea>
       <slot name="append" />
     </div>
-    <p v-if="formik.hasFieldError(name)" class="vf-field__error" :id="name + '-error'">
+    <p v-if="formik.hasFieldError(name)" class="vf-error" :id="name + '-error'">
       {{ formik.getFieldError(name) }}
     </p>
     <slot />
