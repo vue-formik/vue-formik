@@ -4,7 +4,7 @@ import useFormik from "@/composables/useFormik";
 
 defineProps<{
   formik: ReturnType<typeof useFormik<any>>;
-}>()
+}>();
 </script>
 <template>
   <form @submit="formik.handleSubmit">

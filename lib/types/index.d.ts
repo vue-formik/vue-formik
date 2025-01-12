@@ -19,8 +19,6 @@ type ValidationRule = (
 
 type CustomValidationSchema<T extends object> = Record<keyof T, ValidationRule>;
 
-type FormikValidationSchema<T extends object> =
-  | ObjectSchema<T>
-  | CustomValidationSchema<T>;
+type FormikValidationSchema<T extends object> = ObjectSchema<T> | CustomValidationSchema<T>;
 
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
