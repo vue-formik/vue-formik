@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ObjectSchema } from "yup";
 
 interface FormikHelpers<T> {
@@ -8,7 +9,6 @@ interface FormikHelpers<T> {
 }
 
 type ValidationRule = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
 ) =>
   | string
@@ -17,8 +17,10 @@ type ValidationRule = (
   | Record<string, string | undefined>
   | Record<string, string | undefined>[];
 
+type CustomValidationSchema<T extends object> = Record<keyof T, ValidationRule>;
+
 type FormikValidationSchema<T extends object> =
   | ObjectSchema<T>
-  | Partial<Record<keyof T, ValidationRule>>;
+  | CustomValidationSchema<T>;
 
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;

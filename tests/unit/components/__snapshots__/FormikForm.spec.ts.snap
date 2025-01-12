@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`FormikForm > renders form 1`] = `"<form></form>"`;
+
+exports[`FormikForm > renders form with children 1`] = `"<form><input name="name"></form>"`;
+
+exports[`FormikForm > submit button calls formik.handleSubmit 1`] = `
+[
+  {
+    "name": "",
+  },
+  {
+    "reset": [Function],
+    "setErrors": [Function],
+    "setSubmitting": [Function],
+    "setValues": [Function],
+  },
+]
+`;
