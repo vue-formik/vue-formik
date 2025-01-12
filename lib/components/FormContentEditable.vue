@@ -12,6 +12,7 @@
       {{ label }}
     </label>
     <div class="vf-input">
+      <slot name="prepend" />
       <div
         :id="name"
         role="textbox"
@@ -37,10 +38,12 @@
         <span v-if="!hasValue">{{ placeholder }}</span
         >{{ inputValue }}
       </div>
+      <slot name="append" />
     </div>
     <p v-if="formik.hasFieldError(name)" class="vf--error" :id="name + '-error'">
       {{ formik.getFieldError(name) }}
     </p>
+    <slot />
   </div>
 </template>
 
