@@ -17,8 +17,8 @@ type ValidationRule = (
   | Record<string, string | undefined>
   | Record<string, string | undefined>[];
 
-type CustomValidationSchema<T extends object> = Record<keyof T, ValidationRule>;
+type CustomValidationSchema<T> = Partial<Record<keyof T, ValidationRule>>;
 
-type FormikValidationSchema<T extends object> = ObjectSchema<T> | CustomValidationSchema<T>;
+type FormikValidationSchema<T> = ObjectSchema<T> | CustomValidationSchema<T>;
 
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
