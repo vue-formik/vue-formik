@@ -2,8 +2,10 @@
 
 exports[`yupValidation > should validate array field with validation schema 1`] = `
 {
-  "contacts[0]": "Contact is required",
-  "contacts[1]": "Contact is required",
+  "contacts": [
+    "Contact is required",
+    "Contact is required",
+  ],
 }
 `;
 
@@ -15,16 +17,24 @@ exports[`yupValidation > should validate form with validation schema 1`] = `
 
 exports[`yupValidation > should validate object array field with validation schema 1`] = `
 {
-  "contacts[0].code": "Code is required",
-  "contacts[0].number": "Number is required",
-  "contacts[1].code": "Code is required",
-  "contacts[1].number": "Number is required",
+  "contacts": [
+    {
+      "code": "Code is required",
+      "number": "Number is required",
+    },
+    {
+      "code": "Code is required",
+      "number": "Number is required",
+    },
+  ],
 }
 `;
 
 exports[`yupValidation > should validate object field with validation schema 1`] = `
 {
-  "contact.code": "Code is required",
-  "contact.number": "Number is required",
+  "contact": {
+    "code": "Code is required",
+    "number": "Number is required",
+  },
 }
 `;

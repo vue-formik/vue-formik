@@ -12,7 +12,10 @@ exports[`FormikForm > submit button calls formik.handleSubmit 1`] = `
   {
     "reset": [Function],
     "setErrors": [Function],
+    "setFieldTouched": [Function],
+    "setFieldValue": [Function],
     "setSubmitting": [Function],
+    "setTouched": [Function],
     "setValues": [Function],
   },
 ]

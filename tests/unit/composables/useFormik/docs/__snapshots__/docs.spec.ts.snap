@@ -20,9 +20,15 @@ exports[`docs > custom validator 2`] = `{}`;
 
 exports[`docs > yup 1`] = `
 {
-  "addresses[0]": "Address is required",
-  "contacts[0].code": "Code is required",
-  "contacts[0].number": "Number is required",
+  "addresses": [
+    "Address is required",
+  ],
+  "contacts": [
+    {
+      "code": "Code is required",
+      "number": "Number is required",
+    },
+  ],
   "email": "Email is required",
   "name": "Name is required",
 }

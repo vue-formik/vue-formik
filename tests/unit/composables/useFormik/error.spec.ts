@@ -1,106 +1,222 @@
-import { describe, test, expect } from "vitest";
-import { useFormik } from "../../../../lib";
+import { describe, test, expect, vi } from "vitest";
 import { nextTick } from "vue";
-import {
-  initialValues1,
-  initialValues2,
-  validationSchema1,
-  validationSchema2,
-  validationSchema3,
-} from "./fixtures";
+import * as yup from "yup";
+import { useFormik } from "@/index";
 
-describe("useFormik error", async () => {
-  test("reactivity on values changes", async () => {
-    const { errors, setFieldValue } = useFormik({
-      initialValues: initialValues1,
-      validationSchema: validationSchema1,
+/**
+ * Test fixtures
+ */
+const complexSchema = yup.object({
+  user: yup.object({
+    name: yup.string().required("Name is required"),
+    email: yup.string().email("Invalid email").required("Email is required"),
+    age: yup.number().min(18, "Must be at least 18"),
+  }),
+  addresses: yup.array().of(
+    yup.object({
+      street: yup.string().required("Street is required"),
+      city: yup.string().required("City is required"),
+      country: yup.string().required("Country is required"),
+    })
+  ).min(1, "At least one address required"),
+  preferences: yup.object({
+    newsletter: yup.boolean(),
+    theme: yup.string().oneOf(["light", "dark"], "Invalid theme"),
+  }),
+});
+
+const initialComplexValues = {
+  user: {
+    name: "",
+    email: "",
+    age: 0,
+  },
+  addresses: [{
+    street: "",
+    city: "",
+    country: "",
+  }],
+  preferences: {
+    newsletter: false,
+    theme: "light",
+  },
+};
+
+describe("useFormik Error Handling", () => {
+  describe("Validation State Management", () => {
+    test("should track validation state correctly", async () => {
+      const formik = useFormik({
+        initialValues: initialComplexValues,
+        validationSchema: complexSchema,
+        validateOnMount: false,
+      });
+
+      expect(formik.isValidating.value).toBe(false);
+
+      // Trigger validation
+      formik.setFieldValue("user.email", "invalid-email");
+      await nextTick();
+
+      expect(formik.hasFieldError("user.email")).toBe(false);
+      formik.setFieldTouched("user.email", true);
+      await nextTick();
+      expect(formik.hasFieldError("user.email")).toBe(true);
+      expect(formik.getFieldError("user.email")).toBe("Invalid email");
     });
 
-    await nextTick();
-    expect(errors).toMatchSnapshot();
+    test("should handle multiple error states simultaneously", async () => {
+      const formik = useFormik({
+        initialValues: initialComplexValues,
+        validationSchema: complexSchema,
+      });
 
-    setFieldValue("email", "kiran");
-    await nextTick();
-    expect(errors).toMatchSnapshot();
+      // Set multiple invalid fields
+      formik.setFieldValue("user.email", "invalid");
+      formik.setFieldValue("user.age", 16);
+      formik.setFieldTouched("user.email", true);
+      formik.setFieldTouched("user.age", true);
+
+      await nextTick();
+
+      expect(formik.hasFieldError("user.email")).toBe(true);
+      expect(formik.hasFieldError("user.age")).toBe(true);
+      expect(formik.isValid.value).toBe(false);
+    });
   });
 
-  describe("getFieldError", async () => {
-    const sharedTouchedFields = [
-      ["names[0]"],
-      ["names[1]"],
-      ["contacts[0].code"],
-      ["contacts[0].number"],
-      ["address.state"],
-      ["address.city"],
-      ["address.country"],
-    ];
-    const commonErrors = [
-      { field: "names[0]", error: "This field is required" },
-      { field: "names[1]", error: "This field is required" },
-      { field: "contacts[0].code", error: "This field is required" },
-      { field: "contacts[0].number", error: "This field is required" },
-      { field: "address.state", error: "This field is required" },
-      { field: "address.city", error: "This field is required" },
-      { field: "address.country", error: "This field is required" },
-    ];
-
-    test.each([
-      {
-        description: "returns error message for Yup validation",
-        validationSchema: validationSchema2,
-        initialValues: { ...initialValues2 },
-        errors: commonErrors,
-        updatedFields: [
-          { field: "names[0]", value: "kiran", errorAfterUpdate: "" },
-          { field: "address.state", value: "Karnataka", errorAfterUpdate: "" },
-        ],
-      },
-      {
-        description: "returns error message for custom validation",
-        validationSchema: validationSchema3,
-        initialValues: { ...initialValues2 },
-        errors: commonErrors,
-        updatedFields: [
-          { field: "names[0]", value: "kiran", errorAfterUpdate: "" },
-          { field: "address.state", value: "Karnataka", errorAfterUpdate: "" },
-        ],
-      },
-    ])("$description", async ({ validationSchema, initialValues, errors, updatedFields }) => {
-      // cleanup code
-      initialValues.names[0] = "";
-      initialValues.address.state = "";
-
-      const { getFieldError, setFieldValue, setFieldTouched, reset } = useFormik({
-        initialValues,
-        validationSchema,
+  describe("Nested Object Validation", () => {
+    test("should validate nested object fields correctly", async () => {
+      const formik = useFormik({
+        initialValues: initialComplexValues,
+        validationSchema: complexSchema,
       });
 
-      sharedTouchedFields.forEach(([field]) => setFieldTouched(field, true));
-
+      formik.setFieldValue("user.name", "");
+      formik.setFieldTouched("user.name", true);
       await nextTick();
 
-      errors.forEach(({ field, error }) => {
-        expect(getFieldError(field)).toBe(error);
+      expect(formik.getFieldError("user.name")).toBe("Name is required");
+
+      formik.setFieldValue("user.name", "John");
+      await nextTick();
+      expect(formik.getFieldError("user.name")).toBe("");
+    });
+  });
+
+  describe("Array Field Validation", () => {
+    test("should validate array fields correctly", async () => {
+      const formik = useFormik({
+        initialValues: initialComplexValues,
+        validationSchema: complexSchema,
       });
 
-      for (const { field, value, errorAfterUpdate } of updatedFields) {
-        setFieldValue(field, value);
-        await nextTick();
-        expect(getFieldError(field)).toBe(errorAfterUpdate);
-      }
-      reset();
+      formik.setFieldTouched("addresses[0].street", true);
       await nextTick();
+      expect(formik.getFieldError("addresses[0].street")).toBe("Street is required");
+
+      formik.setFieldValue("addresses[0].street", "123 Main St");
+      await nextTick();
+      expect(formik.getFieldError("addresses[0].street")).toBe("");
+    });
+  });
+
+  describe("Error Clearing", () => {
+    test("should clear errors on reset", async () => {
+      const formik = useFormik({
+        initialValues: initialComplexValues,
+        validationSchema: complexSchema,
+      });
+
+      // Set some errors
+      formik.setFieldValue("user.email", "invalid");
+      formik.setFieldTouched("user.email", true);
+      await nextTick();
+      expect(formik.hasFieldError("user.email")).toBe(true);
+
+      // Reset form
+      formik.reset();
+      await nextTick();
+      expect(formik.hasFieldError("user.email")).toBe(false);
     });
 
-    test("if field is not touched, it should not show error", async () => {
-      const { getFieldError, setFieldTouched } = useFormik({
-        initialValues: { name: "", email: "" },
-        validationSchema: validationSchema1,
+    test("should clear specific field errors", async () => {
+      const formik = useFormik({
+        initialValues: initialComplexValues,
+        validationSchema: complexSchema,
       });
 
-      expect(getFieldError("name")).toBe("");
-      setFieldTouched("name", true);
-      expect(getFieldError("name")).toBe("This field is required");
+      // Set multiple errors
+      formik.setFieldValue("user.email", "invalid");
+      formik.setFieldValue("user.age", 16);
+      formik.setFieldTouched("user.email", true);
+      formik.setFieldTouched("user.age", true);
+      await nextTick();
+
+      // Fix one field
+      formik.setFieldValue("user.email", "valid@email.com");
+      await nextTick();
+
+      expect(formik.hasFieldError("user.email")).toBe(false);
+      expect(formik.hasFieldError("user.age")).toBe(true);
+    });
+  });
+
+  describe("Submit Validation", () => {
+    test("should validate all fields on submit", async () => {
+      const onSubmit = vi.fn();
+      const formik = useFormik({
+        initialValues: initialComplexValues,
+        validationSchema: complexSchema,
+        onSubmit,
+      });
+
+      formik.handleSubmit();
+      await nextTick();
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(formik.isValid.value).toBe(false);
+
+      // Fix required fields
+      formik.setFieldValue("user.name", "John");
+      formik.setFieldValue("user.email", "john@example.com");
+      formik.setFieldValue("user.age", 20);
+      formik.setFieldValue("addresses[0].street", "123 Main St");
+      formik.setFieldValue("addresses[0].city", "Boston");
+      formik.setFieldValue("addresses[0].country", "USA");
+
+      await nextTick();
+      formik.handleSubmit();
+      await nextTick();
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("Custom Validation", () => {
+    test("should handle custom validation functions", async () => {
+      const customValidation = {
+        "user.password": (value: string) =>
+          !value ? "Password required" :
+            value.length < 8 ? "Password too short" :
+              undefined
+      };
+
+      const formik = useFormik({
+        initialValues: { user: { password: "" } },
+        validationSchema: customValidation,
+      });
+
+      formik.setFieldTouched("user.password", true);
+      await nextTick();
+      expect(formik.getFieldError("user.password")).toBe("Password required");
+
+      formik.setFieldValue("user.password", "123");
+      await nextTick();
+      expect(formik.getFieldError("user.password")).toBe("Password too short");
+
+      formik.setFieldValue("user.password", "12345678");
+      await nextTick();
+      expect(formik.getFieldError("user.password")).toBe("");
     });
   });
 });

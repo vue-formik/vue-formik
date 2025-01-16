@@ -1,8 +1,16 @@
-import { computed, reactive, toRaw, watch, ref } from "vue";
+import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
 import { ObjectSchema } from "yup";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
 import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema } from "@/types";
 
+/**
+ * Type for form field events
+ */
+type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+/**
+ * Enhanced Formik-like form management hook for Vue
+ */
 const useFormik = <T extends object>({
   initialValues,
   validationSchema,
@@ -16,194 +24,254 @@ const useFormik = <T extends object>({
   onSubmit?: FormikOnSubmit<T>;
   validationSchema?: FormikValidationSchema<T>;
 }) => {
+  // Refs for tracking form state
   const isSubmitting = ref(false);
-  const initialValuesRef = ref({ ...initialValues });
+  const initialValuesRef = ref<T>({ ...initialValues });
+  const isValidating = ref(false);
+  const submitCount = ref(0);
 
+  /**
+   * Enhanced validation function with better error handling
+   */
   const validate = (values: T): Partial<Record<keyof T, unknown>> => {
     const validationErrors: Partial<Record<keyof T, unknown>> = {};
 
+    if (!validationSchema) {
+      return validationErrors;
+    }
+
     if (
-      typeof validationSchema === "object" &&
-      (validationSchema instanceof ObjectSchema ||
-        ("type" in validationSchema && validationSchema.type === "object"))
+      // Yup Object Schema
+      (typeof validationSchema === "object" &&
+        "type" in validationSchema &&
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (validationSchema as any).type === "object")
     ) {
       try {
         const vSchema = validationSchema as ObjectSchema<T>;
         vSchema.validateSync(values, { abortEarly: false });
       } catch (e) {
-        const err = e as never as { inner: { path: string; message: string }[] };
-        if (typeof err === "object" && Array.isArray(err?.inner)) {
-          err.inner.forEach((error) => {
-            validationErrors[error.path as keyof T] = error.message;
+        const err = e as { inner?: Array<{ path: string; message: string }> };
+        if (err?.inner?.length) {
+          err.inner.forEach(({ path, message }) => {
+            updateNestedProperty(validationErrors as Record<string, unknown>, path, message);
           });
         }
       }
-    } else if (typeof validationSchema === "object" && Object.keys(validationSchema).length > 0) {
-      for (const key in validationSchema) {
-        const value = values[key as keyof T];
-        const rules = validationSchema[key as keyof T];
-
+    } else if (typeof validationSchema === "object") {
+      Object.entries(validationSchema).forEach(([key, rules]) => {
         if (typeof rules === "function") {
+          const value = getNestedValue(values as Record<string, unknown>, key);
           const error = rules(value);
           if (error) {
-            validationErrors[key as keyof T] = error;
+            updateNestedProperty(validationErrors as Record<string, unknown>, key, error);
           }
         }
-      }
+      });
     }
+
     return validationErrors;
   };
 
-  const values = reactive({ ...initialValues });
+  // Reactive form state
+  const values = reactive<T>({ ...initialValues });
   const errors = reactive<Partial<Record<keyof T, unknown>>>({});
   const touched = reactive<Partial<Record<keyof T, unknown>>>({});
 
-  const isValid = computed(() => {
-    return Object.keys(errors).length === 0;
-  });
+  // Computed properties for form state
+  const isValid = computed(() => Object.keys(errors).length === 0);
+  const isDirty = computed(() => JSON.stringify(values) !== JSON.stringify(initialValuesRef.value));
 
-  const isDirty = computed(() => {
-    return JSON.stringify(values) !== JSON.stringify(initialValuesRef.value);
-  });
-
+  /**
+   * Enhanced state setters with type safety
+   */
   const setValues = (newValues: Partial<T>) => {
     Object.assign(values, newValues);
   };
 
-  const setErrors = (newErrors: object) => {
+  const setErrors = (newErrors: Partial<Record<keyof T, unknown>>) => {
+    clearReactiveObject(errors);
     Object.assign(errors, newErrors);
   };
 
-  const setTouched = (newTouched: object) => {
+  const setTouched = (newTouched: Partial<Record<keyof T, unknown>>) => {
+    clearReactiveObject(touched);
     Object.assign(touched, newTouched);
   };
 
-  const reset = ({
-    values,
-  }: {
+  /**
+   * Enhanced reset function with better type safety
+   */
+  const reset = ({ values: newValues, keepTouched = false }: {
     values?: Partial<T>;
+    keepTouched?: boolean;
   } = {}) => {
-    if (!values) {
-      values = { ...initialValuesRef.value };
+    const resetValues = newValues || { ...initialValuesRef.value };
+    setValues({ ...resetValues });
+    Object.assign(initialValuesRef.value, resetValues);
+    if (!keepTouched) {
+      clearReactiveObject(touched);
     }
-    setValues({ ...values });
-    Object.assign(initialValuesRef.value, values);
-    clearReactiveObject(touched);
+    submitCount.value = 0;
   };
 
+  /**
+   * Enhanced field manipulation functions
+   */
   const setFieldValue = (field: string, value: unknown) => {
-    updateNestedProperty(values as Record<string, unknown>, field as string, value);
+    updateNestedProperty(values as Record<string, unknown>, field, value);
   };
 
-  const setFieldTouched = (field: string, touchedValue: boolean) => {
-    updateNestedProperty(touched as Record<string, unknown>, field as string, touchedValue);
+  const setFieldTouched = (field: string, isTouched: boolean) => {
+    updateNestedProperty(touched as Record<string, unknown>, field, isTouched);
   };
 
   const setSubmitting = (value: boolean) => {
     isSubmitting.value = value;
   };
 
-  const handleSubmit = (e: Event) => {
-    if (typeof onSubmit !== "function") {
-      return;
-    }
+  /**
+   * Enhanced submit handler with better error handling
+   */
+  const handleSubmit = (e?: Event) => {
+    if (typeof onSubmit !== "function") return;
+
     if (preventDefault && e) {
       e.preventDefault();
     }
+
+    submitCount.value++;
     setSubmitting(true);
-    onSubmit(
-      toRaw(values) as T,
-      {
-        reset,
-        setErrors,
-        setValues,
-        setSubmitting,
-      } as FormikHelpers<T>,
-    );
+    isValidating.value = true;
+
+    try {
+      const validationErrors = validate(toRaw(values) as T);
+      setErrors(validationErrors);
+
+      if (Object.keys(validationErrors).length === 0) {
+        onSubmit(
+          toRaw(values) as T,
+          {
+            reset,
+            setErrors,
+            setValues,
+            setSubmitting,
+            setTouched,
+            setFieldValue,
+            setFieldTouched,
+          } as FormikHelpers<T>,
+        );
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+    } finally {
+      isValidating.value = false;
+    }
   };
 
+  /**
+   * Enhanced field event handlers
+   */
   const handleFieldBlur = (e: FocusEvent) => {
-    const fieldName = (e.target as HTMLInputElement).name;
-    setFieldTouched(fieldName, true);
+    const target = e.target as FieldElement;
+    setFieldTouched(target.name, true);
   };
 
   const handleFieldChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const value = target.type === "checkbox" ? target.checked : target.value;
 
-    setFieldValue(target.name, value as T[keyof T]);
+    setFieldValue(target.name, value);
     setFieldTouched(target.name, true);
   };
 
-  const performCheck = () => {
+  /**
+   * Enhanced validation handling
+   */
+  const performValidation = () => {
+    isValidating.value = true;
     const validationErrors = validate(toRaw(values) as T);
-
-    // Clear existing errors
-    Object.keys(errors).forEach((key) => {
-      delete (errors as Partial<Record<keyof T, string>>)[key as keyof T];
-    });
-
-    // Assign new validation errors
+    clearReactiveObject(errors);
     Object.assign(errors, validationErrors);
+    isValidating.value = false;
   };
 
   if (validateOnMount) {
-    performCheck();
+    performValidation();
   }
 
+  // Debounced validation on value changes
   watch(
     () => values,
     () => {
-      performCheck();
+      performValidation();
     },
     { deep: true },
   );
 
-  const hasFieldError = (field: string) => {
-    const errorValue = getNestedValue(errors, field);
-    const touchedValue = getNestedValue(touched, field);
-
-    return errorValue !== undefined && touchedValue !== undefined && errorValue && !!touchedValue;
+  /**
+   * Enhanced field state getters
+   */
+  const hasFieldError = (field: string): boolean => {
+    const errorValue = getNestedValue(errors as Record<string, unknown>, field);
+    const touchedValue = getNestedValue(touched as Record<string, unknown>, field);
+    return Boolean(errorValue && touchedValue);
   };
 
   const getFieldError = (field: string) => {
     if (hasFieldError(field)) {
-      return getNestedValue(errors, field);
+      return getNestedValue(errors as Record<string, unknown>, field)
     } else {
-      return "";
+      return ''
     }
   };
 
-  const getFieldValue = (field: string) => {
-    return getNestedValue(values, field);
+  const getFieldValue = <K extends keyof UnwrapRef<T>>(field: K | string) => {
+    return getNestedValue(values as Record<string, unknown>, field as string);
   };
 
+  /**
+   * Computed field handlers for component binding
+   */
   const fieldHandlers = computed(() => ({
     onBlur: handleFieldBlur,
     onChange: handleFieldChange,
   }));
 
   return {
+    // Form State
     values,
     errors,
     touched,
     isValid,
     isDirty,
-    fieldHandlers,
     isSubmitting,
+    isValidating,
+    submitCount,
+
+    // Field Handlers
+    fieldHandlers,
+
+    // State Setters
     setValues,
     setErrors,
     setTouched,
-    reset,
     setFieldValue,
     setFieldTouched,
+    setSubmitting,
+
+    // Form Actions
+    reset,
+    handleSubmit,
+
+    // Field Event Handlers
     handleFieldBlur,
     handleFieldChange,
-    handleSubmit,
+
+    // Field State Getters
     hasFieldError,
     getFieldError,
     getFieldValue,
-    setSubmitting,
   };
 };
 
