@@ -42,10 +42,7 @@
     </div>
 
     <template v-if="hasError">
-      <p
-        v-if="typeof getError === 'string'"
-        class="vf-error" :id="name + '-error'"
-      >
+      <p v-if="typeof getError === 'string'" class="vf-error" :id="name + '-error'">
         {{ getError }}
       </p>
       <template v-else-if="Array.isArray(getError)">

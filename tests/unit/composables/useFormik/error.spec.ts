@@ -12,13 +12,16 @@ const complexSchema = yup.object({
     email: yup.string().email("Invalid email").required("Email is required"),
     age: yup.number().min(18, "Must be at least 18"),
   }),
-  addresses: yup.array().of(
-    yup.object({
-      street: yup.string().required("Street is required"),
-      city: yup.string().required("City is required"),
-      country: yup.string().required("Country is required"),
-    })
-  ).min(1, "At least one address required"),
+  addresses: yup
+    .array()
+    .of(
+      yup.object({
+        street: yup.string().required("Street is required"),
+        city: yup.string().required("City is required"),
+        country: yup.string().required("Country is required"),
+      }),
+    )
+    .min(1, "At least one address required"),
   preferences: yup.object({
     newsletter: yup.boolean(),
     theme: yup.string().oneOf(["light", "dark"], "Invalid theme"),
@@ -31,11 +34,13 @@ const initialComplexValues = {
     email: "",
     age: 0,
   },
-  addresses: [{
-    street: "",
-    city: "",
-    country: "",
-  }],
+  addresses: [
+    {
+      street: "",
+      city: "",
+      country: "",
+    },
+  ],
   preferences: {
     newsletter: false,
     theme: "light",
@@ -196,9 +201,7 @@ describe("useFormik Error Handling", () => {
     test("should handle custom validation functions", async () => {
       const customValidation = {
         "user.password": (value: string) =>
-          !value ? "Password required" :
-            value.length < 8 ? "Password too short" :
-              undefined
+          !value ? "Password required" : value.length < 8 ? "Password too short" : undefined,
       };
 
       const formik = useFormik({

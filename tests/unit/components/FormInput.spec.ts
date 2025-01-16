@@ -5,7 +5,6 @@ import FormInput from "@/components/FormInput.vue";
 import useFormik from "@/composables/useFormik";
 import { nextTick } from "vue";
 
-
 describe("FormInput", async () => {
   const formik = useFormik({
     initialValues: {
@@ -14,7 +13,7 @@ describe("FormInput", async () => {
       contact: {
         code: "",
         number: "",
-      }
+      },
     },
     validationSchema: {
       fullName: (value: string) => {
@@ -28,13 +27,13 @@ describe("FormInput", async () => {
           return "Full Name is invalid";
         }
       },
-      addresses: ((values: string[]) => {
+      addresses: (values: string[]) => {
         if (!values.length) {
           return "Addresses is required";
         }
-        const errors: string[][]  = []
+        const errors: string[][] = [];
         values.forEach((value) => {
-          const e: string[] = []
+          const e: string[] = [];
           if (!value) {
             e.push("Address is required");
           }
@@ -45,15 +44,15 @@ describe("FormInput", async () => {
             e.push("Address is invalid");
           }
 
-          errors.push(e)
-        })
+          errors.push(e);
+        });
         return errors;
-      }),
-      contact: (value: { code: string, number: string }) => {
+      },
+      contact: (value: { code: string; number: string }) => {
         const err = {
           code: "",
           number: "",
-        }
+        };
         if (!value.code) {
           err.code = "Code is required";
         }
@@ -67,9 +66,9 @@ describe("FormInput", async () => {
           err.number = "Number is too short";
         }
         return err;
-      }
-    }
-  })
+      },
+    },
+  });
 
   let wrapper: VueWrapper<unknown>;
 
@@ -81,7 +80,7 @@ describe("FormInput", async () => {
         formik,
       },
     });
-  })
+  });
 
   test("renders input", () => {
     expect(wrapper.html()).toMatchSnapshot();
@@ -91,20 +90,20 @@ describe("FormInput", async () => {
     wrapper.find("input").setValue("John Doe");
     expect(formik.values.fullName).toBe("John Doe");
     expect(wrapper.find("input").element.value).toBe("John Doe");
-  })
+  });
 
   test("renders label", async () => {
     await wrapper.setProps({ label: "Full Name" });
-    await nextTick()
+    await nextTick();
     expect(wrapper.html()).toMatchSnapshot();
   });
 
   test("shows error message on blur", async () => {
-    await wrapper.find("input").setValue("")
+    await wrapper.find("input").setValue("");
     await wrapper.find("input").trigger("blur");
     await nextTick();
     expect(wrapper.html()).toMatchSnapshot();
-  })
+  });
 
   describe("Field with array index", () => {
     beforeEach(() => {
@@ -114,7 +113,7 @@ describe("FormInput", async () => {
           formik: formik,
         },
       });
-    })
+    });
 
     test("renders input", () => {
       expect(wrapper.html()).toMatchSnapshot();
@@ -126,14 +125,14 @@ describe("FormInput", async () => {
       expect(wrapper.html()).toMatchSnapshot();
       await wrapper.find("input").setValue("$%");
       expect(wrapper.html()).toMatchSnapshot();
-    })
+    });
 
     test("handleChange", () => {
       wrapper.find("input").setValue("123 Main St");
       expect(formik.values.addresses[0]).toBe("123 Main St");
       expect(wrapper.find("input").element.value).toBe("123 Main St");
-    })
-  })
+    });
+  });
 
   describe("Field with object type", () => {
     beforeEach(() => {
@@ -143,7 +142,7 @@ describe("FormInput", async () => {
           formik: formik,
         },
       });
-    })
+    });
 
     test("renders input", () => {
       expect(wrapper.html()).toMatchSnapshot();
@@ -155,29 +154,29 @@ describe("FormInput", async () => {
       expect(wrapper.html()).toMatchSnapshot();
       await wrapper.find("input").setValue("123");
       expect(wrapper.html()).toMatchSnapshot();
-    })
+    });
 
     test("handleChange", () => {
       wrapper.find("input").setValue("123");
       expect(formik.values.contact.code).toBe("123");
       expect(wrapper.find("input").element.value).toBe("123");
-    })
-  })
+    });
+  });
 
   describe("type class", () => {
     test("default", () => {
       expect(wrapper.classes()).toContain("vf-text-field");
-    })
+    });
     test("password", async () => {
       await wrapper.setProps({ type: "password" });
       expect(wrapper.classes()).toContain("vf-password-field");
       expect(wrapper.classes()).not.toContain("vf-text-field");
-    })
-  })
+    });
+  });
 
   test("required prop", async () => {
     await wrapper.setProps({ required: true });
     await nextTick();
     expect(wrapper.html()).toMatchSnapshot();
-  })
+  });
 });

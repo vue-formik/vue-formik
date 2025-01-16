@@ -42,10 +42,10 @@ const useFormik = <T extends object>({
 
     if (
       // Yup Object Schema
-      (typeof validationSchema === "object" &&
-        "type" in validationSchema &&
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (validationSchema as any).type === "object")
+      typeof validationSchema === "object" &&
+      "type" in validationSchema &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (validationSchema as any).type === "object"
     ) {
       try {
         const vSchema = validationSchema as ObjectSchema<T>;
@@ -102,7 +102,10 @@ const useFormik = <T extends object>({
   /**
    * Enhanced reset function with better type safety
    */
-  const reset = ({ values: newValues, keepTouched = false }: {
+  const reset = ({
+    values: newValues,
+    keepTouched = false,
+  }: {
     values?: Partial<T>;
     keepTouched?: boolean;
   } = {}) => {
@@ -163,7 +166,7 @@ const useFormik = <T extends object>({
         );
       }
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error("Form submission error:", error);
     } finally {
       isValidating.value = false;
     }
@@ -220,9 +223,9 @@ const useFormik = <T extends object>({
 
   const getFieldError = (field: string) => {
     if (hasFieldError(field)) {
-      return getNestedValue(errors as Record<string, unknown>, field)
+      return getNestedValue(errors as Record<string, unknown>, field);
     } else {
-      return ''
+      return "";
     }
   };
 

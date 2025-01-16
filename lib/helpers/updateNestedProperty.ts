@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-type PropertyPath<T> = keyof T | `${keyof T & string}.${string}` | `${keyof T & string}[${number}]${string}`;
+type PropertyPath<T> =
+  | keyof T
+  | `${keyof T & string}.${string}`
+  | `${keyof T & string}[${number}]${string}`;
 
 /**
  * Updates a nested property in an object using a dot notation path with array support
@@ -14,15 +17,15 @@ type PropertyPath<T> = keyof T | `${keyof T & string}.${string}` | `${keyof T & 
 const updateNestedProperty = <T extends Record<string, any>, V>(
   obj: T,
   path: PropertyPath<T>,
-  value: V
+  value: V,
 ): T => {
   // Input validation
   if (obj == null) {
-    throw new Error('Object cannot be null or undefined');
+    throw new Error("Object cannot be null or undefined");
   }
 
   if (!path) {
-    throw new Error('Path cannot be empty');
+    throw new Error("Path cannot be empty");
   }
 
   // Cache frequently used regex
@@ -49,7 +52,7 @@ const updateNestedProperty = <T extends Record<string, any>, V>(
     current: any,
     pathSegment: string,
     remainingPath: string,
-    finalValue: V
+    finalValue: V,
   ): void => {
     const arrayMatch = pathSegment.match(arrayPattern);
 
@@ -66,11 +69,16 @@ const updateNestedProperty = <T extends Record<string, any>, V>(
 
       if (rest || remainingPath) {
         // More nested paths to process
-        const nextPath = (rest + (remainingPath ? '.' + remainingPath : '')).replace(/^\./, '');
+        const nextPath = (rest + (remainingPath ? "." + remainingPath : "")).replace(/^\./, "");
         if (!current[key][index]) {
           current[key][index] = {};
         }
-        updateRecursive(current[key][index], nextPath.split('.')[0], nextPath.split('.').slice(1).join('.'), finalValue);
+        updateRecursive(
+          current[key][index],
+          nextPath.split(".")[0],
+          nextPath.split(".").slice(1).join("."),
+          finalValue,
+        );
       } else {
         // Direct array update
         current[key][index] = finalValue;
@@ -82,7 +90,12 @@ const updateNestedProperty = <T extends Record<string, any>, V>(
         if (!(pathSegment in current)) {
           current[pathSegment] = {};
         }
-        updateRecursive(current[pathSegment], remainingPath.split('.')[0], remainingPath.split('.').slice(1).join('.'), finalValue);
+        updateRecursive(
+          current[pathSegment],
+          remainingPath.split(".")[0],
+          remainingPath.split(".").slice(1).join("."),
+          finalValue,
+        );
       } else {
         // Direct property update
         updateSingleKey(current, pathSegment, finalValue);
@@ -91,8 +104,8 @@ const updateNestedProperty = <T extends Record<string, any>, V>(
   };
 
   // Start the recursive update process
-  const [firstKey, ...restKeys] = path.toString().split('.');
-  updateRecursive(obj, firstKey, restKeys.join('.'), value);
+  const [firstKey, ...restKeys] = path.toString().split(".");
+  updateRecursive(obj, firstKey, restKeys.join("."), value);
 
   return obj;
 };

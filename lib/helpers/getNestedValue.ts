@@ -1,23 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-type NestedPaths<T> = T extends object ? {
-  [K in keyof T]: K extends string | number
-    ? `${K}` | `${K}.${NestedPaths<T[K]>}` | (T[K] extends (infer U)[] ? `${K}[${number}]` | `${K}[${number}].${NestedPaths<U>}` : never)
-    : never;
-}[keyof T] : never;
+type NestedPaths<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string | number
+        ?
+            | `${K}`
+            | `${K}.${NestedPaths<T[K]>}`
+            | (T[K] extends (infer U)[]
+                ? `${K}[${number}]` | `${K}[${number}].${NestedPaths<U>}`
+                : never)
+        : never;
+    }[keyof T]
+  : never;
 
 type NestedValue<T, P extends string> = P extends keyof T
   ? T[P]
   : P extends `${infer K}.${infer R}`
     ? K extends keyof T
       ? NestedValue<T[K], R>
-      : K extends `${infer A}[${infer I}]`
+      : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        K extends `${infer A}[${infer I}]`
         ? A extends keyof T
           ? T[A] extends (infer U)[]
             ? NestedValue<U, R>
             : undefined
           : undefined
         : undefined
-    : P extends `${infer A}[${infer I}]`
+    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      P extends `${infer A}[${infer I}]`
       ? A extends keyof T
         ? T[A] extends (infer U)[]
           ? U
@@ -35,7 +44,7 @@ type NestedValue<T, P extends string> = P extends keyof T
  */
 const getNestedValue = <T extends object, P extends NestedPaths<T>>(
   obj: T,
-  path: P
+  path: P,
 ): NestedValue<T, P> | undefined => {
   // Early return for invalid inputs
   if (obj == null) {
@@ -61,9 +70,9 @@ const getNestedValue = <T extends object, P extends NestedPaths<T>>(
     if (match) {
       const [, key, indexStr, rest] = match;
       return {
-        key: key || '',
+        key: key || "",
         index: parseInt(indexStr, 10),
-        rest: rest || undefined
+        rest: rest || undefined,
       };
     }
     return { key: segment };
@@ -93,8 +102,8 @@ const getNestedValue = <T extends object, P extends NestedPaths<T>>(
 
     // Handle remaining path
     if (rest || remainingPath) {
-      const nextPath = (rest ? rest : '') + (remainingPath ? '.' + remainingPath : '');
-      return nextPath.startsWith('.')
+      const nextPath = (rest ? rest : "") + (remainingPath ? "." + remainingPath : "");
+      return nextPath.startsWith(".")
         ? getValueRecursive(nextValue, nextPath.slice(1))
         : getValueRecursive(nextValue, nextPath);
     }
@@ -103,8 +112,8 @@ const getNestedValue = <T extends object, P extends NestedPaths<T>>(
   };
 
   // Split path and start recursive process
-  const [firstKey, ...restKeys] = path.split('.');
-  return getValueRecursive(obj, firstKey, restKeys.join('.')) as NestedValue<T, P>;
+  const [firstKey, ...restKeys] = path.split(".");
+  return getValueRecursive(obj, firstKey, restKeys.join(".")) as NestedValue<T, P>;
 };
 
 export default getNestedValue;
