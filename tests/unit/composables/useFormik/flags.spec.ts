@@ -60,16 +60,17 @@ describe("useFormik flags", async () => {
         validationSchema: {
           contacts: (value: { code: string; number: string }) => {
             if (!value.code) {
-              return "Code is required";
+              return { code: "Code is required" };
             }
             if (!value.number) {
-              return "Number is required";
+              return { number: "Number is required" };
             }
           },
         },
       });
       expect(isValid.value).toBe(false);
-      setFieldValue("contacts", { code: "+91", number: "9856256525" });
+      setFieldValue("contacts.code", "+91");
+      setFieldValue("contacts.number", "9856256525");
       await nextTick();
       expect(isValid.value).toBe(true);
     });

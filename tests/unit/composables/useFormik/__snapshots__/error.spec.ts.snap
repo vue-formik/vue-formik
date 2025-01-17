@@ -9,7 +9,7 @@ exports[`useFormik error > reactivity on values changes 1`] = `
 
 exports[`useFormik error > reactivity on values changes 2`] = `
 {
-  "email": "Invalid email",
+  "email": "This field is required.",
   "name": "This field is required",
 }
 `;

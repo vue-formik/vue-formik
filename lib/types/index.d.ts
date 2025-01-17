@@ -12,12 +12,13 @@ type ValidationRule = (
   value: any,
 ) =>
   | string
+  | string[][]
   | undefined
   | (string | undefined)[]
   | Record<string, string | undefined>
   | Record<string, string | undefined>[];
 
-type CustomValidationSchema<T> = Partial<Record<keyof T, ValidationRule>>;
+type CustomValidationSchema<T> = Partial<Record<keyof T | string, ValidationRule>>;
 
 type FormikValidationSchema<T> = ObjectSchema<T> | CustomValidationSchema<T>;
 
