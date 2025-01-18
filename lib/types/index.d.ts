@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
-import { ZodObject, ZodType } from "zod";
+import { ZodType } from "zod";
 import useFormik from "@/composables/useFormik";
 
 interface FormikHelpers<T> {

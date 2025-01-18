@@ -1,7 +1,7 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
 import { ObjectSchema as YupObjectSchema } from "yup";
 import { ObjectSchema as JoiObjectSchema } from "joi";
-import { ZodObject, ZodSchema, ZodType } from "zod";
+import { ZodType } from "zod";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
 import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema, FormikMode } from "@/types";
 
