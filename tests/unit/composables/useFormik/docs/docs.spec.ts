@@ -7,6 +7,7 @@ describe("docs", () => {
     const { values, errors, touched } = useFormik({
       initialValues: InitialValues,
       validationSchema: ValidationSchemaYup,
+      mode: "YUP",
     });
 
     expect(values).toEqual(InitialValues);
