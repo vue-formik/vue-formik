@@ -2,6 +2,7 @@
 import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
 import { ZodObject, ZodType } from "zod";
+import useFormik from "@/composables/useFormik";
 
 interface FormikHelpers<T> {
   reset: () => void;
@@ -27,3 +28,9 @@ type FormikValidationSchema<T> = YupSchema<T> | JoiSchema<T> | ZodType<T> | Cust
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
 
 type FormikMode = "YUP" | "JOI" | "JOD" | "CUSTOM";
+
+// Useful for component prop definition
+interface AnyFormValues {
+  [key: string]: unknown;
+}
+type Formik = ReturnType<typeof useFormik<AnyFormValues>>;

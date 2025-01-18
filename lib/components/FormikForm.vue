@@ -1,13 +1,19 @@
 <script setup lang="ts">
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import useFormik from "@/composables/useFormik";
+import { Formik } from "@/types";
+import useFormikContext from "@/composables/useFormikContext";
 
-defineProps<{
-  formik: ReturnType<typeof useFormik<any>>;
+const props = defineProps<{
+  formik?: Formik;
 }>();
+
+const { formik: fk } = useFormikContext(props.formik);
 </script>
 <template>
-  <form @submit="formik.handleSubmit">
+  <form
+    class="vf-form"
+    v-bind="$attrs"
+    @submit="fk?.handleSubmit"
+  >
     <slot />
   </form>
 </template>

@@ -19,7 +19,7 @@ const useFormik = <T extends object>({
   onSubmit,
   validateOnMount = true,
   preventDefault = true,
-  mode = "YUP",
+  mode = "CUSTOM",
 }: {
   initialValues: T;
   validateOnMount?: boolean;
