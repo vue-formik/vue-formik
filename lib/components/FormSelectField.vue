@@ -2,11 +2,11 @@
   <div
     :class="{
       'vf-field vf-select-field': true,
-      'vf-field--error': formik.hasFieldError(name),
+      'vf-field--error': fk?.hasFieldError(name),
     }"
   >
     <label v-if="label" :for="name" :id="name + '-label'">
-      {{ label }}
+      {{ constructLabel(label, required) }}
     </label>
     <div class="vf-input">
       <slot name="prepend" />
@@ -15,17 +15,18 @@
         :name="name"
         :value="inputValue"
         @change="handleFieldChange"
-        @blur="formik.handleFieldBlur"
+        @blur="fk?.handleFieldBlur"
         :class="{
-          'vf-input--error': formik.hasFieldError(name),
+          'vf-input--error': fk?.hasFieldError(name),
           'vf-input--disabled': disabled,
         }"
         :disabled="disabled"
+        :required="required"
         v-bind="inputProps"
         :aria-labelledby="label ? name + '-label' : undefined"
-        :aria-describedby="formik.hasFieldError(name) ? name + '-error' : undefined"
-        :aria-invalid="formik.hasFieldError(name) ? 'true' : 'false'"
-        :aria-required="inputProps?.required ? 'true' : undefined"
+        :aria-describedby="fk?.hasFieldError(name) ? name + '-error' : undefined"
+        :aria-invalid="fk?.hasFieldError(name) ? 'true' : 'false'"
+        :aria-required="required ? 'true' : undefined"
         :aria-disabled="disabled ? 'true' : undefined"
       >
         <option v-if="placeholder" disabled value="">
@@ -37,32 +38,36 @@
       </select>
       <slot name="append" />
     </div>
-    <p v-if="formik.hasFieldError(name)" class="vf-error" :id="name + '-error'">
-      {{ formik.getFieldError(name) }}
+    <p v-if="fk?.hasFieldError(name)" class="vf-error" :id="name + '-error'">
+      {{ fk?.getFieldError(name) }}
     </p>
     <slot />
   </div>
 </template>
 
 <script lang="ts" setup>
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { computed } from "vue";
-import useFormik from "@/composables/useFormik";
+import { Formik } from "@/types";
+import useFormikContext from "@/composables/useFormikContext";
+import { constructLabel } from "@/helpers";
 
 const props = defineProps<{
-  formik: ReturnType<typeof useFormik<any>>;
+  formik?: Formik;
   name: string;
   label?: string;
   options: Array<{ label: string; value: string | number }>;
   placeholder?: string;
-  inputProps?: Record<string, any>;
+  inputProps?: Record<keyof HTMLSelectElement, never>;
   disabled?: boolean;
+  required?: boolean;
 }>();
 
-const inputValue = computed(() => props.formik.getFieldValue(props.name) as string);
+const { formik: fk } = useFormikContext(props.formik);
+
+const inputValue = computed(() => fk?.getFieldValue(props.name) as string);
 
 const handleFieldChange = (e: Event) => {
   const value = (e.target as HTMLSelectElement).value;
-  props.formik.setFieldValue(props.name, value);
+  fk?.setFieldValue(props.name, value);
 };
 </script>

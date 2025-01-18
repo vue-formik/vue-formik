@@ -7,7 +7,7 @@
     }"
   >
     <label v-if="label" :for="name" :id="name + '-label'">
-      {{ label }}
+      {{ constructLabel(label, required) }}
     </label>
 
     <div class="vf-input">
@@ -23,7 +23,7 @@
         :required="required"
         :disabled="disabled"
         @input="handleInput"
-        @blur="formik.handleFieldBlur"
+        @blur="fk?.handleFieldBlur"
         :class="{
           'vf-input--error': hasError,
           'vf-input--readonly': readonly,
@@ -59,12 +59,15 @@
 </template>
 
 <script lang="ts" setup>
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import useFormik from "@/composables/useFormik";
 import { computed } from "vue";
+import { Formik } from "@/types";
+import useFormikContext from "@/composables/useFormikContext";
+import { constructLabel } from "@/helpers";
+
+type InputProps = Record<keyof HTMLInputElement, never>;
 
 const props = defineProps<{
-  formik: ReturnType<typeof useFormik<any>>;
+  formik?: Formik;
   name: string;
   label?: string;
   type?: string;
@@ -72,18 +75,20 @@ const props = defineProps<{
   readonly?: boolean;
   disabled?: boolean;
   required?: boolean;
-  inputProps?: Record<keyof HTMLInputElement, any>;
+  inputProps?: InputProps;
 }>();
 
-const inputValue = computed(() => props.formik.getFieldValue(props.name) as string);
+const { formik: fk } = useFormikContext(props.formik);
+
+const inputValue = computed(() => fk?.getFieldValue(props.name) as string);
 
 const handleInput = (e: Event) => {
   const value = (e.target as HTMLInputElement).value;
-  props.formik.setFieldValue(props.name, value);
+  fk?.setFieldValue(props.name, value);
 };
 
 const typeClass = computed(() => `vf-${props.type || "text"}-field`);
 
-const hasError = computed(() => props.formik.hasFieldError(props.name));
-const getError = computed(() => props.formik.getFieldError(props.name));
+const hasError = computed(() => fk?.hasFieldError(props.name));
+const getError = computed(() => fk?.getFieldError(props.name));
 </script>

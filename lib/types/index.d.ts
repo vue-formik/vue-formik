@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ObjectSchema } from "yup";
+import { ObjectSchema as YupSchema } from "yup";
+import { ObjectSchema as JoiSchema } from "joi";
+import { ZodType } from "zod";
+import useFormik from "@/composables/useFormik";
 
 interface FormikHelpers<T> {
   reset: () => void;
@@ -20,6 +23,18 @@ type ValidationRule = (
 
 type CustomValidationSchema<T> = Partial<Record<keyof T | string, ValidationRule>>;
 
-type FormikValidationSchema<T> = ObjectSchema<T> | CustomValidationSchema<T>;
+type FormikValidationSchema<T> =
+  | YupSchema<T>
+  | JoiSchema<T>
+  | ZodType<T>
+  | CustomValidationSchema<T>;
 
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
+
+type FormikMode = "YUP" | "JOI" | "JOD" | "CUSTOM";
+
+// Useful for component prop definition
+interface AnyFormValues {
+  [key: string]: unknown;
+}
+type Formik = ReturnType<typeof useFormik<AnyFormValues>>;

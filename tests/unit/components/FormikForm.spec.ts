@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { FormikForm, useFormik } from "@/index";
+import { Formik } from "@/types";
 
 describe("FormikForm", () => {
-  let formik: ReturnType<typeof useFormik>;
+  let formik: Formik;
   const onSubmitMock = vi.fn();
   beforeEach(() => {
     formik = useFormik({
