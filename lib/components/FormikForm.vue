@@ -9,11 +9,7 @@ const props = defineProps<{
 const { formik: fk } = useFormikContext(props.formik);
 </script>
 <template>
-  <form
-    class="vf-form"
-    v-bind="$attrs"
-    @submit="fk?.handleSubmit"
-  >
+  <form class="vf-form" v-bind="$attrs" @submit="fk?.handleSubmit">
     <slot />
   </form>
 </template>

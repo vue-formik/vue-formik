@@ -1,4 +1,4 @@
-import { inject, computed } from 'vue'
+import { inject, computed } from "vue";
 import { Formik } from "@/types";
 
 export function useFormikContext(pFormik?: Formik) {
@@ -7,7 +7,7 @@ export function useFormikContext(pFormik?: Formik) {
   const formik = computed(() => {
     const formikInstance = injectedFormik || pFormik;
     if (!formikInstance) {
-      console.error('No Formik instance provided via injection or props');
+      console.error("No Formik instance provided via injection or props");
       return null;
     }
     return formikInstance;

@@ -62,8 +62,7 @@ const props = defineProps<{
   required?: boolean;
 }>();
 
-const { formik: fk } = useFormikContext(props.formik)
-
+const { formik: fk } = useFormikContext(props.formik);
 
 const inputValue = computed(() => fk?.getFieldValue(props.name) as string);
 

@@ -103,7 +103,7 @@ describe("FormInput", async () => {
       await wrapper.find("input").setValue("");
       await wrapper.find("input").trigger("blur");
       await nextTick();
-      console.log(formik.values, formik.errors, formik.touched)
+      console.log(formik.values, formik.errors, formik.touched);
       expect(wrapper.html()).toMatchSnapshot();
     });
 
@@ -181,7 +181,7 @@ describe("FormInput", async () => {
       await nextTick();
       expect(wrapper.html()).toMatchSnapshot();
     });
-  })
+  });
 
   describe("provide formik and inject usage", () => {
     beforeEach(() => {
@@ -193,8 +193,8 @@ describe("FormInput", async () => {
         global: {
           provide: {
             formik: formik,
-          }
-        }
+          },
+        },
       });
     });
 

@@ -61,7 +61,7 @@ const props = defineProps<{
   inputProps?: Record<keyof HTMLTextAreaElement, never>;
 }>();
 
-const { formik: fk } = useFormikContext(props.formik)
+const { formik: fk } = useFormikContext(props.formik);
 
 const inputValue = computed(() => fk?.getFieldValue(props.name) as string);
 

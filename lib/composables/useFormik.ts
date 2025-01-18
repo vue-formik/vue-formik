@@ -49,7 +49,11 @@ const useFormik = <T extends object>({
       const result = vSchema.safeParse(values);
       if (!result.success) {
         result.error.errors.forEach(({ path, message }) => {
-          updateNestedProperty(validationErrors as Record<string, unknown>, path.join("."), message);
+          updateNestedProperty(
+            validationErrors as Record<string, unknown>,
+            path.join("."),
+            message,
+          );
         });
       }
     } else if (mode === "JOI") {
@@ -60,16 +64,13 @@ const useFormik = <T extends object>({
           message: string;
           context: {
             label: string;
-          }
-        }>
+          };
+        }>;
       };
       if (err?.details?.length) {
-        console.log(err.details)
+        console.log(err.details);
         err.details.forEach(({ context, message }) => {
-          console.log(
-            `key: ${context.label}, message: ${message}`,
-            validationErrors,
-          )
+          console.log(`key: ${context.label}, message: ${message}`, validationErrors);
           updateNestedProperty(validationErrors as Record<string, unknown>, context.label, message);
         });
       }

@@ -47,7 +47,7 @@ describe("joiValidation", async () => {
     const initialValues = {
       name: "",
       skills: [""],
-    }
+    };
     const validationSchema = Joi.object({
       name: Joi.string().required(),
       skills: Joi.array().items(Joi.string().required()).required(),
@@ -81,7 +81,7 @@ describe("joiValidation", async () => {
         city: "",
         country: "",
       },
-    }
+    };
     const validationSchema = Joi.object({
       name: Joi.string().required(),
       address: Joi.object({
@@ -115,18 +115,18 @@ describe("joiValidation", async () => {
   test("validate form with array of objects", async () => {
     const initialValues = {
       name: "",
-      friends: [
-        { name: "", email: "" },
-      ],
-    }
+      friends: [{ name: "", email: "" }],
+    };
     const validationSchema = Joi.object({
       name: Joi.string().required(),
-      friends: Joi.array().items(
-        Joi.object({
-          name: Joi.string().required(),
-          email: Joi.string().email().required(),
-        }).required()
-      ).required(),
+      friends: Joi.array()
+        .items(
+          Joi.object({
+            name: Joi.string().required(),
+            email: Joi.string().email().required(),
+          }).required(),
+        )
+        .required(),
     });
 
     const formik = useFormik({
@@ -152,5 +152,5 @@ describe("joiValidation", async () => {
     await nextTick();
 
     expect(formik.errors).toMatchSnapshot();
-  })
+  });
 });
