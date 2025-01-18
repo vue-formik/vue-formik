@@ -54,9 +54,6 @@ importers:
       eslint-plugin-vue:
         specifier: ^9.30.0
         version: 9.32.0(eslint@9.17.0)
-      jod:
-        specifier: ^0.0.0
-        version: 0.0.0
       joi:
         specifier: ^17.13.3
         version: 17.13.3
@@ -96,6 +93,9 @@ importers:
       yup:
         specifier: ^1.6.1
         version: 1.6.1
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.1
 
 packages:
 
@@ -1695,9 +1695,6 @@ packages:
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
 
-  jod@0.0.0:
-    resolution: {integrity: sha512-9SiLEDpvAkXCiM1wiGIbTUeeOOy6Xia08VjltTIDXLqEdV9GGdx2MRhjPK9i/9MdYMlqCSHiAOhlM973DgezgA==}
-
   joi@17.13.3:
     resolution: {integrity: sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA==}
 
@@ -2733,6 +2730,9 @@ packages:
 
   yup@1.6.1:
     resolution: {integrity: sha512-JED8pB50qbA4FOkDol0bYF/p60qSEDQqBD0/qeIrUCG1KbPBIQ776fCUNb9ldbPcSTxA69g/47XTo4TqWiuXOA==}
+
+  zod@3.24.1:
+    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
 
 snapshots:
 
@@ -4364,8 +4364,6 @@ snapshots:
 
   jju@1.4.0: {}
 
-  jod@0.0.0: {}
-
   joi@17.13.3:
     dependencies:
       '@hapi/hoek': 9.3.0
@@ -5318,3 +5316,5 @@ snapshots:
       tiny-case: 1.0.3
       toposort: 2.0.2
       type-fest: 2.19.0
+
+  zod@3.24.1: {}

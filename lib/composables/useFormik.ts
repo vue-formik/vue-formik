@@ -1,6 +1,7 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
 import { ObjectSchema as YupObjectSchema } from "yup";
 import { ObjectSchema as JoiObjectSchema } from "joi";
+import { ZodObject, ZodSchema, ZodType } from "zod";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
 import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema, FormikMode } from "@/types";
 
@@ -43,7 +44,15 @@ const useFormik = <T extends object>({
       return validationErrors;
     }
 
-    if (mode === "JOI") {
+    if (mode === "JOD") {
+      const vSchema = validationSchema as ZodType<T>;
+      const result = vSchema.safeParse(values);
+      if (!result.success) {
+        result.error.errors.forEach(({ path, message }) => {
+          updateNestedProperty(validationErrors as Record<string, unknown>, path.join("."), message);
+        });
+      }
+    } else if (mode === "JOI") {
       const vSchema = validationSchema as JoiObjectSchema;
       const { error: e } = vSchema.validate(values, { abortEarly: false });
       const err = e as {

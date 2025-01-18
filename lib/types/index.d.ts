@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
+import { ZodObject, ZodType } from "zod";
 
 interface FormikHelpers<T> {
   reset: () => void;
@@ -21,7 +22,7 @@ type ValidationRule = (
 
 type CustomValidationSchema<T> = Partial<Record<keyof T | string, ValidationRule>>;
 
-type FormikValidationSchema<T> = YupSchema<T> | JoiSchema<T> | CustomValidationSchema<T>;
+type FormikValidationSchema<T> = YupSchema<T> | JoiSchema<T> | ZodType<T> | CustomValidationSchema<T>;
 
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
 
