@@ -1,7 +1,8 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
-import { ObjectSchema } from "yup";
+import { ObjectSchema as YupObjectSchema } from "yup";
+import { ObjectSchema as JoiObjectSchema } from "joi";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
-import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema } from "@/types";
+import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema, FormikMode } from "@/types";
 
 /**
  * Type for form field events
@@ -17,12 +18,14 @@ const useFormik = <T extends object>({
   onSubmit,
   validateOnMount = true,
   preventDefault = true,
+  mode = "YUP",
 }: {
   initialValues: T;
   validateOnMount?: boolean;
   preventDefault?: boolean;
   onSubmit?: FormikOnSubmit<T>;
   validationSchema?: FormikValidationSchema<T>;
+  mode?: FormikMode;
 }) => {
   // Refs for tracking form state
   const isSubmitting = ref(false);
@@ -40,15 +43,30 @@ const useFormik = <T extends object>({
       return validationErrors;
     }
 
-    if (
-      // Yup Object Schema
-      typeof validationSchema === "object" &&
-      "type" in validationSchema &&
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (validationSchema as any).type === "object"
-    ) {
+    if (mode === "JOI") {
+      const vSchema = validationSchema as JoiObjectSchema;
+      const { error: e } = vSchema.validate(values, { abortEarly: false });
+      const err = e as {
+        details?: Array<{
+          message: string;
+          context: {
+            label: string;
+          }
+        }>
+      };
+      if (err?.details?.length) {
+        console.log(err.details)
+        err.details.forEach(({ context, message }) => {
+          console.log(
+            `key: ${context.label}, message: ${message}`,
+            validationErrors,
+          )
+          updateNestedProperty(validationErrors as Record<string, unknown>, context.label, message);
+        });
+      }
+    } else if (mode === "YUP") {
       try {
-        const vSchema = validationSchema as ObjectSchema<T>;
+        const vSchema = validationSchema as YupObjectSchema<T>;
         vSchema.validateSync(values, { abortEarly: false });
       } catch (e) {
         const err = e as { inner?: Array<{ path: string; message: string }> };
@@ -68,6 +86,8 @@ const useFormik = <T extends object>({
           }
         }
       });
+    } else {
+      console.error("Invalid validation schema provided");
     }
 
     return validationErrors;
