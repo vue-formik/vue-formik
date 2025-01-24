@@ -12,7 +12,7 @@ exports[`joiValidation > validate form with array fields 2`] = `{}`;
 exports[`joiValidation > validate form with array fields 3`] = `
 {
   "skills": [
-    {},
+    undefined,
     ""skills[1]" is not allowed to be empty",
   ],
 }
@@ -30,7 +30,7 @@ exports[`joiValidation > validate form with array of objects 2`] = `{}`;
 exports[`joiValidation > validate form with array of objects 3`] = `
 {
   "friends": [
-    {},
+    undefined,
     {
       "email": ""friends[1].email" must be a valid email",
     },
