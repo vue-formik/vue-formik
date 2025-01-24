@@ -62,9 +62,7 @@ const useFormik = <T extends object>({
         }>;
       };
       if (err?.details?.length) {
-        console.log(err.details);
         err.details.forEach(({ context, message }) => {
-          console.log(`key: ${context.label}, message: ${message}`, validationErrors);
           updateNestedProperty(validationErrors as Record<string, unknown>, context.label, message);
         });
       }
