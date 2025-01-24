@@ -28,26 +28,21 @@ const updateNestedProperty = <T extends Record<string, any>, V>(
     throw new Error("Path cannot be empty");
   }
 
-  // Cache frequently used regex
   const arrayPattern = /^(.*?)\[(\d+)](.*)$/;
 
-  // Helper function to handle single key updates
   const updateSingleKey = (target: any, key: string, val: any): void => {
     target[key] = val;
   };
 
-  // Helper function to ensure array initialization
   const ensureArray = (target: any, key: string, index: number): void => {
     if (!Array.isArray(target[key])) {
       target[key] = [];
     }
-    // Extend array if needed
     while (target[key].length <= index) {
-      target[key].push({});
+      target[key].push(undefined);
     }
   };
 
-  // Helper function for recursive updates
   const updateRecursive = (
     current: any,
     pathSegment: string,
@@ -103,7 +98,6 @@ const updateNestedProperty = <T extends Record<string, any>, V>(
     }
   };
 
-  // Start the recursive update process
   const [firstKey, ...restKeys] = path.toString().split(".");
   updateRecursive(obj, firstKey, restKeys.join("."), value);
 

@@ -10,9 +10,6 @@ import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema, FormikMode 
  */
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
-/**
- * Enhanced Formik-like form management hook for Vue
- */
 const useFormik = <T extends object>({
   initialValues,
   validationSchema,
@@ -34,9 +31,6 @@ const useFormik = <T extends object>({
   const isValidating = ref(false);
   const submitCount = ref(0);
 
-  /**
-   * Enhanced validation function with better error handling
-   */
   const validate = (values: T): Partial<Record<keyof T, unknown>> => {
     const validationErrors: Partial<Record<keyof T, unknown>> = {};
 

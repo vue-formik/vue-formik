@@ -1,59 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`FormInput > Field with array index > renders input 1`] = `
-"<div class="vf-field vf-text-field">
-  <!--v-if-->
-  <div class="vf-input"><input id="addresses[0]" name="addresses[0]" type="text" class="" aria-invalid="false" value=""></div>
-  <!--v-if-->
-</div>"
-`;
-
-exports[`FormInput > Field with array index > various errors 1`] = `
-"<div class="vf-field vf-text-field vf-field--error">
-  <!--v-if-->
-  <div class="vf-input"><input id="addresses[0]" name="addresses[0]" type="text" class="vf-input--error" aria-invalid="true" value="" aria-describedby="addresses[0]-error"></div>
-  <ul class="vf-error" id="addresses[0]-error">
-    <li>Address is required</li>
-    <li>Address is too short</li>
-  </ul>
-</div>"
-`;
-
-exports[`FormInput > Field with array index > various errors 2`] = `
-"<div class="vf-field vf-text-field vf-field--error">
-  <!--v-if-->
-  <div class="vf-input"><input id="addresses[0]" name="addresses[0]" type="text" class="vf-input--error" aria-invalid="true" value="$%" aria-describedby="addresses[0]-error"></div>
-  <ul class="vf-error" id="addresses[0]-error">
-    <li>Address is too short</li>
-    <li>Address is invalid</li>
-  </ul>
-</div>"
-`;
-
-exports[`FormInput > Field with object type > renders input 1`] = `
-"<div class="vf-field vf-text-field">
-  <!--v-if-->
-  <div class="vf-input"><input id="contact.code" name="contact.code" type="text" class="" aria-invalid="false" value=""></div>
-  <!--v-if-->
-</div>"
-`;
-
-exports[`FormInput > Field with object type > various errors 1`] = `
-"<div class="vf-field vf-text-field vf-field--error">
-  <!--v-if-->
-  <div class="vf-input"><input id="contact.code" name="contact.code" type="text" class="vf-input--error" aria-invalid="true" value="" aria-describedby="contact.code-error"></div>
-  <p class="vf-error" id="contact.code-error">Code is too short</p>
-</div>"
-`;
-
-exports[`FormInput > Field with object type > various errors 2`] = `
-"<div class="vf-field vf-text-field">
-  <!--v-if-->
-  <div class="vf-input"><input id="contact.code" name="contact.code" type="text" class="" aria-invalid="false" value="123"></div>
-  <!--v-if-->
-</div>"
-`;
-
 exports[`FormInput > formik prop usage > Field with array index > renders input 1`] = `
 "<div class="vf-field vf-text-field">
   <!--v-if-->
@@ -132,37 +78,6 @@ exports[`FormInput > formik prop usage > required prop 1`] = `
 `;
 
 exports[`FormInput > formik prop usage > shows error message on blur 1`] = `
-"<div class="vf-field vf-text-field vf-field--error">
-  <!--v-if-->
-  <div class="vf-input"><input id="fullName" name="fullName" type="text" class="vf-input--error" aria-invalid="true" value="" aria-describedby="fullName-error"></div>
-  <p class="vf-error" id="fullName-error">Full Name is required</p>
-</div>"
-`;
-
-exports[`FormInput > renders input 1`] = `
-"<div class="vf-field vf-text-field">
-  <!--v-if-->
-  <div class="vf-input"><input id="fullName" name="fullName" type="text" class="" aria-invalid="false" value=""></div>
-  <!--v-if-->
-</div>"
-`;
-
-exports[`FormInput > renders label 1`] = `
-"<div class="vf-field vf-text-field"><label for="fullName" id="fullName-label">Full Name</label>
-  <div class="vf-input"><input id="fullName" name="fullName" type="text" class="" aria-invalid="false" value="" aria-labelledby="fullName-label"></div>
-  <!--v-if-->
-</div>"
-`;
-
-exports[`FormInput > required prop 1`] = `
-"<div class="vf-field vf-text-field">
-  <!--v-if-->
-  <div class="vf-input"><input id="fullName" name="fullName" type="text" class="" aria-invalid="false" value="" required="" aria-required="true"></div>
-  <!--v-if-->
-</div>"
-`;
-
-exports[`FormInput > shows error message on blur 1`] = `
 "<div class="vf-field vf-text-field vf-field--error">
   <!--v-if-->
   <div class="vf-input"><input id="fullName" name="fullName" type="text" class="vf-input--error" aria-invalid="true" value="" aria-describedby="fullName-error"></div>
