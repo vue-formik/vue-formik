@@ -1,6 +1,10 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
-import type { FormikHelpers, IUseFormikProps } from "@/types";
+import type { FormikHelpers } from "@/types";
+import { ObjectSchema as YupSchema } from "yup";
+import { ObjectSchema as JoiSchema } from "joi";
+import { ZodType } from "zod";
+import { CustomValidationSchema, FormikOnSubmit } from "@/types";
 
 /**
  * Type for form field events
@@ -16,7 +20,16 @@ const useFormik = <T extends object>({
   onSubmit,
   validateOnMount = true,
   preventDefault = true,
-}: IUseFormikProps<T>) => {
+}: {
+  initialValues: T;
+  validateOnMount?: boolean;
+  preventDefault?: boolean;
+  onSubmit?: FormikOnSubmit<T>;
+  yupSchema?: YupSchema<T>;
+  joiSchema?: JoiSchema;
+  zodSchema?: ZodType<T>;
+  validationSchema?: CustomValidationSchema<T>;
+}) => {
   // Refs for tracking form state
   const isSubmitting = ref(false);
   const initialValuesRef = ref<T>({ ...initialValues });
