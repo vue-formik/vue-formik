@@ -40,4 +40,4 @@ type IUseFormikProps<T> = {
   joiSchema?: JoiSchema;
   zodSchema?: ZodType<T>;
   validationSchema?: CustomValidationSchema<T>;
-}
+};
