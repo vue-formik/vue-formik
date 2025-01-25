@@ -55,29 +55,29 @@ describe("useFieldArray composable", () => {
       ufa.push("name", "Jane");
       expect(fk.values.name).toBe("John");
       expect(console.warn).toHaveBeenCalled();
-      expect(console.warn).toHaveBeenCalledWith("Field \"name\" is not an array");
+      expect(console.warn).toHaveBeenCalledWith('Field "name" is not an array');
     });
 
     test("pushing at specific index", () => {
       const fk = useFormik({
         initialValues: { names: ["John", "Doe"] },
-      })
+      });
       const ufa = useFieldArray(fk);
       ufa.push("names", "Jane", 1);
       expect(fk.values.names).toEqual(["John", "Jane", "Doe"]);
-    })
+    });
 
     test("pushing at specific index (out of bounds)", () => {
       console.warn = vi.fn();
       const fk = useFormik({
         initialValues: { names: ["John", "Doe"] },
-      })
+      });
       const ufa = useFieldArray(fk);
       ufa.push("names", "Jane", 3);
       expect(fk.values.names).toEqual(["John", "Doe"]);
       expect(console.warn).toHaveBeenCalled();
-      expect(console.warn).toHaveBeenCalledWith("Index 3 out of bounds for field \"names\"");
-    })
+      expect(console.warn).toHaveBeenCalledWith('Index 3 out of bounds for field "names"');
+    });
   });
 
   describe("pop method", () => {
@@ -122,7 +122,7 @@ describe("useFieldArray composable", () => {
       ufa.pop("name", 0);
       expect(fk.values.name).toBe("John");
       expect(console.warn).toHaveBeenCalled();
-      expect(console.warn).toHaveBeenCalledWith("Field \"name\" is not an array");
+      expect(console.warn).toHaveBeenCalledWith('Field "name" is not an array');
     });
 
     test("index out of bounds", () => {
@@ -134,7 +134,7 @@ describe("useFieldArray composable", () => {
       ufa.pop("names", 2);
       expect(fk.values.names).toEqual(["John", "Doe"]);
       expect(console.warn).toHaveBeenCalled();
-      expect(console.warn).toHaveBeenCalledWith("Index 2 out of bounds for field \"names\"");
+      expect(console.warn).toHaveBeenCalledWith('Index 2 out of bounds for field "names"');
     });
 
     test("index out of bounds (-ve index)", () => {
@@ -146,7 +146,7 @@ describe("useFieldArray composable", () => {
       ufa.pop("names", -1);
       expect(fk.values.names).toEqual(["John", "Doe"]);
       expect(console.warn).toHaveBeenCalled();
-      expect(console.warn).toHaveBeenCalledWith("Index -1 out of bounds for field \"names\"");
+      expect(console.warn).toHaveBeenCalledWith('Index -1 out of bounds for field "names"');
     });
 
     test("should clear touched value as well", () => {

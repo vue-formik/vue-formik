@@ -9,9 +9,9 @@ function useFieldArray(formik: Formik): {
 
 function useFieldArray():
   | {
-  push: (field: string, value: unknown, index?: number) => void;
-  pop: (field: string, index?: number) => void;
-}
+      push: (field: string, value: unknown, index?: number) => void;
+      pop: (field: string, index?: number) => void;
+    }
   | undefined;
 
 function useFieldArray(formik?: Formik) {
