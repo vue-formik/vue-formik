@@ -4,7 +4,6 @@ import { useFormik } from "../../../../lib";
 
 describe("yupValidation", async () => {
   const onSubmit = vi.fn();
-  const mode = "YUP";
 
   test("should validate form with validation schema", async () => {
     const initialValues = {
@@ -13,7 +12,11 @@ describe("yupValidation", async () => {
     const validationSchema = Yup.object().shape({
       contact: Yup.string().required("Contact is required"),
     });
-    const { errors } = useFormik({ initialValues, validationSchema, onSubmit, mode });
+    const { errors } = useFormik({
+      initialValues,
+      yupSchema: validationSchema,
+      onSubmit,
+    });
     expect(errors).toMatchSnapshot();
   });
   test("should validate array field with validation schema", async () => {
@@ -23,7 +26,11 @@ describe("yupValidation", async () => {
     const validationSchema = Yup.object().shape({
       contacts: Yup.array().of(Yup.string().required("Contact is required")),
     });
-    const { errors } = useFormik({ initialValues, validationSchema, onSubmit, mode });
+    const { errors } = useFormik({
+      initialValues,
+      yupSchema: validationSchema,
+      onSubmit,
+    });
     expect(errors).toMatchSnapshot();
   });
   test("should validate object field with validation schema", async () => {
@@ -39,7 +46,11 @@ describe("yupValidation", async () => {
         number: Yup.string().required("Number is required"),
       }),
     });
-    const { errors } = useFormik({ initialValues, validationSchema, onSubmit, mode });
+    const { errors } = useFormik({
+      initialValues,
+      yupSchema: validationSchema,
+      onSubmit
+    });
     expect(errors).toMatchSnapshot();
   });
   test("should validate object array field with validation schema", async () => {
@@ -57,7 +68,11 @@ describe("yupValidation", async () => {
         }),
       ),
     });
-    const { errors } = useFormik({ initialValues, validationSchema, onSubmit, mode });
+    const { errors } = useFormik({
+      initialValues,
+      yupSchema: validationSchema,
+      onSubmit,
+    });
     expect(errors).toMatchSnapshot();
   });
 });

@@ -38,7 +38,7 @@ function useFieldArray(formik?: Formik) {
       }
 
       fk.setFieldValue(field, fieldValue.filter((_, i) => i !== index));
-      fk.setFieldTouched(`${field}[${index}]`, false);
+      fk.setFieldTouched(`${field}[${index}]`);
     } else {
       console.warn(`Field ${field} is not an array`);
     }

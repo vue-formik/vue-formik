@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ObjectSchema as YupSchema } from "yup";
-import { ObjectSchema as JoiSchema } from "joi";
+import { ObjectSchema as YupObjectSchema, ObjectSchema as YupSchema } from "yup";
+import { ObjectSchema as JoiObjectSchema, ObjectSchema as JoiSchema } from "joi";
 import { ZodType } from "zod";
 import useFormik from "@/composables/useFormik";
 
@@ -38,3 +38,14 @@ interface AnyFormValues {
   [key: string]: unknown;
 }
 type Formik = ReturnType<typeof useFormik<AnyFormValues>>;
+
+interface IUseFormikProps<T> {
+  initialValues: T;
+  validateOnMount?: boolean;
+  preventDefault?: boolean;
+  onSubmit?: FormikOnSubmit<T>;
+  yupSchema?: YupSchema<T>;
+  joiSchema?: JoiSchema;
+  zodSchema?: ZodType<T>;
+  validationSchema?: CustomValidationSchema<T>;
+}

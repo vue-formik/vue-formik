@@ -120,6 +120,27 @@ describe("useFieldArray composable", () => {
       expect(console.warn).toHaveBeenCalled()
       expect(console.warn).toHaveBeenCalledWith("Index -1 out of bounds")
     })
+
+    test("should clear touched value as well", () => {
+      const fk = useFormik({
+        initialValues: { names: ["John", "Doe"] },
+      })
+      const ufa = useFieldArray(fk)
+      fk.setFieldTouched("names[0]", true)
+      fk.setFieldTouched("names[1]", true)
+      ufa.pop("names", 0)
+      expect(fk.getFieldTouched("names[0]")).toBeUndefined()
+    })
+    test("should clear touched value as well for object array fields", () => {
+      const fk = useFormik({
+        initialValues: { names: [{ name: "John" }, { name: "Doe" }] },
+      })
+      const ufa = useFieldArray(fk)
+      fk.setFieldTouched("names[0].name", true)
+      fk.setFieldTouched("names[1].name", true)
+      ufa.pop("names", 0)
+      expect(fk.getFieldTouched("names[0].name")).toBeUndefined()
+    })
   })
 
   test("should return push and pop methods", () => {

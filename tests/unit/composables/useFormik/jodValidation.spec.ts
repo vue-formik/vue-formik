@@ -16,9 +16,8 @@ describe("useFormik/jodValidation", async () => {
 
     const formik = useFormik({
       initialValues,
-      validationSchema,
+      zodSchema: validationSchema,
       validateOnMount: true,
-      mode: "JOD",
     });
 
     expect(formik.errors).toMatchSnapshot();
@@ -48,9 +47,8 @@ describe("useFormik/jodValidation", async () => {
 
     const formik = useFormik({
       initialValues,
-      validationSchema,
+      zodSchema: validationSchema,
       validateOnMount: true,
-      mode: "JOD",
     });
 
     expect(formik.errors).toMatchSnapshot();

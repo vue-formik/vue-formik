@@ -1,9 +1,6 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
-import { ObjectSchema as YupObjectSchema } from "yup";
-import { ObjectSchema as JoiObjectSchema } from "joi";
-import { ZodType } from "zod";
 import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
-import type { FormikHelpers, FormikOnSubmit, FormikValidationSchema, FormikMode } from "@/types";
+import type { FormikHelpers, IUseFormikProps } from "@/types";
 
 /**
  * Type for form field events
@@ -13,18 +10,13 @@ type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 const useFormik = <T extends object>({
   initialValues,
   validationSchema,
+  yupSchema,
+  zodSchema,
+  joiSchema,
   onSubmit,
   validateOnMount = true,
   preventDefault = true,
-  mode = "CUSTOM",
-}: {
-  initialValues: T;
-  validateOnMount?: boolean;
-  preventDefault?: boolean;
-  onSubmit?: FormikOnSubmit<T>;
-  validationSchema?: FormikValidationSchema<T>;
-  mode?: FormikMode;
-}) => {
+}: IUseFormikProps<T>) => {
   // Refs for tracking form state
   const isSubmitting = ref(false);
   const initialValuesRef = ref<T>({ ...initialValues });
@@ -34,13 +26,17 @@ const useFormik = <T extends object>({
   const validate = (values: T): Partial<Record<keyof T, unknown>> => {
     const validationErrors: Partial<Record<keyof T, unknown>> = {};
 
-    if (!validationSchema) {
+    if (
+      !yupSchema &&
+      !joiSchema &&
+      !zodSchema &&
+      !validationSchema
+    ) {
       return validationErrors;
     }
 
-    if (mode === "JOD") {
-      const vSchema = validationSchema as ZodType<T>;
-      const result = vSchema.safeParse(values);
+    if (zodSchema) {
+      const result = zodSchema.safeParse(values);
       if (!result.success) {
         result.error.errors.forEach(({ path, message }) => {
           updateNestedProperty(
@@ -50,9 +46,8 @@ const useFormik = <T extends object>({
           );
         });
       }
-    } else if (mode === "JOI") {
-      const vSchema = validationSchema as JoiObjectSchema;
-      const { error: e } = vSchema.validate(values, { abortEarly: false });
+    } else if (joiSchema) {
+      const { error: e } = joiSchema.validate(values, { abortEarly: false });
       const err = e as {
         details?: Array<{
           message: string;
@@ -66,10 +61,9 @@ const useFormik = <T extends object>({
           updateNestedProperty(validationErrors as Record<string, unknown>, context.label, message);
         });
       }
-    } else if (mode === "YUP") {
+    } else if (yupSchema) {
       try {
-        const vSchema = validationSchema as YupObjectSchema<T>;
-        vSchema.validateSync(values, { abortEarly: false });
+        yupSchema.validateSync(values, { abortEarly: false });
       } catch (e) {
         const err = e as { inner?: Array<{ path: string; message: string }> };
         if (err?.inner?.length) {
@@ -78,7 +72,7 @@ const useFormik = <T extends object>({
           });
         }
       }
-    } else if (typeof validationSchema === "object") {
+    } else if (validationSchema && typeof validationSchema === "object") {
       Object.entries(validationSchema).forEach(([key, rules]) => {
         if (typeof rules === "function") {
           const value = getNestedValue(values as Record<string, unknown>, key);
@@ -147,7 +141,7 @@ const useFormik = <T extends object>({
     updateNestedProperty(values as Record<string, unknown>, field, value);
   };
 
-  const setFieldTouched = (field: string, isTouched: boolean) => {
+  const setFieldTouched = (field: string, isTouched?: boolean) => {
     updateNestedProperty(touched as Record<string, unknown>, field, isTouched);
   };
 
@@ -255,6 +249,10 @@ const useFormik = <T extends object>({
     return getNestedValue(values as Record<string, unknown>, field as string);
   };
 
+  const getFieldTouched = (field: string) => {
+    return getNestedValue(touched as Record<string, unknown>, field);
+  }
+
   /**
    * Computed field handlers for component binding
    */
@@ -297,6 +295,7 @@ const useFormik = <T extends object>({
     hasFieldError,
     getFieldError,
     getFieldValue,
+    getFieldTouched,
   };
 };
 
