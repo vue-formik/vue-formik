@@ -38,3 +38,14 @@ interface AnyFormValues {
   [key: string]: unknown;
 }
 type Formik = ReturnType<typeof useFormik<AnyFormValues>>;
+
+interface IUseFormikProps<T> {
+  initialValues: T;
+  validateOnMount?: boolean;
+  preventDefault?: boolean;
+  onSubmit?: FormikOnSubmit<T>;
+  yupSchema?: YupSchema<T>;
+  joiSchema?: JoiSchema;
+  zodSchema?: ZodType<T>;
+  validationSchema?: CustomValidationSchema<T>;
+}

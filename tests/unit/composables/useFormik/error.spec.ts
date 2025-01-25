@@ -52,9 +52,8 @@ describe("useFormik Error Handling", () => {
     test("should track validation state correctly", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
-        validationSchema: complexSchema,
+        yupSchema: complexSchema,
         validateOnMount: false,
-        mode: "YUP",
       });
 
       expect(formik.isValidating.value).toBe(false);
@@ -73,8 +72,7 @@ describe("useFormik Error Handling", () => {
     test("should handle multiple error states simultaneously", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
-        validationSchema: complexSchema,
-        mode: "YUP",
+        yupSchema: complexSchema,
       });
 
       // Set multiple invalid fields
@@ -95,8 +93,7 @@ describe("useFormik Error Handling", () => {
     test("should validate nested object fields correctly", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
-        validationSchema: complexSchema,
-        mode: "YUP",
+        yupSchema: complexSchema,
       });
 
       formik.setFieldValue("user.name", "");
@@ -115,8 +112,7 @@ describe("useFormik Error Handling", () => {
     test("should validate array fields correctly", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
-        validationSchema: complexSchema,
-        mode: "YUP",
+        yupSchema: complexSchema,
       });
 
       formik.setFieldTouched("addresses[0].street", true);
@@ -133,8 +129,7 @@ describe("useFormik Error Handling", () => {
     test("should clear errors on reset", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
-        validationSchema: complexSchema,
-        mode: "YUP",
+        yupSchema: complexSchema,
       });
 
       // Set some errors
@@ -152,8 +147,7 @@ describe("useFormik Error Handling", () => {
     test("should clear specific field errors", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
-        validationSchema: complexSchema,
-        mode: "YUP",
+        yupSchema: complexSchema,
       });
 
       // Set multiple errors
@@ -177,9 +171,8 @@ describe("useFormik Error Handling", () => {
       const onSubmit = vi.fn();
       const formik = useFormik({
         initialValues: initialComplexValues,
-        validationSchema: complexSchema,
+        yupSchema: complexSchema,
         onSubmit,
-        mode: "YUP",
       });
 
       formik.handleSubmit();

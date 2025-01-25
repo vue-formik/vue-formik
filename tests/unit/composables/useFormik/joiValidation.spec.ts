@@ -20,9 +20,8 @@ describe("joiValidation", async () => {
   test("validate simple form", async () => {
     const formik = useFormik({
       initialValues,
-      validationSchema,
+      joiSchema: validationSchema,
       validateOnMount: true,
-      mode: "JOI",
     });
 
     await nextTick();
@@ -55,9 +54,8 @@ describe("joiValidation", async () => {
 
     const formik = useFormik({
       initialValues,
-      validationSchema,
+      joiSchema: validationSchema,
       validateOnMount: true,
-      mode: "JOI",
     });
 
     await nextTick();
@@ -92,9 +90,8 @@ describe("joiValidation", async () => {
 
     const formik = useFormik({
       initialValues,
-      validationSchema,
+      joiSchema: validationSchema,
       validateOnMount: true,
-      mode: "JOI",
     });
 
     await nextTick();
@@ -131,9 +128,8 @@ describe("joiValidation", async () => {
 
     const formik = useFormik({
       initialValues,
-      validationSchema,
+      joiSchema: validationSchema,
       validateOnMount: true,
-      mode: "JOI",
     });
 
     await nextTick();
