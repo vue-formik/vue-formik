@@ -26,12 +26,7 @@ const useFormik = <T extends object>({
   const validate = (values: T): Partial<Record<keyof T, unknown>> => {
     const validationErrors: Partial<Record<keyof T, unknown>> = {};
 
-    if (
-      !yupSchema &&
-      !joiSchema &&
-      !zodSchema &&
-      !validationSchema
-    ) {
+    if (!yupSchema && !joiSchema && !zodSchema && !validationSchema) {
       return validationErrors;
     }
 
@@ -251,7 +246,7 @@ const useFormik = <T extends object>({
 
   const getFieldTouched = (field: string) => {
     return getNestedValue(touched as Record<string, unknown>, field);
-  }
+  };
 
   /**
    * Computed field handlers for component binding

@@ -1,16 +1,18 @@
 import { Formik } from "@/types";
 import { inject } from "vue";
-import { array } from "yup";
 
 // overloading function for two different return types
 function useFieldArray(formik: Formik): {
   push: (field: string, value: unknown) => void;
-  pop: (field: string, index: number) => void
+  pop: (field: string, index: number) => void;
 };
-function useFieldArray(): {
-  push: (field: string, value: unknown) => void;
-  pop: (field: string, index: number) => void
-} | undefined;
+
+function useFieldArray():
+  | {
+      push: (field: string, value: unknown) => void;
+      pop: (field: string, index: number) => void;
+    }
+  | undefined;
 
 function useFieldArray(formik?: Formik) {
   const injectedFormik: Formik | undefined = inject("formik");
@@ -37,7 +39,10 @@ function useFieldArray(formik?: Formik) {
         return;
       }
 
-      fk.setFieldValue(field, fieldValue.filter((_, i) => i !== index));
+      fk.setFieldValue(
+        field,
+        fieldValue.filter((_, i) => i !== index),
+      );
       fk.setFieldTouched(`${field}[${index}]`);
     } else {
       console.warn(`Field ${field} is not an array`);

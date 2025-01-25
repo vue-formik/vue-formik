@@ -13,5 +13,5 @@ export {
   FormInput,
   FormSelectField,
   FormContentEditable,
-  FormikForm
+  FormikForm,
 };

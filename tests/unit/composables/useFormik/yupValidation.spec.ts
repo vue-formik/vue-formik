@@ -49,7 +49,7 @@ describe("yupValidation", async () => {
     const { errors } = useFormik({
       initialValues,
       yupSchema: validationSchema,
-      onSubmit
+      onSubmit,
     });
     expect(errors).toMatchSnapshot();
   });
