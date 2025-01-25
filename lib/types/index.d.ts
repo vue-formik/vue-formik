@@ -23,15 +23,7 @@ type ValidationRule = (
 
 type CustomValidationSchema<T> = Partial<Record<keyof T | string, ValidationRule>>;
 
-type FormikValidationSchema<T> =
-  | YupSchema<T>
-  | JoiSchema<T>
-  | ZodType<T>
-  | CustomValidationSchema<T>;
-
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
-
-type FormikMode = "YUP" | "JOI" | "JOD" | "CUSTOM";
 
 // Useful for component prop definition
 interface AnyFormValues {
@@ -39,7 +31,7 @@ interface AnyFormValues {
 }
 type Formik = ReturnType<typeof useFormik<AnyFormValues>>;
 
-interface IUseFormikProps<T> {
+type IUseFormikProps<T> = {
   initialValues: T;
   validateOnMount?: boolean;
   preventDefault?: boolean;
