@@ -2,4 +2,9 @@
 
 if [ -n "$(git diff --cached --name-only --diff-filter=ACM | grep -E 'package.json|pnpm-lock.yaml|js|ts|vue')" ]; then
   pnpm lint:fix && pnpm format:fix
+
+  # if there are changes after linting and formatting, add them to the commit
+  if [ -n "$(git diff --cached --name-only --diff-filter=ACM)" ]; then
+    git add .
+  fi
 fi
