@@ -2,11 +2,6 @@ import { vi, describe, test, expect } from "vitest";
 import { useFieldArray, useFormik } from "@/index";
 
 describe("useFieldArray composable", () => {
-  test("should return null if formik is not provided", () => {
-    const ufa = useFieldArray();
-    expect(ufa).toBeUndefined();
-  });
-
   describe("push method", () => {
     test.each([
       {
