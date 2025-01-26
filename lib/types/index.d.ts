@@ -26,3 +26,8 @@ interface AnyFormValues {
   [key: string]: unknown;
 }
 type Formik = ReturnType<typeof useFormik<AnyFormValues>>;
+
+type IResetOptions<T> = {
+  values?: Partial<T>;
+  keepTouched?: boolean;
+};

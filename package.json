@@ -1,6 +1,6 @@
 {
   "name": "vue-formik",
-  "version": "0.1.35",
+  "version": "0.1.36",
   "keywords": [
     "vue",
     "formik",
@@ -8,10 +8,8 @@
     "vue3-formik",
     "vue-formik",
     "formik-vue",
-    "vue-formik-vue",
-    "vue-formik-form",
-    "vue-formik-forms",
-    "vue-formik-formik"
+    "vue-form",
+    "vue-form-validation"
   ],
   "description": "Vue 3 Formik",
   "private": false,

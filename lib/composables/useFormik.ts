@@ -1,11 +1,10 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
-import { clearReactiveObject, getNestedValue, updateNestedProperty } from "@/helpers";
+import { clearReactiveObject, getNestedValue, updateNestedProperty, deepClone } from "@/helpers";
 import type { FormikHelpers } from "@/types";
 import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
 import { ZodType } from "zod";
-import { CustomValidationSchema, FormikOnSubmit } from "@/types";
-import deepClone from "@/helpers/deepClone";
+import { CustomValidationSchema, FormikOnSubmit, IResetOptions } from "@/types";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -117,13 +116,7 @@ const useFormik = <T extends object>({
     Object.assign(touched, newTouched);
   };
 
-  const reset = ({
-    values: newValues,
-    keepTouched = false,
-  }: {
-    values?: Partial<T>;
-    keepTouched?: boolean;
-  } = {}) => {
+  const reset = ({ values: newValues, keepTouched = false }: IResetOptions<T> = {}) => {
     if (newValues) {
       setValues(Object.assign(initialValuesRef, deepClone(newValues)));
       Object.assign(initialValuesRef, deepClone(newValues));

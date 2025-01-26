@@ -49,4 +49,63 @@ describe("FormikForm", () => {
     const calledWith = onSubmitMock.mock.calls[0];
     expect(calledWith).toMatchSnapshot();
   });
+
+  describe("reset", () => {
+    test("reset button calls formik.resetForm", () => {
+      const wrapper = mount(FormikForm, {
+        props: {
+          formik,
+        },
+        slots: {
+          default: "<button type='reset'>Reset</button>",
+        },
+      });
+      const button = wrapper.find("button");
+      expect(formik.values.name).toBe("");
+      formik.setFieldValue("name", "John");
+      expect(formik.values.name).toBe("John");
+      button.trigger("reset");
+      expect(formik.values.name).toBe("");
+    });
+    test.each([
+      ["reset keeping touched", true, true],
+      ["reset without keeping touched", false, undefined],
+    ])("%s", (_, keepTouched, expected) => {
+      const wrapper = mount(FormikForm, {
+        props: {
+          formik,
+          resetOptions: {
+            keepTouched,
+          },
+        },
+        slots: {
+          default: "<button type='reset'>Reset</button>",
+        },
+      });
+      const button = wrapper.find("button");
+      formik.setFieldTouched("name", true);
+      expect(formik.touched.name).toBe(true);
+      button.trigger("reset");
+      expect(formik.touched.name).toBe(expected);
+    });
+    test("reset with new initialValues", () => {
+      const wrapper = mount(FormikForm, {
+        props: {
+          formik,
+          resetOptions: {
+            values: {
+              name: "Jane",
+            },
+          },
+        },
+        slots: {
+          default: "<button type='reset'>Reset</button>",
+        },
+      });
+      const button = wrapper.find("button");
+      expect(formik.values.name).toBe("");
+      button.trigger("reset");
+      expect(formik.values.name).toBe("Jane");
+    });
+  });
 });
