@@ -9,8 +9,6 @@ import deepClone from "@/helpers/deepClone";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
-
-
 const useFormik = <T extends object>({
   initialValues,
   validationSchema,
@@ -125,8 +123,8 @@ const useFormik = <T extends object>({
   };
 
   const reset = ({
-   values: newValues,
-   keepTouched = false,
+    values: newValues,
+    keepTouched = false,
   }: {
     values?: Partial<T>;
     keepTouched?: boolean;

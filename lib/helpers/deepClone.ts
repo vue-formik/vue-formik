@@ -4,7 +4,7 @@ const deepClone = <T>(obj: T): T => {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => deepClone(item)) as unknown as T;
+    return obj.map((item) => deepClone(item)) as unknown as T;
   }
 
   const clonedObj: Record<string, unknown> = {};
@@ -14,6 +14,6 @@ const deepClone = <T>(obj: T): T => {
     }
   }
   return clonedObj as T;
-}
+};
 
 export default deepClone;
