@@ -3,7 +3,7 @@
 exports[`useFormik reset > should reset form values 1`] = `
 {
   "address": {
-    "city": "New York",
+    "city": "Los Angeles",
     "country": "USA",
   },
   "email": "jane@example.co",
@@ -14,8 +14,8 @@ exports[`useFormik reset > should reset form values 1`] = `
 exports[`useFormik reset > should reset form values with new values 1`] = `
 {
   "address": {
-    "city": "New York",
-    "country": "USA",
+    "city": "",
+    "country": "",
   },
   "email": "jane@example.com",
   "name": "Jane Doe",
@@ -25,8 +25,8 @@ exports[`useFormik reset > should reset form values with new values 1`] = `
 exports[`useFormik reset > should reset form values with new values 2`] = `
 {
   "address": {
-    "city": "New York",
-    "country": "USA",
+    "city": "",
+    "country": "",
   },
   "email": "alice@example.com",
   "name": "Alice Hansen",

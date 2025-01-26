@@ -5,11 +5,11 @@ import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
 import { ZodType } from "zod";
 import { CustomValidationSchema, FormikOnSubmit } from "@/types";
+import deepClone from "@/helpers/deepClone";
 
-/**
- * Type for form field events
- */
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+
 
 const useFormik = <T extends object>({
   initialValues,
@@ -32,9 +32,9 @@ const useFormik = <T extends object>({
 }) => {
   // Refs for tracking form state
   const isSubmitting = ref(false);
-  const initialValuesRef = ref<T>({ ...initialValues });
   const isValidating = ref(false);
   const submitCount = ref(0);
+  const initialValuesRef = reactive<T>(deepClone(initialValues));
 
   const validate = (values: T): Partial<Record<keyof T, unknown>> => {
     const validationErrors: Partial<Record<keyof T, unknown>> = {};
@@ -98,17 +98,18 @@ const useFormik = <T extends object>({
   };
 
   // Reactive form state
-  const values = reactive<T>({ ...initialValues });
+  const values = reactive<T>({ ...deepClone(initialValues) });
   const errors = reactive<Partial<Record<keyof T, unknown>>>({});
   const touched = reactive<Partial<Record<keyof T, unknown>>>({});
 
   // Computed properties for form state
   const isValid = computed(() => Object.keys(errors).length === 0);
-  const isDirty = computed(() => JSON.stringify(values) !== JSON.stringify(initialValuesRef.value));
+  const isDirty = computed(() => {
+    // console.log("values", values);
+    // console.log("initialValuesRef", initialValuesRef);
+    return JSON.stringify(values) !== JSON.stringify(initialValuesRef);
+  });
 
-  /**
-   * Enhanced state setters with type safety
-   */
   const setValues = (newValues: Partial<T>) => {
     Object.assign(values, newValues);
   };
@@ -123,28 +124,27 @@ const useFormik = <T extends object>({
     Object.assign(touched, newTouched);
   };
 
-  /**
-   * Enhanced reset function with better type safety
-   */
   const reset = ({
-    values: newValues,
-    keepTouched = false,
+   values: newValues,
+   keepTouched = false,
   }: {
     values?: Partial<T>;
     keepTouched?: boolean;
   } = {}) => {
-    const resetValues = newValues || { ...initialValuesRef.value };
-    setValues({ ...resetValues });
-    Object.assign(initialValuesRef.value, resetValues);
+    if (newValues) {
+      setValues(Object.assign(initialValuesRef, deepClone(newValues)));
+      Object.assign(initialValuesRef, deepClone(newValues));
+    } else {
+      setValues(deepClone(initialValuesRef));
+    }
+
     if (!keepTouched) {
       clearReactiveObject(touched);
     }
+
     submitCount.value = 0;
   };
 
-  /**
-   * Enhanced field manipulation functions
-   */
   const setFieldValue = (field: string, value: unknown) => {
     updateNestedProperty(values as Record<string, unknown>, field, value);
   };
@@ -157,9 +157,6 @@ const useFormik = <T extends object>({
     isSubmitting.value = value;
   };
 
-  /**
-   * Enhanced submit handler with better error handling
-   */
   const handleSubmit = (e?: Event) => {
     if (typeof onSubmit !== "function") return;
 
@@ -196,9 +193,6 @@ const useFormik = <T extends object>({
     }
   };
 
-  /**
-   * Enhanced field event handlers
-   */
   const handleFieldBlur = (e: FocusEvent) => {
     const target = e.target as FieldElement;
     setFieldTouched(target.name, true);
@@ -212,9 +206,6 @@ const useFormik = <T extends object>({
     setFieldTouched(target.name, true);
   };
 
-  /**
-   * Enhanced validation handling
-   */
   const performValidation = () => {
     isValidating.value = true;
     const validationErrors = validate(toRaw(values) as T);
@@ -236,9 +227,6 @@ const useFormik = <T extends object>({
     { deep: true },
   );
 
-  /**
-   * Enhanced field state getters
-   */
   const hasFieldError = (field: string): boolean => {
     const errorValue = getNestedValue(errors as Record<string, unknown>, field);
     const touchedValue = getNestedValue(touched as Record<string, unknown>, field);
@@ -261,9 +249,6 @@ const useFormik = <T extends object>({
     return getNestedValue(touched as Record<string, unknown>, field);
   };
 
-  /**
-   * Computed field handlers for component binding
-   */
   const fieldHandlers = computed(() => ({
     onBlur: handleFieldBlur,
     onChange: handleFieldChange,
