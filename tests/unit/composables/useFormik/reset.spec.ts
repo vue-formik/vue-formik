@@ -3,18 +3,22 @@ import { useFormik } from "../../../../lib";
 
 describe("useFormik reset", () => {
   const initialValues = {
-    name: "John Doe",
-    email: "john@example.co",
+    name: "",
+    email: "",
     address: {
-      city: "New York",
-      country: "USA",
+      city: "",
+      country: "",
     },
   };
 
   test("should reset form values", () => {
-    const { reset, values, setFieldValue } = useFormik({ initialValues });
+    const { reset, values, setFieldValue } = useFormik({
+      initialValues: { ...initialValues },
+    });
     setFieldValue("name", "Jane Doe");
     setFieldValue("email", "jane@example.co");
+    setFieldValue("address.city", "Los Angeles");
+    setFieldValue("address.country", "USA");
     expect(values).toMatchSnapshot();
     reset();
     expect(values).toEqual(initialValues);

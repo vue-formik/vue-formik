@@ -90,5 +90,27 @@ describe("useFormik flags", async () => {
       setFieldValue("contacts", "");
       expect(isDirty.value).toBe(false);
     });
+
+    test("should return true if there are changes in array field", async () => {
+      const { isDirty, setFieldValue } = useFormik({
+        initialValues: { contacts: [] },
+      });
+      await nextTick();
+      expect(isDirty.value).toBe(false);
+      setFieldValue("contacts", ["9856256525"]);
+      await nextTick();
+      expect(isDirty.value).toBe(true);
+    });
+
+    test("should return true if there are changes in object field", async () => {
+      const { isDirty, setFieldValue } = useFormik({
+        initialValues: { contacts: { code: "", number: "" } },
+      });
+      await nextTick();
+      expect(isDirty.value).toBe(false);
+      setFieldValue("contacts.code", "+91");
+      await nextTick();
+      expect(isDirty.value).toBe(true);
+    });
   });
 });
