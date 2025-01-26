@@ -100,13 +100,8 @@ const useFormik = <T extends object>({
   const errors = reactive<Partial<Record<keyof T, unknown>>>({});
   const touched = reactive<Partial<Record<keyof T, unknown>>>({});
 
-  // Computed properties for form state
   const isValid = computed(() => Object.keys(errors).length === 0);
-  const isDirty = computed(() => {
-    // console.log("values", values);
-    // console.log("initialValuesRef", initialValuesRef);
-    return JSON.stringify(values) !== JSON.stringify(initialValuesRef);
-  });
+  const isDirty = computed(() => JSON.stringify(values) !== JSON.stringify(initialValuesRef));
 
   const setValues = (newValues: Partial<T>) => {
     Object.assign(values, newValues);
