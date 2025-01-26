@@ -192,8 +192,14 @@ const useFormik = <T extends object>({
     setFieldTouched(target.name, true);
   };
 
-  const performValidation = () => {
-    isValidating.value = true;
+  const performValidation = (
+
+
+
+
+
+  ) => {
+        isValidating.value = true;
     const validationErrors = validate(toRaw(values) as T);
     clearReactiveObject(errors);
     Object.assign(errors, validationErrors);
