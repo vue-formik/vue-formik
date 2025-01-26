@@ -1,6 +1,6 @@
 {
   "name": "vue-formik",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "keywords": [
     "vue",
     "formik",
@@ -39,7 +39,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --check lib/ tests/",
-    "format:fix": "prettier --write lib/ tests/"
+    "format:fix": "prettier --write lib/ tests/",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -71,10 +72,10 @@
     "@vue/tsconfig": "^0.7.0",
     "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.30.0",
+    "husky": "^9.1.7",
     "joi": "^17.13.3",
     "jsdom": "^25.0.1",
     "npm-run-all2": "^7.0.2",
-    "pre-commit": "^1.2.2",
     "prettier": "^3.3.3",
     "sass-embedded": "^1.83.0",
     "typescript": "~5.6.3",
@@ -87,8 +88,11 @@
     "zod": "^3.24.1"
   },
   "license": "LGPL-3.0-or-later",
-  "pre-commit": [
-    "lint:fix",
-    "format:fix"
-  ]
+  "pre-commit": {
+    "silent": false,
+    "run": [
+      "lint:fix",
+      "format:fix"
+    ]
+  }
 }
