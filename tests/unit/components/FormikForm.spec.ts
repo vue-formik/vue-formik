@@ -76,7 +76,7 @@ describe("FormikForm", () => {
           formik,
           resetOptions: {
             keepTouched,
-          }
+          },
         },
         slots: {
           default: "<button type='reset'>Reset</button>",
@@ -96,7 +96,7 @@ describe("FormikForm", () => {
             values: {
               name: "Jane",
             },
-          }
+          },
         },
         slots: {
           default: "<button type='reset'>Reset</button>",
@@ -106,6 +106,6 @@ describe("FormikForm", () => {
       expect(formik.values.name).toBe("");
       button.trigger("reset");
       expect(formik.values.name).toBe("Jane");
-    })
-  })
+    });
+  });
 });

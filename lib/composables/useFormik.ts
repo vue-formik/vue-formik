@@ -116,20 +116,13 @@ const useFormik = <T extends object>({
     Object.assign(touched, newTouched);
   };
 
-  const reset = ({
-    values: newValues,
-    keepTouched = false,
-  }: IResetOptions<T> = {}) => {
+  const reset = ({ values: newValues, keepTouched = false }: IResetOptions<T> = {}) => {
     if (newValues) {
       setValues(Object.assign(initialValuesRef, deepClone(newValues)));
       Object.assign(initialValuesRef, deepClone(newValues));
     } else {
       setValues(deepClone(initialValuesRef));
     }
-    console.log({
-      newValues,
-      keepTouched
-    })
 
     if (!keepTouched) {
       clearReactiveObject(touched);

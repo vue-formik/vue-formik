@@ -30,4 +30,4 @@ type Formik = ReturnType<typeof useFormik<AnyFormValues>>;
 type IResetOptions<T> = {
   values?: Partial<T>;
   keepTouched?: boolean;
-}
+};
