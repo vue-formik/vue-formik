@@ -1,5 +1,30 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`useFormik custom validation > custom validation with a function 1`] = `
+{
+  "email": "Email is required",
+  "name": "Name is required",
+}
+`;
+
+exports[`useFormik custom validation > custom validation with nested objects 1`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > dot notation for nested fields 1`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
 exports[`useFormik custom validation > should validate array field with custom validation schema 1`] = `
 {
   "contacts": [

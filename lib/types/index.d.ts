@@ -8,8 +8,9 @@ interface FormikHelpers<T> {
   setSubmitting: (value: boolean) => void;
 }
 
-type ValidationRule = (
+type ValidationRule<T = any> = (
   value: any,
+  values: T,
 ) =>
   | string
   | string[][]
@@ -18,16 +19,43 @@ type ValidationRule = (
   | Record<string, string | undefined>
   | Record<string, string | undefined>[];
 
-type CustomValidationSchema<T> = Partial<Record<keyof T | string, ValidationRule>>;
+// Helper type for nested validation rules
+type NestedValidationRules<T> = {
+  [K in keyof T]: T[K] extends object
+    ? ValidationRule<T> | NestedValidationRules<T[K]>
+    : ValidationRule<T>;
+};
+
+type ObjectValidationSchema<T> = {
+  [K in keyof T | string]:
+    | ValidationRule<T>
+    | NestedValidationRules<T[K]>
+    | ((values: T) => Partial<T>);
+};
+
+// Support both function and object validation schemas
+type CustomValidationSchema<T> = ObjectValidationSchema<T> | ((values: T) => Partial<T>);
 
 type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
 
 interface AnyFormValues {
   [key: string]: unknown;
 }
+
 type Formik = ReturnType<typeof useFormik<AnyFormValues>>;
 
 type IResetOptions<T> = {
   values?: Partial<T>;
   keepTouched?: boolean;
+};
+
+export type {
+  FormikHelpers,
+  ValidationRule,
+  NestedValidationRules,
+  CustomValidationSchema,
+  FormikOnSubmit,
+  AnyFormValues,
+  Formik,
+  IResetOptions,
 };

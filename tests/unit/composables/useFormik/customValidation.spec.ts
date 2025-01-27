@@ -158,4 +158,64 @@ describe("useFormik custom validation", async () => {
       expect(errors).toMatchSnapshot();
     });
   });
+
+  test("custom validation with nested objects", () => {
+    const initialValues = {
+      address: {
+        street: "",
+        city: "",
+      },
+    };
+
+    const validationSchema = {
+      address: {
+        street: (value: string) => validateRequiredField(value),
+        city: (value: string) => validateRequiredField(value),
+      },
+    };
+
+    const { errors } = useFormik({ initialValues, validationSchema });
+    expect(errors).toMatchSnapshot();
+  });
+
+  test("custom validation with a function", () => {
+    const initialValues = {
+      name: "",
+      email: "",
+    };
+
+    const validationSchema = (values: typeof initialValues) => {
+      const errors: Partial<typeof initialValues> = {};
+      if (!values.name) {
+        errors.name = "Name is required";
+      }
+      if (!values.email) {
+        errors.email = "Email is required";
+      }
+      return errors;
+    };
+
+    const { errors } = useFormik({
+      initialValues,
+      validationSchema,
+    });
+    expect(errors).toMatchSnapshot();
+  });
+
+  test("dot notation for nested fields", () => {
+    const initialValues = {
+      address: {
+        street: "",
+        city: "",
+      },
+    };
+
+    const validationSchema = {
+      "address.street": (value: string) => validateRequiredField(value),
+      "address.city": (value: string) => validateRequiredField(value),
+    };
+
+    const { errors } = useFormik({ initialValues, validationSchema });
+    expect(errors).toMatchSnapshot();
+  });
 });
