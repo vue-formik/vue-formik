@@ -178,7 +178,7 @@ describe("useFormik custom validation", async () => {
 
     const { errors } = useFormik({
       initialValues,
-      validationSchema
+      validationSchema,
     });
     expect(errors).toMatchSnapshot();
   });
@@ -222,7 +222,7 @@ describe("useFormik custom validation", async () => {
 
     const { errors } = useFormik({
       initialValues,
-      validationSchema
+      validationSchema,
     });
     expect(errors).toMatchSnapshot();
   });
@@ -253,9 +253,9 @@ describe("useFormik custom validation", async () => {
               errors.push(e);
             });
             return errors?.length ? errors : undefined;
-          }
-        }
-      })
+          },
+        },
+      });
 
       expect(formik.errors).toMatchSnapshot();
 
@@ -264,6 +264,6 @@ describe("useFormik custom validation", async () => {
       await nextTick();
 
       expect(formik.errors).toMatchSnapshot();
-    })
-  })
+    });
+  });
 });

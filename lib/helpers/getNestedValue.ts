@@ -5,18 +5,16 @@
  */
 type NestedPaths<T> = T extends object
   ? {
-    [K in keyof T]: K extends string
-      ? T[K] extends (infer U)[]
-        ?
-        | `${K}`
-        | `${K}[${number}]`
-        | `${K}[${number}]${NestedArrayPaths<U>}`
-        | `${K}.${NestedPaths<T[K]>}`
-        :
-        | `${K}`
-        | `${K}.${NestedPaths<T[K]>}`
-      : never;
-  }[keyof T]
+      [K in keyof T]: K extends string
+        ? T[K] extends (infer U)[]
+          ?
+              | `${K}`
+              | `${K}[${number}]`
+              | `${K}[${number}]${NestedArrayPaths<U>}`
+              | `${K}.${NestedPaths<T[K]>}`
+          : `${K}` | `${K}.${NestedPaths<T[K]>}`
+        : never;
+    }[keyof T]
   : never;
 
 type NestedArrayPaths<U> = U extends (infer V)[]
@@ -28,28 +26,27 @@ type NestedArrayPaths<U> = U extends (infer V)[]
 /**
  * Type to extract the nested value type given a path.
  */
-type NestedValue<T, P extends string> =
-  P extends keyof T
-    ? T[P]
-    : P extends `${infer K}[${infer I}]${infer Rest}`
-      ? K extends keyof T
-        ? T[K] extends (infer U)[]
+type NestedValue<T, P extends string> = P extends keyof T
+  ? T[P]
+  : P extends `${infer K}[${infer I}]${infer Rest}`
+    ? K extends keyof T
+      ? T[K] extends (infer U)[]
+        ? I extends `${number}`
+          ? NestedValue<U, Rest extends `.${infer R}` ? R : Rest>
+          : undefined
+        : undefined
+      : K extends ""
+        ? T extends (infer U)[]
           ? I extends `${number}`
             ? NestedValue<U, Rest extends `.${infer R}` ? R : Rest>
             : undefined
           : undefined
-        : K extends ''
-          ? T extends (infer U)[]
-            ? I extends `${number}`
-              ? NestedValue<U, Rest extends `.${infer R}` ? R : Rest>
-              : undefined
-            : undefined
-          : undefined
-      : P extends `${infer K}.${infer Rest}`
-        ? K extends keyof T
-          ? NestedValue<T[K], Rest>
-          : undefined
-        : undefined;
+        : undefined
+    : P extends `${infer K}.${infer Rest}`
+      ? K extends keyof T
+        ? NestedValue<T[K], Rest>
+        : undefined
+      : undefined;
 
 /**
  * Safely retrieves a nested value from an object using a dot-notation path with array indices.
@@ -61,10 +58,10 @@ const getNestedValue = <T extends object, P extends NestedPaths<T>>(
   obj: T,
   path: P,
 ): NestedValue<T, P> | undefined => {
-  if (obj == null || typeof obj !== 'object') return undefined;
+  if (obj == null || typeof obj !== "object") return undefined;
 
   let current: any = obj;
-  const segments = path.split('.');
+  const segments = path.split(".");
 
   for (const segment of segments) {
     const parsed = parseSegment(segment);
@@ -88,15 +85,15 @@ const getNestedValue = <T extends object, P extends NestedPaths<T>>(
  */
 const parseSegment = (segment: string): { key: string; indices: number[] } => {
   const parts = segment.split(/[[\]]/g).filter(Boolean);
-  if (!parts.length) return { key: '', indices: [] };
+  if (!parts.length) return { key: "", indices: [] };
 
   const key = parts[0];
-  const indices = parts.slice(1).map(p => {
+  const indices = parts.slice(1).map((p) => {
     const index = parseInt(p, 10);
     return isNaN(index) ? -1 : index;
   });
 
-  if (indices.some(i => i < 0)) return { key: '', indices: [] };
+  if (indices.some((i) => i < 0)) return { key: "", indices: [] };
   return { key, indices };
 };
 

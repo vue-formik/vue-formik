@@ -18,7 +18,7 @@ describe("updateNestedProperty", () => {
         country: "USA",
       },
     });
-  })
+  });
 
   test("should update nested array property", () => {
     const obj = {
@@ -48,7 +48,7 @@ describe("updateNestedProperty", () => {
         },
       ],
     });
-  })
+  });
 
   test("should update nested array property with nested array", () => {
     const obj = {
@@ -57,18 +57,12 @@ describe("updateNestedProperty", () => {
         {
           city: "Los Angeles",
           country: "USA",
-          streets: [
-            { name: "Main St" },
-            { name: "Broadway" },
-          ],
+          streets: [{ name: "Main St" }, { name: "Broadway" }],
         },
         {
           city: "San Francisco",
           country: "USA",
-          streets: [
-            { name: "Market St" },
-            { name: "Mission St" },
-          ],
+          streets: [{ name: "Market St" }, { name: "Mission St" }],
         },
       ],
     };
@@ -79,22 +73,16 @@ describe("updateNestedProperty", () => {
         {
           city: "Los Angeles",
           country: "USA",
-          streets: [
-            { name: "Main St" },
-            { name: "Broadway" },
-          ],
+          streets: [{ name: "Main St" }, { name: "Broadway" }],
         },
         {
           city: "San Francisco",
           country: "USA",
-          streets: [
-            { name: "Market St" },
-            { name: "New St" },
-          ],
+          streets: [{ name: "Market St" }, { name: "New St" }],
         },
       ],
     });
-  })
+  });
 
   describe("non-exiting indexes", () => {
     test("brew from scratch", () => {
@@ -102,10 +90,12 @@ describe("updateNestedProperty", () => {
         address?: {
           city?: string;
         };
-        contacts?: {
+        contacts: {
           code?: string;
         }[];
-      } = {}
+      } = {
+        contacts: [],
+      };
       let updated = updateNestedProperty(obj, "address.city", "New York");
       updated = updateNestedProperty(updated, "contacts[2].code", "123");
 
@@ -118,9 +108,10 @@ describe("updateNestedProperty", () => {
           {},
           {
             code: "123",
-          }]
+          },
+        ],
       });
-    })
+    });
     test("non-existing index should place undefined for non objects", () => {
       const obj: {
         name: string;
@@ -133,9 +124,9 @@ describe("updateNestedProperty", () => {
       updated = updateNestedProperty(updated, "addresses[2]", "USA");
       expect(updated).toEqual({
         name: "John Doe",
-        addresses: [undefined, "San Francisco", "USA" ],
+        addresses: [undefined, "San Francisco", "USA"],
       });
-    })
+    });
 
     test("non-existing index should place empty object", () => {
       const obj: {
@@ -150,11 +141,9 @@ describe("updateNestedProperty", () => {
       const updated = updateNestedProperty(obj, "addresses[0].city", "New York");
       expect(updated).toEqual({
         name: "John Doe",
-        addresses: [
-          { city: "New York" },
-        ],
+        addresses: [{ city: "New York" }],
       });
-    })
+    });
 
     test("non-existing index should place empty object with nested array", () => {
       const obj: {
@@ -173,14 +162,10 @@ describe("updateNestedProperty", () => {
         name: "John Doe",
         addresses: [
           {
-            streets: [
-              { name: "Main St" },
-            ],
+            streets: [{ name: "Main St" }],
           },
         ],
       });
-    })
-  })
-
-
+    });
+  });
 });

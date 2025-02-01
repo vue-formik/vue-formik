@@ -2,18 +2,16 @@
 
 type NestedPaths<T> = T extends object
   ? {
-    [K in keyof T]: K extends string
-      ? T[K] extends (infer U)[]
-        ?
-        | `${K}`
-        | `${K}[${number}]`
-        | `${K}[${number}]${NestedArrayPaths<U>}`
-        | `${K}.${NestedPaths<T[K]>}`
-        :
-        | `${K}`
-        | `${K}.${NestedPaths<T[K]>}`
-      : never;
-  }[keyof T]
+      [K in keyof T]: K extends string
+        ? T[K] extends (infer U)[]
+          ?
+              | `${K}`
+              | `${K}[${number}]`
+              | `${K}[${number}]${NestedArrayPaths<U>}`
+              | `${K}.${NestedPaths<T[K]>}`
+          : `${K}` | `${K}.${NestedPaths<T[K]>}`
+        : never;
+    }[keyof T]
   : never;
 
 type NestedArrayPaths<U> = U extends (infer V)[]
@@ -22,39 +20,48 @@ type NestedArrayPaths<U> = U extends (infer V)[]
     ? `[${number}].${NestedPaths<U>}`
     : never;
 
-type NestedValue<T, P extends string> =
-  P extends keyof T
-    ? T[P]
-    : P extends `${infer K}[${infer I}]${infer Rest}`
-      ? K extends keyof T
-        ? T[K] extends (infer U)[]
+type NestedValue<T, P extends string> = P extends keyof T
+  ? T[P]
+  : P extends `${infer K}[${infer I}]${infer Rest}`
+    ? K extends keyof T
+      ? T[K] extends (infer U)[] | undefined
+        ? I extends `${number}`
+          ? NestedValue<Exclude<U, undefined>, Rest extends `.${infer R}` ? R : Rest>
+          : never
+        : never
+      : K extends ""
+        ? T extends (infer U)[] | undefined
           ? I extends `${number}`
-            ? NestedValue<U, Rest extends `.${infer R}` ? R : Rest>
+            ? NestedValue<Exclude<U, undefined>, Rest extends `.${infer R}` ? R : Rest>
             : never
           : never
-        : K extends ''
-          ? T extends (infer U)[]
-            ? I extends `${number}`
-              ? NestedValue<U, Rest extends `.${infer R}` ? R : Rest>
-              : never
-            : never
+        : never
+    : P extends `${infer K}.${infer Rest}`
+      ? K extends keyof T
+        ? NestedValue<T[K], Rest>
+        : T extends Record<string, any>
+          ? any
           : never
-      : P extends `${infer K}.${infer Rest}`
-        ? K extends keyof T
-          ? NestedValue<T[K], Rest>
-          : never
-        : never;
+      : any;
 
-const updateNestedProperty = <T extends object, P extends NestedPaths<T>>(
+function updateNestedProperty<T extends object, P extends string>(
   obj: T,
   path: P,
-  value: NestedValue<T, P>
-): T => {
+  value: NestedValue<T, P>,
+): T;
+
+function updateNestedProperty<T extends object, P extends NestedPaths<T>>(
+  obj: T,
+  path: P,
+  value: NestedValue<T, P>,
+): T;
+
+function updateNestedProperty<T extends object>(obj: T, path: string, value: any): T {
   if (obj == null) throw new Error("Cannot update null/undefined object");
-  if (typeof obj !== 'object') throw new Error("Target must be an object");
+  if (typeof obj !== "object") throw new Error("Target must be an object");
   if (!path) throw new Error("Path cannot be empty");
 
-  const segments = path.split('.');
+  const segments = path.split(".");
   const clone = Array.isArray(obj) ? [...obj] : { ...obj };
   let current: any = clone;
 
@@ -70,7 +77,6 @@ const updateNestedProperty = <T extends object, P extends NestedPaths<T>>(
 
     for (let j = 0; j < indices.length; j++) {
       const idx = indices[j];
-      const isFinalIndex = j === indices.length - 1;
       const hasMoreSegments = i < segments.length - 1;
       const hasMoreIndices = j < indices.length - 1;
       const needsObject = hasMoreSegments || hasMoreIndices;
@@ -84,8 +90,8 @@ const updateNestedProperty = <T extends object, P extends NestedPaths<T>>(
 
       const arr = [...parent[targetKey]];
       if (idx >= arr.length) {
-        const elementsToAdd = idx - arr.length + 1;
-        const newElements = Array(elementsToAdd).fill(needsObject ? {} : undefined);
+        const fillValue = needsObject ? {} : undefined;
+        const newElements = Array(idx - arr.length + 1).fill(fillValue);
         arr.push(...newElements);
       }
 
@@ -104,33 +110,30 @@ const updateNestedProperty = <T extends object, P extends NestedPaths<T>>(
 
       if (parent[targetKey] === undefined || parent[targetKey] === null) {
         parent[targetKey] = nextNeedsArray ? [] : {};
-      } else if (typeof parent[targetKey] !== 'object') {
+      } else if (typeof parent[targetKey] !== "object") {
         parent[targetKey] = nextNeedsArray ? [] : {};
       }
 
-      const nextValue = Array.isArray(parent[targetKey])
+      parent[targetKey] = Array.isArray(parent[targetKey])
         ? [...parent[targetKey]]
         : { ...parent[targetKey] };
-
-      parent[targetKey] = nextValue;
       current = parent[targetKey];
     } else {
       parent[targetKey] = value;
     }
   }
 
-  // update the original object with the new value
   Object.assign(obj, clone);
 
   return clone as T;
-};
+}
 
 const parseSegment = (segment: string): { key: string; indices: number[] } => {
   const parts = segment.split(/[[\]]/g).filter(Boolean);
   if (!parts.length) throw new Error(`Invalid path segment: ${segment}`);
 
   const key = parts[0];
-  const indices = parts.slice(1).map(p => {
+  const indices = parts.slice(1).map((p) => {
     const index = parseInt(p, 10);
     if (isNaN(index)) throw new Error(`Invalid array index: ${p}`);
     if (index < 0) throw new Error(`Negative array index: ${index}`);

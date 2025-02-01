@@ -12,7 +12,6 @@ const validateYup = <T extends object>(
     const err = e as { inner: { path: string; message: string[] | string }[] };
     if (err?.inner?.length) {
       err.inner.forEach(({ path, message }) => {
-        console.log(path, message);
         updateNestedProperty(errors, path, message);
       });
     }

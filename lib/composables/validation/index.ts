@@ -31,7 +31,7 @@ const validate = <T extends object>(
   } else if (joiSchema) {
     return validateJoi(values, joiSchema);
   } else if (yupSchema) {
-    console.log("yupping")
+    console.log("yupping");
     return validateYup(values, yupSchema);
   } else if (validationSchema) {
     return validateCustom(values, validationSchema);

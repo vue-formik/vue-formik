@@ -20,7 +20,7 @@ type ValidationResult<T = any> =
 // Enhanced validation rule with automatic type inference
 type ValidationRule<TValue = any, TForm = any> = (
   value: TValue,
-  values: TForm
+  values: TForm,
 ) => ValidationResult<TValue>;
 
 // Helper type for nested validation rules with proper type inference
@@ -73,6 +73,7 @@ type IResetOptions<T> = {
 export type {
   FormikHelpers,
   ValidationRule,
+  ValidationResult,
   NestedValidationRules,
   CustomValidationSchema,
   FormikOnSubmit,
