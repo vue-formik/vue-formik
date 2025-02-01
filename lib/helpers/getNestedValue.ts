@@ -1,119 +1,100 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+/**
+ * Type to generate all possible nested paths in an object, including arrays.
+ */
 type NestedPaths<T> = T extends object
   ? {
-      [K in keyof T]: K extends string | number
-        ?
-            | `${K}`
-            | `${K}.${NestedPaths<T[K]>}`
-            | (T[K] extends (infer U)[]
-                ? `${K}[${number}]` | `${K}[${number}].${NestedPaths<U>}`
-                : never)
+      [K in keyof T]: K extends string
+        ? T[K] extends (infer U)[]
+          ?
+              | `${K}`
+              | `${K}[${number}]`
+              | `${K}[${number}]${NestedArrayPaths<U>}`
+              | `${K}.${NestedPaths<T[K]>}`
+          : `${K}` | `${K}.${NestedPaths<T[K]>}`
         : never;
     }[keyof T]
   : never;
 
+type NestedArrayPaths<U> = U extends (infer V)[]
+  ? `[${number}]` | `[${number}]${NestedArrayPaths<V>}`
+  : U extends object
+    ? `[${number}].${NestedPaths<U>}`
+    : never;
+
+/**
+ * Type to extract the nested value type given a path.
+ */
 type NestedValue<T, P extends string> = P extends keyof T
   ? T[P]
-  : P extends `${infer K}.${infer R}`
+  : P extends `${infer K}[${infer I}]${infer Rest}`
     ? K extends keyof T
-      ? NestedValue<T[K], R>
-      : // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        K extends `${infer A}[${infer I}]`
-        ? A extends keyof T
-          ? T[A] extends (infer U)[]
-            ? NestedValue<U, R>
+      ? T[K] extends (infer U)[]
+        ? I extends `${number}`
+          ? NestedValue<U, Rest extends `.${infer R}` ? R : Rest>
+          : undefined
+        : undefined
+      : K extends ""
+        ? T extends (infer U)[]
+          ? I extends `${number}`
+            ? NestedValue<U, Rest extends `.${infer R}` ? R : Rest>
             : undefined
           : undefined
         : undefined
-    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      P extends `${infer A}[${infer I}]`
-      ? A extends keyof T
-        ? T[A] extends (infer U)[]
-          ? U
-          : undefined
+    : P extends `${infer K}.${infer Rest}`
+      ? K extends keyof T
+        ? NestedValue<T[K], Rest>
         : undefined
       : undefined;
 
 /**
- * Gets a nested value from an object using a dot notation path with array support
- * @template T - The type of the object to get from
- * @template P - The type of the path string
- * @param {T} obj - The object to get the value from
- * @param {P} path - The path to the value (e.g., "user.address.street" or "items[0].name")
- * @returns {NestedValue<T, P> | undefined} - The value at the path or undefined if not found
+ * Safely retrieves a nested value from an object using a dot-notation path with array indices.
+ * @param obj The object to traverse.
+ * @param path The path to the value (e.g., "a[0].b.c[1]").
+ * @returns The value at the path or undefined if not found.
  */
 const getNestedValue = <T extends object, P extends NestedPaths<T>>(
   obj: T,
   path: P,
 ): NestedValue<T, P> | undefined => {
-  // Early return for invalid inputs
-  if (obj == null) {
-    return undefined;
+  if (obj == null || typeof obj !== "object") return undefined;
+
+  let current: any = obj;
+  const segments = path.split(".");
+
+  for (const segment of segments) {
+    const parsed = parseSegment(segment);
+    if (!parsed.key) return undefined;
+
+    current = current[parsed.key];
+    if (current == null) return undefined;
+
+    for (const index of parsed.indices) {
+      if (!Array.isArray(current) || index < 0 || index >= current.length) return undefined;
+      current = current[index];
+      if (current == null) return undefined;
+    }
   }
 
-  // Cache regex pattern
-  const arrayPattern = /^(.*?)\[(\d+)](.*)$/;
+  return current as NestedValue<T, P>;
+};
 
-  // Direct property access optimization
-  if (path in obj) {
-    return obj[path as unknown as keyof T] as NestedValue<T, P>;
-  }
+/**
+ * Parses a path segment into its key and array indices.
+ */
+const parseSegment = (segment: string): { key: string; indices: number[] } => {
+  const parts = segment.split(/[[\]]/g).filter(Boolean);
+  if (!parts.length) return { key: "", indices: [] };
 
-  // Helper function to safely get array element
-  const getArrayElement = (arr: any[], index: number): any | undefined => {
-    return index >= 0 && index < arr.length ? arr[index] : undefined;
-  };
+  const key = parts[0];
+  const indices = parts.slice(1).map((p) => {
+    const index = parseInt(p, 10);
+    return isNaN(index) ? -1 : index;
+  });
 
-  // Helper function for parsing path segments
-  const parsePathSegment = (segment: string): { key: string; index?: number; rest?: string } => {
-    const match = segment.match(arrayPattern);
-    if (match) {
-      const [, key, indexStr, rest] = match;
-      return {
-        key: key || "",
-        index: parseInt(indexStr, 10),
-        rest: rest || undefined,
-      };
-    }
-    return { key: segment };
-  };
-
-  // Helper function for recursive value retrieval
-  const getValueRecursive = (current: any, pathSegment: string, remainingPath?: string): any => {
-    const { key, index, rest } = parsePathSegment(pathSegment);
-
-    let nextValue: any;
-
-    if (index !== undefined) {
-      // Handle array access
-      const arr = current[key];
-      if (!Array.isArray(arr)) {
-        return undefined;
-      }
-      nextValue = getArrayElement(arr, index);
-    } else {
-      // Handle object property
-      nextValue = current[key];
-    }
-
-    if (nextValue === undefined) {
-      return undefined;
-    }
-
-    // Handle remaining path
-    if (rest || remainingPath) {
-      const nextPath = (rest ? rest : "") + (remainingPath ? "." + remainingPath : "");
-      return nextPath.startsWith(".")
-        ? getValueRecursive(nextValue, nextPath.slice(1))
-        : getValueRecursive(nextValue, nextPath);
-    }
-
-    return nextValue;
-  };
-
-  // Split path and start recursive process
-  const [firstKey, ...restKeys] = path.split(".");
-  return getValueRecursive(obj, firstKey, restKeys.join(".")) as NestedValue<T, P>;
+  if (indices.some((i) => i < 0)) return { key: "", indices: [] };
+  return { key, indices };
 };
 
 export default getNestedValue;

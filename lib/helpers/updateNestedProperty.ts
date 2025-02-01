@@ -1,107 +1,146 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-type PropertyPath<T> =
-  | keyof T
-  | `${keyof T & string}.${string}`
-  | `${keyof T & string}[${number}]${string}`;
 
-/**
- * Updates a nested property in an object using a dot notation path with array support
- * @template T - The type of the object being updated
- * @template V - The type of the value being set
- * @param {T} obj - The object to update
- * @param {PropertyPath<T>} path - The path to the property (e.g., "user.address.street" or "items[0].name")
- * @param {V} value - The value to set
- * @returns {T} - The updated object
- * @throws {Error} - If the path is invalid or the object is null/undefined
- */
-const updateNestedProperty = <T extends Record<string, any>, V>(
+type NestedPaths<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string
+        ? T[K] extends (infer U)[]
+          ?
+              | `${K}`
+              | `${K}[${number}]`
+              | `${K}[${number}]${NestedArrayPaths<U>}`
+              | `${K}.${NestedPaths<T[K]>}`
+          : `${K}` | `${K}.${NestedPaths<T[K]>}`
+        : never;
+    }[keyof T]
+  : never;
+
+type NestedArrayPaths<U> = U extends (infer V)[]
+  ? `[${number}]` | `[${number}]${NestedArrayPaths<V>}`
+  : U extends object
+    ? `[${number}].${NestedPaths<U>}`
+    : never;
+
+type NestedValue<T, P extends string> = P extends keyof T
+  ? T[P]
+  : P extends `${infer K}[${infer I}]${infer Rest}`
+    ? K extends keyof T
+      ? T[K] extends (infer U)[] | undefined
+        ? I extends `${number}`
+          ? NestedValue<Exclude<U, undefined>, Rest extends `.${infer R}` ? R : Rest>
+          : never
+        : never
+      : K extends ""
+        ? T extends (infer U)[] | undefined
+          ? I extends `${number}`
+            ? NestedValue<Exclude<U, undefined>, Rest extends `.${infer R}` ? R : Rest>
+            : never
+          : never
+        : never
+    : P extends `${infer K}.${infer Rest}`
+      ? K extends keyof T
+        ? NestedValue<T[K], Rest>
+        : T extends Record<string, any>
+          ? any
+          : never
+      : any;
+
+function updateNestedProperty<T extends object, P extends string>(
   obj: T,
-  path: PropertyPath<T>,
-  value: V,
-): T => {
-  // Input validation
-  if (obj == null) {
-    throw new Error("Object cannot be null or undefined");
-  }
+  path: P,
+  value: NestedValue<T, P>,
+): T;
 
-  if (!path) {
-    throw new Error("Path cannot be empty");
-  }
+function updateNestedProperty<T extends object, P extends NestedPaths<T>>(
+  obj: T,
+  path: P,
+  value: NestedValue<T, P>,
+): T;
 
-  const arrayPattern = /^(.*?)\[(\d+)](.*)$/;
+function updateNestedProperty<T extends object>(obj: T, path: string, value: any): T {
+  if (obj == null) throw new Error("Cannot update null/undefined object");
+  if (typeof obj !== "object") throw new Error("Target must be an object");
+  if (!path) throw new Error("Path cannot be empty");
 
-  const updateSingleKey = (target: any, key: string, val: any): void => {
-    target[key] = val;
-  };
+  const segments = path.split(".");
+  const clone = Array.isArray(obj) ? [...obj] : { ...obj };
+  let current: any = clone;
 
-  const ensureArray = (target: any, key: string, index: number): void => {
-    if (!Array.isArray(target[key])) {
-      target[key] = [];
-    }
-    while (target[key].length <= index) {
-      target[key].push(undefined);
-    }
-  };
+  for (let i = 0; i < segments.length; i++) {
+    const isLast = i === segments.length - 1;
+    const segment = segments[i];
+    const { key, indices } = parseSegment(segment);
 
-  const updateRecursive = (
-    current: any,
-    pathSegment: string,
-    remainingPath: string,
-    finalValue: V,
-  ): void => {
-    const arrayMatch = pathSegment.match(arrayPattern);
+    if (!key) throw new Error(`Invalid path segment: ${segment}`);
 
-    if (arrayMatch) {
-      // Handle array access
-      const [, key, indexStr, rest] = arrayMatch;
-      const index = parseInt(indexStr, 10);
+    let parent = current;
+    let targetKey: string | number = key;
 
-      if (!key) {
-        throw new Error(`Invalid array path: ${pathSegment}`);
+    for (let j = 0; j < indices.length; j++) {
+      const idx = indices[j];
+      const hasMoreSegments = i < segments.length - 1;
+      const hasMoreIndices = j < indices.length - 1;
+      const needsObject = hasMoreSegments || hasMoreIndices;
+
+      if (parent[targetKey] === undefined) {
+        parent[targetKey] = [];
+      }
+      if (!Array.isArray(parent[targetKey])) {
+        throw new Error(`Expected array at '${targetKey}'`);
       }
 
-      ensureArray(current, key, index);
-
-      if (rest || remainingPath) {
-        // More nested paths to process
-        const nextPath = (rest + (remainingPath ? "." + remainingPath : "")).replace(/^\./, "");
-        if (!current[key][index]) {
-          current[key][index] = {};
-        }
-        updateRecursive(
-          current[key][index],
-          nextPath.split(".")[0],
-          nextPath.split(".").slice(1).join("."),
-          finalValue,
-        );
-      } else {
-        // Direct array update
-        current[key][index] = finalValue;
+      const arr = [...parent[targetKey]];
+      if (idx >= arr.length) {
+        const fillValue = needsObject ? {} : undefined;
+        const newElements = Array(idx - arr.length + 1).fill(fillValue);
+        arr.push(...newElements);
       }
+
+      if (arr[idx] === undefined && needsObject) {
+        arr[idx] = {};
+      }
+
+      parent[targetKey] = arr;
+      parent = arr;
+      targetKey = idx;
+    }
+
+    if (!isLast) {
+      const nextSegment = segments[i + 1];
+      const nextNeedsArray = parseSegment(nextSegment).indices.length > 0;
+
+      if (parent[targetKey] === undefined || parent[targetKey] === null) {
+        parent[targetKey] = nextNeedsArray ? [] : {};
+      } else if (typeof parent[targetKey] !== "object") {
+        parent[targetKey] = nextNeedsArray ? [] : {};
+      }
+
+      parent[targetKey] = Array.isArray(parent[targetKey])
+        ? [...parent[targetKey]]
+        : { ...parent[targetKey] };
+      current = parent[targetKey];
     } else {
-      // Handle object property
-      if (remainingPath) {
-        // More nested paths to process
-        if (!(pathSegment in current)) {
-          current[pathSegment] = {};
-        }
-        updateRecursive(
-          current[pathSegment],
-          remainingPath.split(".")[0],
-          remainingPath.split(".").slice(1).join("."),
-          finalValue,
-        );
-      } else {
-        // Direct property update
-        updateSingleKey(current, pathSegment, finalValue);
-      }
+      parent[targetKey] = value;
     }
-  };
+  }
 
-  const [firstKey, ...restKeys] = path.toString().split(".");
-  updateRecursive(obj, firstKey, restKeys.join("."), value);
+  Object.assign(obj, clone);
 
-  return obj;
+  return clone as T;
+}
+
+const parseSegment = (segment: string): { key: string; indices: number[] } => {
+  const parts = segment.split(/[[\]]/g).filter(Boolean);
+  if (!parts.length) throw new Error(`Invalid path segment: ${segment}`);
+
+  const key = parts[0];
+  const indices = parts.slice(1).map((p) => {
+    const index = parseInt(p, 10);
+    if (isNaN(index)) throw new Error(`Invalid array index: ${p}`);
+    if (index < 0) throw new Error(`Negative array index: ${index}`);
+    return index;
+  });
+
+  return { key, indices };
 };
 
 export default updateNestedProperty;

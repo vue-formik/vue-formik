@@ -49,10 +49,7 @@ describe("FormInput", async () => {
         return errors;
       },
       contact: (value: { code: string; number: string }) => {
-        const err = {
-          code: "",
-          number: "",
-        };
+        const err: Record<string, string> = {};
         if (!value.code) {
           err.code = "Code is required";
         }
@@ -65,7 +62,7 @@ describe("FormInput", async () => {
         if (value.number.length < 5) {
           err.number = "Number is too short";
         }
-        return err;
+        return Object.keys(err).length ? err : undefined; // Return undefined if no errors
       },
     },
   });

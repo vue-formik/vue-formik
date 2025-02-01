@@ -18,7 +18,8 @@
   "include": [
     "lib/**/*",
     "tests/**/*",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "node_modules/.pnpm/vitest@2.1.8_@types+node@22.10.2_@vitest+ui@2.1.8_jsdom@25.0.1_sass-embedded@1.83.0/node_modules/vitest/globals.d.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

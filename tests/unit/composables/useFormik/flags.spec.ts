@@ -58,7 +58,7 @@ describe("useFormik flags", async () => {
       const { isValid, setFieldValue } = useFormik({
         initialValues: { contacts: { code: "", number: "" } },
         validationSchema: {
-          contacts: (value: { code: string; number: string }) => {
+          contacts: (value) => {
             if (!value.code) {
               return { code: "Code is required" };
             }

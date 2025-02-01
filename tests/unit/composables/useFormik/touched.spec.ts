@@ -24,12 +24,7 @@ describe("useFormik touched", async () => {
             return "Address is required";
           }
         },
-        contacts: (
-          values: {
-            code: string;
-            number: string;
-          }[],
-        ) => {
+        contacts: (values) => {
           if (!values?.length) {
             return "Contact is required";
           }
@@ -77,7 +72,7 @@ describe("useFormik touched", async () => {
   test("should set touched nested field next item", async () => {
     formik.setFieldTouched("contacts[1].number", true);
     expect(formik.touched).toEqual({
-      contacts: [undefined, { number: true }],
+      contacts: [{}, { number: true }],
     });
     formik.setFieldValue("contacts[1].number", "123");
     await nextTick();
