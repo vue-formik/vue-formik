@@ -167,6 +167,8 @@ describe("useFormik custom validation", async () => {
       },
     };
 
+    const validateRequiredField = (value: string | undefined) =>
+      value ? undefined : "This field is required";
     const validationSchema = {
       address: {
         street: (value: string) => validateRequiredField(value),
@@ -174,7 +176,10 @@ describe("useFormik custom validation", async () => {
       },
     };
 
-    const { errors } = useFormik({ initialValues, validationSchema });
+    const { errors } = useFormik({
+      initialValues,
+      validationSchema
+    });
     expect(errors).toMatchSnapshot();
   });
 
@@ -215,7 +220,50 @@ describe("useFormik custom validation", async () => {
       "address.city": (value: string) => validateRequiredField(value),
     };
 
-    const { errors } = useFormik({ initialValues, validationSchema });
+    const { errors } = useFormik({
+      initialValues,
+      validationSchema
+    });
     expect(errors).toMatchSnapshot();
   });
+
+  describe("array fields", () => {
+    test("should do well with array fields", async () => {
+      const formik = useFormik({
+        initialValues: {
+          addresses: [""],
+        },
+        validationSchema: {
+          addresses: (values) => {
+            if (!values.length) {
+              return "Address is required";
+            }
+            const errors: string[][] = [];
+            values.forEach((value) => {
+              const e: string[] = [];
+              if (!value) {
+                e.push("Address is required");
+              }
+              if (value.length < 3) {
+                e.push("Address must be at least 3 characters");
+              }
+              if (value.length > 50) {
+                e.push("Address must be at most 50 characters");
+              }
+              errors.push(e);
+            });
+            return errors?.length ? errors : undefined;
+          }
+        }
+      })
+
+      expect(formik.errors).toMatchSnapshot();
+
+      formik.setFieldValue("addresses[0]", "123 Main St");
+
+      await nextTick();
+
+      expect(formik.errors).toMatchSnapshot();
+    })
+  })
 });

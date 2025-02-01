@@ -1,5 +1,24 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`useFormik custom validation > array fields > should do well with array fields 1`] = `
+{
+  "addresses": [
+    [
+      "Address is required",
+      "Address must be at least 3 characters",
+    ],
+  ],
+}
+`;
+
+exports[`useFormik custom validation > array fields > should do well with array fields 2`] = `
+{
+  "addresses": [
+    [],
+  ],
+}
+`;
+
 exports[`useFormik custom validation > custom validation with a function 1`] = `
 {
   "email": "Email is required",

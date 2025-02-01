@@ -23,9 +23,9 @@ const useFormik = <T extends object>({
   validateOnMount?: boolean;
   preventDefault?: boolean;
   onSubmit?: FormikOnSubmit<T>;
-  yupSchema?: YupSchema<Partial<T>>;
-  joiSchema?: JoiSchema<Partial<T>>;
-  zodSchema?: ZodType<Partial<T>>;
+  yupSchema?: YupSchema<T>;
+  joiSchema?: JoiSchema<T>;
+  zodSchema?: ZodType<T>;
   validationSchema?: CustomValidationSchema<T>;
 }) => {
   // Refs for tracking form state
@@ -145,10 +145,12 @@ const useFormik = <T extends object>({
     isValidating.value = true;
     const validationErrors = validate();
     clearReactiveObject(errors);
+    console.log("validationErrors", validationErrors);
     Object.assign(errors, validationErrors);
     isValidating.value = false;
   };
 
+  console.log("validateOnMount", validateOnMount);
   if (validateOnMount) {
     performValidation();
   }

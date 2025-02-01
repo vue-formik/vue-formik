@@ -28,7 +28,7 @@ const validateCustom = <T extends object>(
   Object.entries(schema).forEach(([key, rules]) => {
     // Case 1: Regular validation rule
     if (isValidationRule<T>(rules)) {
-      const value = getNestedValue(values as Record<string, unknown>, key);
+      const value = getNestedValue(values, key);
       const error = rules(value, values);
       if (error) {
         updateNestedProperty(errors, key, error);

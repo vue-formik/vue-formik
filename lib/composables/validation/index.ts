@@ -15,9 +15,9 @@ const validate = <T extends object>(
     zodSchema,
     validationSchema,
   }: {
-    yupSchema?: YupSchema<Partial<T>>;
-    joiSchema?: JoiSchema<Partial<T>>;
-    zodSchema?: ZodType<Partial<T>>;
+    yupSchema?: YupSchema<T>;
+    joiSchema?: JoiSchema<T>;
+    zodSchema?: ZodType<T>;
     validationSchema?: CustomValidationSchema<T>;
   },
 ): Partial<Record<keyof T, unknown>> => {
@@ -31,6 +31,7 @@ const validate = <T extends object>(
   } else if (joiSchema) {
     return validateJoi(values, joiSchema);
   } else if (yupSchema) {
+    console.log("yupping")
     return validateYup(values, yupSchema);
   } else if (validationSchema) {
     return validateCustom(values, validationSchema);

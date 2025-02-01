@@ -33,7 +33,7 @@ describe("yupValidation", async () => {
     });
     expect(errors).toMatchSnapshot();
   });
-  test("should validate object field with validation schema", async () => {
+  test("should validate object field with validation schema", () => {
     const initialValues = {
       contact: {
         code: "",
