@@ -140,8 +140,16 @@ describe("clearObject", async () => {
 
   test("should handle deeply nested arrays", async () => {
     const obj = {
-      arr: [[1, 2], [3, 4]],
-      obj: { nested: [[5, 6], [7, 8]] },
+      arr: [
+        [1, 2],
+        [3, 4],
+      ],
+      obj: {
+        nested: [
+          [5, 6],
+          [7, 8],
+        ],
+      },
     };
     clearObject(obj);
     expect(obj).toEqual({});

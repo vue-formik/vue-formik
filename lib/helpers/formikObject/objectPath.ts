@@ -10,7 +10,7 @@
  * constructPath(["a", 0, "b"]) // returns "a[0].b"
  * constructPath(["a", "b", "c"]) // returns "a.b.c"
  */
-export const constructPath = (segments: (string|number)[]) => {
+export const constructPath = (segments: (string | number)[]) => {
   let path = "";
   segments.forEach((segment, index) => {
     path += typeof segment === "number" ? `[${segment}]` : index === 0 ? segment : `.${segment}`;

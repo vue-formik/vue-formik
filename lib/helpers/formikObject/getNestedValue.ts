@@ -6,22 +6,16 @@ import parseSegment from "@/helpers/formikObject/parseSegment";
  * @param path The path to the value (e.g., "a[0].b.c[1]").
  * @returns The value at the path or undefined if not found.
  */
-function getNestedValue <T extends object, P extends NestedPaths<T>>(
+function getNestedValue<T extends object, P extends NestedPaths<T>>(
   obj: T,
   path: P,
 ): NestedValue<T, P> | undefined;
 
-function getNestedValue <T extends object, P extends string>(
-  obj: T,
-  path: P,
-): NestedValue<T, P> | P;
+function getNestedValue<T extends object, P extends string>(obj: T, path: P): NestedValue<T, P> | P;
 
-function getNestedValue <T extends object>(
-  obj: T,
-  path: string,
-): NestedValue<T, string> | undefined;
+function getNestedValue<T extends object>(obj: T, path: string): NestedValue<T, string> | undefined;
 
-function getNestedValue <T extends object, P extends string>(
+function getNestedValue<T extends object, P extends string>(
   obj: T,
   path: P,
 ): NestedValue<T, P> | undefined {

@@ -31,16 +31,32 @@ describe("setNestedValue", () => {
       const obj = {
         name: "John Doe",
         addresses: [
-          { city: "Los Angeles", country: "USA", streets: [{ name: "Main St" }, { name: "Broadway" }] },
-          { city: "San Francisco", country: "USA", streets: [{ name: "Market St" }, { name: "Mission St" }] },
+          {
+            city: "Los Angeles",
+            country: "USA",
+            streets: [{ name: "Main St" }, { name: "Broadway" }],
+          },
+          {
+            city: "San Francisco",
+            country: "USA",
+            streets: [{ name: "Market St" }, { name: "Mission St" }],
+          },
         ],
       };
       const updated = setNestedValue(obj, "addresses[1].streets[1].name", "New St");
       expect(updated).toEqual({
         name: "John Doe",
         addresses: [
-          { city: "Los Angeles", country: "USA", streets: [{ name: "Main St" }, { name: "Broadway" }] },
-          { city: "San Francisco", country: "USA", streets: [{ name: "Market St" }, { name: "New St" }] },
+          {
+            city: "Los Angeles",
+            country: "USA",
+            streets: [{ name: "Main St" }, { name: "Broadway" }],
+          },
+          {
+            city: "San Francisco",
+            country: "USA",
+            streets: [{ name: "Market St" }, { name: "New St" }],
+          },
         ],
       });
     });

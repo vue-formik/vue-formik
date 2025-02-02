@@ -75,9 +75,9 @@ describe("objectPath", async () => {
       {
         segments: [""],
         expected: "",
-      }
-    ])("should construct path from string", ({ segments, expected}) => {
+      },
+    ])("should construct path from string", ({ segments, expected }) => {
       expect(constructPath(segments)).toBe(expected);
     });
-  })
-})
+  });
+});

@@ -7,11 +7,7 @@ function setNestedValue<T extends object, P extends string>(
   value: NestedValue<T, P>,
 ): T;
 
-function setNestedValue<T extends object>(
-  obj: T,
-  path: string,
-  value: NestedValue<T, string>,
-): T;
+function setNestedValue<T extends object>(obj: T, path: string, value: NestedValue<T, string>): T;
 
 function setNestedValue<T extends object, P extends NestedPaths<T>>(
   obj: T,
@@ -21,16 +17,16 @@ function setNestedValue<T extends object, P extends NestedPaths<T>>(
 
 function setNestedValue<T extends object>(obj: T, path: string, value: any): T {
   if (obj == null) {
-    console.error("Cannot update null/undefined object")
-    return obj
+    console.error("Cannot update null/undefined object");
+    return obj;
   }
   if (typeof obj !== "object") {
-    console.error("Target must be an object")
-    return obj
+    console.error("Target must be an object");
+    return obj;
   }
   if (!path) {
-    console.error("Path cannot be empty")
-    return obj
+    console.error("Path cannot be empty");
+    return obj;
   }
 
   const segments = path.split(".");

@@ -6,9 +6,9 @@ function clearObject<T extends object>(
     deep?: boolean;
     preserveEmpty?: boolean;
     exclude?: Set<string>;
-  } = {}
+  } = {},
 ): void {
-  if (!obj || typeof obj !== 'object') return;
+  if (!obj || typeof obj !== "object") return;
 
   const {
     preservePrototype = true,
@@ -33,15 +33,12 @@ function clearObject<T extends object>(
 
   function isNode(value: any): boolean {
     return (
-      typeof window !== 'undefined' &&
-      value &&
-      typeof value === 'object' &&
-      'nodeType' in value
+      typeof window !== "undefined" && value && typeof value === "object" && "nodeType" in value
     );
   }
 
   function isVueReactive(value: any): boolean {
-    return !!value && ('__v_isRef' in value || '__v_isReactive' in value);
+    return !!value && ("__v_isRef" in value || "__v_isReactive" in value);
   }
 
   function isPreservedType(value: any): boolean {
@@ -57,10 +54,10 @@ function clearObject<T extends object>(
 
   const clearProperties = (
     target: any,
-    parentPath = '',
-    visited: WeakSet<object> = new WeakSet()
+    parentPath = "",
+    visited: WeakSet<object> = new WeakSet(),
   ): void => {
-    if (!target || typeof target !== 'object' || visited.has(target)) return;
+    if (!target || typeof target !== "object" || visited.has(target)) return;
     visited.add(target);
 
     if (Object.isFrozen(target)) return;
@@ -80,7 +77,7 @@ function clearObject<T extends object>(
       if (!descriptor?.configurable) continue;
 
       const value = target[prop];
-      if (value && typeof value === 'object') {
+      if (value && typeof value === "object") {
         if (isPreservedType(value)) {
           handleSpecialObject(value);
           continue;
@@ -125,7 +122,7 @@ function clearObject<T extends object>(
   try {
     clearProperties(obj);
   } catch (e) {
-    console.warn('Error during object clearing:', e);
+    console.warn("Error during object clearing:", e);
   }
 }
 
