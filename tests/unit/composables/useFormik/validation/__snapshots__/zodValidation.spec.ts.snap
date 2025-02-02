@@ -1,0 +1,37 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useFormik/jodValidation > form with array fields 1`] = `
+{
+  "email": "Invalid email",
+  "friends": [
+    {
+      "name": "String must contain at least 3 character(s)",
+    },
+    {
+      "name": "String must contain at least 3 character(s)",
+    },
+  ],
+  "name": "String must contain at least 3 character(s)",
+}
+`;
+
+exports[`useFormik/jodValidation > form with array fields 2`] = `{}`;
+
+exports[`useFormik/jodValidation > form with array fields 3`] = `
+{
+  "friends": [
+    {
+      "name": "String must contain at least 3 character(s)",
+    },
+  ],
+}
+`;
+
+exports[`useFormik/jodValidation > simple form validation 1`] = `
+{
+  "email": "Invalid email",
+  "name": "String must contain at least 3 character(s)",
+}
+`;
+
+exports[`useFormik/jodValidation > simple form validation 2`] = `{}`;

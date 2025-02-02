@@ -1,4 +1,4 @@
-import { updateNestedProperty } from "@/helpers";
+import { setNestedValue } from "@/helpers";
 import { ObjectSchema } from "joi";
 
 const validateJoi = <T extends object>(values: T, schema: ObjectSchema<Partial<T>>) => {
@@ -15,7 +15,7 @@ const validateJoi = <T extends object>(values: T, schema: ObjectSchema<Partial<T
     };
     if (err?.details?.length) {
       err.details.forEach(({ context, message }) => {
-        updateNestedProperty(errors as Record<string, unknown>, context.label, message);
+        setNestedValue(errors as Record<string, unknown>, context.label, message);
       });
     }
   }

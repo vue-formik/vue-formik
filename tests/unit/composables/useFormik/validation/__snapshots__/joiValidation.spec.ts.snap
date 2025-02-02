@@ -1,0 +1,75 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`joiValidation > validate form with array fields 1`] = `
+{
+  "name": ""name" is not allowed to be empty",
+  "skills": ""skills" does not contain 1 required value(s)",
+}
+`;
+
+exports[`joiValidation > validate form with array fields 2`] = `{}`;
+
+exports[`joiValidation > validate form with array fields 3`] = `
+{
+  "skills": [
+    undefined,
+    ""skills[1]" is not allowed to be empty",
+  ],
+}
+`;
+
+exports[`joiValidation > validate form with array of objects 1`] = `
+{
+  "friends": ""friends" does not contain 1 required value(s)",
+  "name": ""name" is not allowed to be empty",
+}
+`;
+
+exports[`joiValidation > validate form with array of objects 2`] = `{}`;
+
+exports[`joiValidation > validate form with array of objects 3`] = `
+{
+  "friends": [
+    {},
+    {
+      "email": ""friends[1].email" must be a valid email",
+    },
+  ],
+}
+`;
+
+exports[`joiValidation > validate form with object fields 1`] = `
+{
+  "address": {
+    "city": ""address.city" is not allowed to be empty",
+    "country": ""address.country" is not allowed to be empty",
+  },
+  "name": ""name" is not allowed to be empty",
+}
+`;
+
+exports[`joiValidation > validate form with object fields 2`] = `{}`;
+
+exports[`joiValidation > validate form with object fields 3`] = `
+{
+  "address": {
+    "city": ""address.city" is not allowed to be empty",
+  },
+}
+`;
+
+exports[`joiValidation > validate simple form 1`] = `
+{
+  "email": ""email" is not allowed to be empty",
+  "name": ""name" is not allowed to be empty",
+  "password": ""password" is not allowed to be empty",
+}
+`;
+
+exports[`joiValidation > validate simple form 2`] = `{}`;
+
+exports[`joiValidation > validate simple form 3`] = `
+{
+  "confirmPassword": ""confirmPassword" must be [ref:password]",
+}
+`;

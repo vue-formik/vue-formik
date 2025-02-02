@@ -1,0 +1,40 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`yupValidation > should validate array field with validation schema 1`] = `
+{
+  "contacts": [
+    "Contact is required",
+    "Contact is required",
+  ],
+}
+`;
+
+exports[`yupValidation > should validate form with validation schema 1`] = `
+{
+  "contact": "Contact is required",
+}
+`;
+
+exports[`yupValidation > should validate object array field with validation schema 1`] = `
+{
+  "contacts": [
+    {
+      "code": "Code is required",
+      "number": "Number is required",
+    },
+    {
+      "code": "Code is required",
+      "number": "Number is required",
+    },
+  ],
+}
+`;
+
+exports[`yupValidation > should validate object field with validation schema 1`] = `
+{
+  "contact": {
+    "code": "Code is required",
+    "number": "Number is required",
+  },
+}
+`;
