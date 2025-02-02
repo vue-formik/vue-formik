@@ -144,7 +144,7 @@ describe("useFieldArray composable", () => {
       expect(console.warn).toHaveBeenCalledWith('Index -1 out of bounds for field "names"');
     });
 
-    test("should clear touched value as well", () => {
+    test("should clearObject touched value as well", () => {
       const fk = useFormik({
         initialValues: { names: ["John", "Doe"] },
       });
@@ -154,7 +154,7 @@ describe("useFieldArray composable", () => {
       ufa.pop("names", 0);
       expect(fk.getFieldTouched("names[0]")).toBeUndefined();
     });
-    test("should clear touched value as well for object array fields", () => {
+    test("should clearObject touched value as well for object array fields", () => {
       const fk = useFormik({
         initialValues: { names: [{ name: "John" }, { name: "Doe" }] },
       });

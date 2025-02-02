@@ -1,5 +1,5 @@
 import { ObjectSchema } from "yup";
-import { updateNestedProperty } from "@/helpers";
+import { setNestedValue } from "@/helpers";
 
 const validateYup = <T extends object>(
   values: T,
@@ -12,7 +12,7 @@ const validateYup = <T extends object>(
     const err = e as { inner: { path: string; message: string[] | string }[] };
     if (err?.inner?.length) {
       err.inner.forEach(({ path, message }) => {
-        updateNestedProperty(errors, path, message);
+        setNestedValue(errors, path, message);
       });
     }
   }

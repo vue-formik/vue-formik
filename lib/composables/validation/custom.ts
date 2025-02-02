@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getNestedValue, updateNestedProperty } from "@/helpers";
+import { getNestedValue, setNestedValue } from "@/helpers";
 import { CustomValidationSchema, ValidationRule } from "@/types";
 
 const isValidationRule = <T>(rule: unknown): rule is ValidationRule<unknown, T> => {
@@ -37,7 +37,7 @@ const validateCustom = <T extends Record<string, any>>(
     const error = rule(value, values);
 
     if (error !== undefined && error !== null) {
-      updateNestedProperty(parentErrors, fullKey, error);
+      setNestedValue(parentErrors, fullKey, error);
     }
   };
 

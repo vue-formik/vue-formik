@@ -1,5 +1,5 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
-import { clearReactiveObject, getNestedValue, updateNestedProperty, deepClone } from "@/helpers";
+import { clearObject, getNestedValue, setNestedValue, deepClone } from "@/helpers";
 import type { FormikHelpers } from "@/types";
 import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
@@ -56,12 +56,12 @@ const useFormik = <T extends object>({
   };
 
   const setErrors = (newErrors: Partial<Record<keyof T, unknown>>) => {
-    clearReactiveObject(errors);
+    clearObject(errors);
     Object.assign(errors, newErrors);
   };
 
   const setTouched = (newTouched: Partial<Record<keyof T, unknown>>) => {
-    clearReactiveObject(touched);
+    clearObject(touched);
     Object.assign(touched, newTouched);
   };
 
@@ -74,18 +74,18 @@ const useFormik = <T extends object>({
     }
 
     if (!keepTouched) {
-      clearReactiveObject(touched);
+      clearObject(touched);
     }
 
     submitCount.value = 0;
   };
 
   const setFieldValue = (field: string, value: unknown) => {
-    updateNestedProperty(values as Record<string, unknown>, field, value);
+    setNestedValue(values as Record<string, unknown>, field, value);
   };
 
   const setFieldTouched = (field: string, isTouched?: boolean) => {
-    updateNestedProperty(touched as Record<string, unknown>, field, isTouched);
+    setNestedValue(touched as Record<string, unknown>, field, isTouched);
   };
 
   const setSubmitting = (value: boolean) => {
@@ -144,13 +144,11 @@ const useFormik = <T extends object>({
   const performValidation = () => {
     isValidating.value = true;
     const validationErrors = validate();
-    clearReactiveObject(errors);
-    console.log("validationErrors", validationErrors);
+    clearObject(errors);
     Object.assign(errors, validationErrors);
     isValidating.value = false;
   };
 
-  console.log("validateOnMount", validateOnMount);
   if (validateOnMount) {
     performValidation();
   }

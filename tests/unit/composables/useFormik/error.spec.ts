@@ -126,7 +126,7 @@ describe("useFormik Error Handling", () => {
   });
 
   describe("Error Clearing", () => {
-    test("should clear errors on reset", async () => {
+    test("should clearObject errors on reset", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
         yupSchema: complexSchema,
@@ -144,7 +144,7 @@ describe("useFormik Error Handling", () => {
       expect(formik.hasFieldError("user.email")).toBe(false);
     });
 
-    test("should clear specific field errors", async () => {
+    test("should clearObject specific field errors", async () => {
       const formik = useFormik({
         initialValues: initialComplexValues,
         yupSchema: complexSchema,

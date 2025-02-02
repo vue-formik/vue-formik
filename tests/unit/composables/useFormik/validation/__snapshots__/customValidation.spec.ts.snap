@@ -1,0 +1,178 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useFormik custom validation > array fields > should do well with array fields 1`] = `
+{
+  "addresses": [
+    [
+      "Address is required",
+      "Address must be at least 3 characters",
+    ],
+  ],
+}
+`;
+
+exports[`useFormik custom validation > array fields > should do well with array fields 2`] = `
+{
+  "addresses": [
+    [],
+  ],
+}
+`;
+
+exports[`useFormik custom validation > custom validation with a function 1`] = `
+{
+  "email": "Email is required",
+  "name": "Name is required",
+}
+`;
+
+exports[`useFormik custom validation > custom validation with nested objects 1`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > dot notation for nested fields 1`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > should validate array field with custom validation schema 1`] = `
+{
+  "contacts": [
+    "This field is required",
+    "This field is required",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > should validate form with custom validation schema 1`] = `
+{
+  "contact": "This field is required",
+}
+`;
+
+exports[`useFormik custom validation > should validate object field with custom validation schema 1`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on blur > should validate array field on blur with custom validation schema 1`] = `
+{
+  "contacts": [
+    "This field is required",
+    "This field is required",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > validation on blur > should validate array field on blur with custom validation schema 2`] = `
+{
+  "contacts": [
+    "This field is required",
+    "This field is required",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > validation on blur > should validate form on blur with custom validation schema 1`] = `
+{
+  "contact": "This field is required",
+}
+`;
+
+exports[`useFormik custom validation > validation on blur > should validate form on blur with custom validation schema 2`] = `
+{
+  "contact": "This field is required",
+}
+`;
+
+exports[`useFormik custom validation > validation on blur > should validate object field on blur with custom validation schema 1`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on blur > should validate object field on blur with custom validation schema 2`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate array field on value update with custom validation schema 1`] = `
+{
+  "contacts": [
+    "This field is required",
+    "This field is required",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate array field on value update with custom validation schema 2`] = `
+{
+  "contacts": [
+    "Must be at least 3 characters",
+    "Must be at least 3 characters",
+  ],
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate array field on value update with custom validation schema 3`] = `
+{
+  "contacts": [
+    undefined,
+    undefined,
+  ],
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate form on value update with custom validation schema 1`] = `
+{
+  "contact": "This field is required",
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate form on value update with custom validation schema 2`] = `
+{
+  "contact": "Must be at least 3 characters",
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate form on value update with custom validation schema 3`] = `{}`;
+
+exports[`useFormik custom validation > validation on value update > should validate object field on value update with custom validation schema 1`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "This field is required",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate object field on value update with custom validation schema 2`] = `
+{
+  "address": {
+    "city": "This field is required",
+    "street": "Must be at least 3 characters",
+  },
+}
+`;
+
+exports[`useFormik custom validation > validation on value update > should validate object field on value update with custom validation schema 3`] = `{}`;

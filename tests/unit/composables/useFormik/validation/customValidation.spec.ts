@@ -1,5 +1,5 @@
 import { test, expect, describe } from "vitest";
-import { useFormik } from "../../../../lib";
+import { useFormik } from "@/index";
 import { nextTick } from "vue";
 
 const validateRequiredField = (value: string | undefined) =>

@@ -1,6 +1,6 @@
 import { describe, vi, test, expect } from "vitest";
 import * as Yup from "yup";
-import { useFormik } from "../../../../lib";
+import { useFormik } from "@/index";
 
 describe("yupValidation", async () => {
   const onSubmit = vi.fn();

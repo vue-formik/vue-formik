@@ -1,7 +1,13 @@
-import updateNestedProperty from "@/helpers/updateNestedProperty";
-import getNestedValue from "@/helpers/getNestedValue";
-import clearReactiveObject from "@/helpers/clearReactiveObject";
-import deepClone from "@/helpers/deepClone";
+import setNestedValue from "@/helpers/formikObject/setNestedValue";
+import getNestedValue from "@/helpers/formikObject/getNestedValue";
+import clearObject from "@/helpers/formikObject/clearObject";
+import deepClone from "@/helpers/formikObject/deepClone";
 import { constructLabel } from "@/helpers/utils";
 
-export { deepClone, updateNestedProperty, getNestedValue, clearReactiveObject, constructLabel };
+export {
+  deepClone,
+  setNestedValue,
+  getNestedValue,
+  clearObject,
+  constructLabel
+};
