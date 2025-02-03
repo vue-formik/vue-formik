@@ -1,41 +1,45 @@
 import { ZodType } from "zod";
 import { ObjectSchema as JoiSchema } from "joi";
 import { ObjectSchema as YupSchema } from "yup";
-import { CustomValidationSchema } from "@/types";
-import validateZod from "@/composables/validation/zod";
-import validateJoi from "@/composables/validation/joi";
-import validateYup from "@/composables/validation/yup";
-import validateCustom from "@/composables/validation/custom";
+import { AllowedAny, CustomValidationSchema } from "@/types";
+import type ValidationRegistry from "./registry";
 
 const validate = <T extends object>(
   values: T,
+  vRegistry: ValidationRegistry,
   {
     yupSchema,
     joiSchema,
     zodSchema,
     validationSchema,
+    customValidators,
   }: {
     yupSchema?: YupSchema<T>;
     joiSchema?: JoiSchema<T>;
     zodSchema?: ZodType<T>;
     validationSchema?: CustomValidationSchema<T>;
-  },
-): Partial<Record<keyof T, unknown>> => {
-  const validationErrors = {};
-  if (!yupSchema && !joiSchema && !zodSchema && !validationSchema) {
-    return validationErrors;
+    customValidators?: AllowedAny;
   }
+): Partial<Record<keyof T, unknown>> => {
+  let validationErrors: Partial<Record<keyof T, unknown>> = {};
 
-  if (zodSchema) {
-    return validateZod(values, zodSchema);
-  } else if (joiSchema) {
-    return validateJoi(values, joiSchema);
-  } else if (yupSchema) {
-    return validateYup(values, yupSchema);
-  } else if (validationSchema) {
-    return validateCustom(values, validationSchema);
-  } else {
-    console.error("Invalid validation schema provided");
+  const validatorMap = {
+    zod: zodSchema,
+    yup: yupSchema,
+    joi: joiSchema,
+    custom: validationSchema,
+    ...customValidators,
+  };
+
+  for (const [key, schema] of Object.entries(validatorMap)) {
+    if (schema) {
+      const validator = vRegistry.getValidator(key);
+
+      if (validator) {
+        const result = validator(values, schema);
+        validationErrors = { ...validationErrors, ...result };
+      }
+    }
   }
 
   return validationErrors;

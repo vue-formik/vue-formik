@@ -1,4 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+type AllowedAny = any;
+
 import useFormik from "@/composables/useFormik";
 
 interface FormikHelpers<T> {
@@ -9,16 +11,16 @@ interface FormikHelpers<T> {
 }
 
 // Basic validation error types
-type ValidationResult<T = any> =
+type ValidationResult<T = AllowedAny> =
   | string
   | undefined
   | string[]
   | undefined[]
   | { [K in keyof T]?: ValidationResult<T[K]> }
-  | (T extends Array<any> ? Array<ValidationResult<T[number]>> : never);
+  | (T extends Array<AllowedAny> ? Array<ValidationResult<T[number]>> : never);
 
 // Enhanced validation rule with automatic type inference
-type ValidationRule<TValue = any, TForm = any> = (
+type ValidationRule<TValue = AllowedAny, TForm = AllowedAny> = (
   value: TValue,
   values: TForm,
 ) => ValidationResult<TValue>;
@@ -49,7 +51,7 @@ type DotNotationKeys<T> = {
 }[keyof T & string];
 
 type DotBasedValidationSchema<T> = Partial<{
-  [key in Exclude<DotNotationKeys<T>, keyof T>]: ValidationRule<any, T>;
+  [key in Exclude<DotNotationKeys<T>, keyof T>]: ValidationRule<AllowedAny, T>;
 }>;
 
 // Support both function and object validation schemas
@@ -70,7 +72,9 @@ type IResetOptions<T> = {
   keepTouched?: boolean;
 };
 
+
 export type {
+  AllowedAny,
   FormikHelpers,
   ValidationRule,
   ValidationResult,

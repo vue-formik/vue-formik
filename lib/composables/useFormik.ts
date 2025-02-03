@@ -1,11 +1,13 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
 import { clearObject, getNestedValue, setNestedValue, deepClone } from "@/helpers";
-import type { FormikHelpers } from "@/types";
+import type { AllowedAny, FormikHelpers } from "@/types";
 import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
 import { ZodType } from "zod";
 import { CustomValidationSchema, FormikOnSubmit, IResetOptions } from "@/types";
 import validation from "@/composables/validation";
+import ValidationRegistry from "validation/registry";
+import { getValidationRegistryWithDefaults } from "@/composables/validation/registry/util";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -18,6 +20,7 @@ const useFormik = <T extends object>({
   onSubmit,
   validateOnMount = true,
   preventDefault = true,
+  customValidators,
 }: {
   initialValues: T;
   validateOnMount?: boolean;
@@ -27,6 +30,7 @@ const useFormik = <T extends object>({
   joiSchema?: JoiSchema<T>;
   zodSchema?: ZodType<T>;
   validationSchema?: CustomValidationSchema<T>;
+  customValidators?: AllowedAny;
 }) => {
   // Refs for tracking form state
   const isSubmitting = ref(false);
@@ -34,13 +38,21 @@ const useFormik = <T extends object>({
   const submitCount = ref(0);
   const initialValuesRef = reactive<T>(deepClone(initialValues));
 
+  // validation registry init
+  const vRegistry = getValidationRegistryWithDefaults();
+
   const validate = () => {
-    return validation(toRaw(values) as T, {
-      yupSchema,
-      joiSchema,
-      zodSchema,
-      validationSchema,
-    });
+    return validation(
+      toRaw(values) as T,
+      vRegistry,
+      {
+        yupSchema,
+        joiSchema,
+        zodSchema,
+        validationSchema,
+        customValidators,
+      },
+    );
   };
 
   // Reactive form state
