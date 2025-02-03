@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getNestedValue, setNestedValue } from "@/helpers";
-import { CustomValidationSchema, ValidationRule } from "@/types";
+import { CustomValidationSchema, ValidationRule, AllowedAny } from "@/types";
 
 const isValidationRule = <T>(rule: unknown): rule is ValidationRule<unknown, T> => {
   return typeof rule === "function";
@@ -18,7 +17,7 @@ const isNestedValidationRules = <T>(
   return typeof rules === "object" && rules !== null && !Array.isArray(rules);
 };
 
-const validateCustom = <T extends Record<string, any>>(
+const validateCustom = <T extends Record<string, AllowedAny>>(
   values: T,
   schema: CustomValidationSchema<T>,
 ): Partial<Record<keyof T, unknown>> => {
@@ -29,11 +28,11 @@ const validateCustom = <T extends Record<string, any>>(
   const errors: Partial<Record<keyof T, unknown>> = {};
 
   const processValidationRule = (
-    rule: ValidationRule<any, T>,
+    rule: ValidationRule<AllowedAny, T>,
     fullKey: string,
     parentErrors: Record<string, unknown>,
   ) => {
-    const value = getNestedValue(values, fullKey as any);
+    const value = getNestedValue(values, fullKey);
     const error = rule(value, values);
 
     if (error !== undefined && error !== null) {
