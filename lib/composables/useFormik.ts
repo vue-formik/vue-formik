@@ -6,7 +6,6 @@ import { ObjectSchema as JoiSchema } from "joi";
 import { ZodType } from "zod";
 import { CustomValidationSchema, FormikOnSubmit, IResetOptions } from "@/types";
 import validation from "@/composables/validation";
-import { getValidationRegistryWithDefaults } from "@/composables/validation/registry/util";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -41,13 +40,17 @@ const useFormik = <T extends object>({
   const vRegistry = getValidationRegistryWithDefaults();
 
   const validate = () => {
-    return validation(toRaw(values) as T, vRegistry, {
-      yupSchema,
-      joiSchema,
-      zodSchema,
-      validationSchema,
-      customValidators,
-    });
+    return validation(
+      toRaw(values) as T,
+      vRegistry,
+      {
+        yupSchema,
+        joiSchema,
+        zodSchema,
+        validationSchema,
+        customValidators,
+      },
+    );
   };
 
   // Reactive form state
