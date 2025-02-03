@@ -1,14 +1,20 @@
 import { AllowedAny } from "@/types";
 
 class ValidationRegistry {
-  private validators: Record<string, (values: AllowedAny, schema: AllowedAny) => Partial<Record<string, unknown>>> = {};
+  private validators: Record<
+    string,
+    (values: AllowedAny, schema: AllowedAny) => Partial<Record<string, unknown>>
+  > = {};
 
   /**
    * Registers a new validator in the registry.
    * @param name - The unique name of the validator (e.g., "zod", "yup", "joi").
    * @param fn - The validation function that processes the values using a schema.
    */
-  registerValidator(name: string, fn: (values: AllowedAny, schema: AllowedAny) => Partial<Record<string, unknown>>): void {
+  registerValidator(
+    name: string,
+    fn: (values: AllowedAny, schema: AllowedAny) => Partial<Record<string, unknown>>,
+  ): void {
     this.validators[name] = fn;
   }
 
@@ -17,7 +23,9 @@ class ValidationRegistry {
    * @param name - The name of the validator to retrieve.
    * @returns The validation function or null if not found.
    */
-  getValidator(name: string): ((values: AllowedAny, schema: AllowedAny) => Partial<Record<string, unknown>>) | null {
+  getValidator(
+    name: string,
+  ): ((values: AllowedAny, schema: AllowedAny) => Partial<Record<string, unknown>>) | null {
     return this.validators[name] || null;
   }
 

@@ -1,4 +1,4 @@
-import ValidationRegistry from "@/composables/validation/registry/index";
+import ValidationRegistry from "@/composables/validation/registry";
 import validateZod from "@/composables/validation/zod";
 import validateYup from "@/composables/validation/yup";
 import validateJoi from "@/composables/validation/joi";
@@ -13,4 +13,4 @@ export const getValidationRegistryWithDefaults = () => {
   vRegistry.registerValidator("custom", validateCustom);
 
   return vRegistry;
-}
+};

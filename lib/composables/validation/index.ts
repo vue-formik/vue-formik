@@ -19,7 +19,7 @@ const validate = <T extends object>(
     zodSchema?: ZodType<T>;
     validationSchema?: CustomValidationSchema<T>;
     customValidators?: AllowedAny;
-  }
+  },
 ): Partial<Record<keyof T, unknown>> => {
   let validationErrors: Partial<Record<keyof T, unknown>> = {};
 
