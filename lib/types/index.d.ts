@@ -10,7 +10,6 @@ interface FormikHelpers<T> {
   setSubmitting: (value: boolean) => void;
 }
 
-// Basic validation error types
 type ValidationResult<T = AllowedAny> =
   | string
   | undefined
@@ -19,20 +18,22 @@ type ValidationResult<T = AllowedAny> =
   | { [K in keyof T]?: ValidationResult<T[K]> }
   | (T extends Array<AllowedAny> ? Array<ValidationResult<T[number]>> : never);
 
-// Enhanced validation rule with automatic type inference
 type ValidationRule<TValue = AllowedAny, TForm = AllowedAny> = (
   value: TValue,
   values: TForm,
 ) => ValidationResult<TValue>;
 
-// Helper type for nested validation rules with proper type inference
+type InputValidationRule<TValue = AllowedAny, TForm = AllowedAny> = (
+  value: TValue,
+  values?: TForm,
+) => ValidationResult<TValue>;
+
 type NestedValidationRules<T> = {
   [K in keyof T]: T[K] extends object
     ? ValidationRule<T[K], T> | NestedValidationRules<T[K]>
     : ValidationRule<T[K], T>;
 };
 
-// Enhanced object validation schema with proper type inference
 type ObjectValidationSchema<T> = {
   [K in keyof T]: T[K] extends Array<infer U>
     ? ValidationRule<T[K], T> | NestedValidationRules<U>
@@ -41,7 +42,6 @@ type ObjectValidationSchema<T> = {
       : ValidationRule<T[K], T>;
 };
 
-// Recursive type to infer dot-based keys
 type DotNotationKeys<T> = {
   [K in keyof T & string]: T[K] extends object
     ? T[K] extends Array<infer U>
@@ -54,7 +54,6 @@ type DotBasedValidationSchema<T> = Partial<{
   [key in Exclude<DotNotationKeys<T>, keyof T>]: ValidationRule<AllowedAny, T>;
 }>;
 
-// Support both function and object validation schemas
 type CustomValidationSchema<T> =
   | ObjectValidationSchema<T>
   | ((values: T) => Partial<Record<keyof T, string | Record<string, string>>>)
@@ -72,6 +71,10 @@ type IResetOptions<T> = {
   keepTouched?: boolean;
 };
 
+type Paths<T> = T extends object
+  ? { [K in keyof T]: `${Exclude<K, symbol>}${"" | `.${Paths<T[K]>}`}` }[keyof T]
+  : never;
+
 export type {
   AllowedAny,
   FormikHelpers,
@@ -83,4 +86,7 @@ export type {
   AnyFormValues,
   Formik,
   IResetOptions,
+  InputValidationRule,
+  DotNotationKeys,
+  Paths,
 };

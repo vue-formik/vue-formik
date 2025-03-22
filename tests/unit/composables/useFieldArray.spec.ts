@@ -174,4 +174,92 @@ describe("useFieldArray composable", () => {
       pop: expect.any(Function),
     });
   });
+
+  describe("use with nested arrays", () => {
+    test("should handle push with nested arrays", () => {
+      const fk = useFormik({
+        initialValues: {
+          name: "",
+          from: null,
+          until: null,
+          selectedAdminUnits: "",
+          criteria: [{ property: "", comparator: "", range: [{ from: "", to: "" }] }],
+        },
+      });
+      const ufa = useFieldArray(fk);
+      ufa.push("criteria[0].range", { from: "new", to: "new" });
+      expect(fk.values.criteria[0].range).toEqual([
+        { from: "", to: "" },
+        { from: "new", to: "new" },
+      ]);
+    });
+  });
+
+  test("should handle pop with nested arrays", () => {
+    const fk = useFormik({
+      initialValues: {
+        name: "",
+        from: null,
+        until: null,
+        selectedAdminUnits: "",
+        criteria: [{ property: "", comparator: "", range: [{ from: "", to: "" }] }],
+      },
+    });
+    const ufa = useFieldArray(fk);
+    fk.setFieldValue("criteria[0].range", [
+      { from: "", to: "" },
+      { from: "new", to: "new" },
+    ]);
+    ufa.pop("criteria[0].range", 1);
+    expect(fk.values.criteria[0].range).toEqual([{ from: "", to: "" }]);
+  });
+
+  describe("pop edge cases", () => {
+    test("pop with empty array", () => {
+      console.warn = vi.fn();
+      const fk = useFormik({
+        initialValues: { names: [] },
+      });
+      const ufa = useFieldArray(fk);
+      ufa.pop("names");
+      expect(fk.values.names).toEqual([]);
+      expect(console.warn).toHaveBeenCalled();
+      expect(console.warn).toHaveBeenCalledWith('Field "names" is an empty array');
+    });
+
+    test("pop on undefined index should remove last item", () => {
+      const fk = useFormik({
+        initialValues: { names: ["John", "Doe"] },
+      });
+      const ufa = useFieldArray(fk);
+      ufa.pop("names");
+      expect(fk.values.names).toEqual(["John"]);
+    });
+
+    test("pop with field not existing in values", () => {
+      console.warn = vi.fn();
+      const fk = useFormik({
+        initialValues: {
+          names: undefined,
+        },
+      });
+      const ufa = useFieldArray(fk);
+      ufa.pop("names");
+      expect(fk.values.names).toBeUndefined();
+      expect(console.warn).toHaveBeenCalled();
+      expect(console.warn).toHaveBeenCalledWith('Field "names" is not an array');
+    });
+
+    test("pop with null field value", () => {
+      console.warn = vi.fn();
+      const fk = useFormik({
+        initialValues: { names: null },
+      });
+      const ufa = useFieldArray(fk);
+      ufa.pop("names");
+      expect(fk.values.names).toBeNull();
+      expect(console.warn).toHaveBeenCalled();
+      expect(console.warn).toHaveBeenCalledWith('Field "names" is not an array');
+    });
+  });
 });
