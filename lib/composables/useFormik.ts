@@ -6,6 +6,7 @@ import { ObjectSchema as JoiSchema } from "joi";
 import { ZodType } from "zod";
 import { CustomValidationSchema, FormikOnSubmit, IResetOptions } from "@/types";
 import validation from "@/composables/validation";
+import { Struct } from "superstruct";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -15,6 +16,7 @@ const useFormik = <T extends object>({
   yupSchema,
   zodSchema,
   joiSchema,
+  structSchema,
   onSubmit,
   validateOnMount = true,
   preventDefault = true,
@@ -26,6 +28,7 @@ const useFormik = <T extends object>({
   yupSchema?: YupSchema<T>;
   joiSchema?: JoiSchema<T>;
   zodSchema?: ZodType<T>;
+  structSchema?: Struct<T>;
   validationSchema?: CustomValidationSchema<T>;
 }) => {
   // Refs for tracking form state
@@ -40,6 +43,7 @@ const useFormik = <T extends object>({
       joiSchema,
       zodSchema,
       validationSchema,
+      structSchema,
     });
   };
 

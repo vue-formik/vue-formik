@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`superstruct validation > complex validation 1`] = `
+{
+  "criteria": [
+    {
+      "range": [
+        {
+          "from": "Expected a nonempty string but received an empty one",
+          "to": "Expected a nonempty string but received an empty one",
+        },
+      ],
+    },
+  ],
+}
+`;
+
+exports[`superstruct validation > validate array 1`] = `
+{
+  "hobbies": [
+    "Expected a nonempty string but received an empty one",
+  ],
+}
+`;
+
+exports[`superstruct validation > validate object 1`] = `
+{
+  "address": {
+    "street": "Expected a string with a length between \`2\` and \`32\` but received one with a length of \`1\`",
+  },
+  "email": "Expected a string matching \`/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/\` but received "test"",
+}
+`;
+
+exports[`superstruct validation > validate string 1`] = `
+{
+  "email": "Expected a string matching \`/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/\` but received "test"",
+}
+`;
