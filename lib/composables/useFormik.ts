@@ -1,12 +1,11 @@
 import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
 import { clearObject, getNestedValue, setNestedValue, deepClone } from "@/helpers";
-import type { AllowedAny, FormikHelpers } from "@/types";
+import type { FormikHelpers, Paths } from "@/types";
 import { ObjectSchema as YupSchema } from "yup";
 import { ObjectSchema as JoiSchema } from "joi";
 import { ZodType } from "zod";
 import { CustomValidationSchema, FormikOnSubmit, IResetOptions } from "@/types";
 import validation from "@/composables/validation";
-import { getValidationRegistryWithDefaults } from "@/composables/validation/registry/util";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -19,7 +18,6 @@ const useFormik = <T extends object>({
   onSubmit,
   validateOnMount = true,
   preventDefault = true,
-  customValidators,
 }: {
   initialValues: T;
   validateOnMount?: boolean;
@@ -29,7 +27,6 @@ const useFormik = <T extends object>({
   joiSchema?: JoiSchema<T>;
   zodSchema?: ZodType<T>;
   validationSchema?: CustomValidationSchema<T>;
-  customValidators?: AllowedAny;
 }) => {
   // Refs for tracking form state
   const isSubmitting = ref(false);
@@ -37,16 +34,12 @@ const useFormik = <T extends object>({
   const submitCount = ref(0);
   const initialValuesRef = reactive<T>(deepClone(initialValues));
 
-  // validation registry init
-  const vRegistry = getValidationRegistryWithDefaults();
-
   const validate = () => {
-    return validation(toRaw(values) as T, vRegistry, {
+    return validation(toRaw(values) as T, {
       yupSchema,
       joiSchema,
       zodSchema,
       validationSchema,
-      customValidators,
     });
   };
 
@@ -87,11 +80,11 @@ const useFormik = <T extends object>({
     submitCount.value = 0;
   };
 
-  const setFieldValue = (field: string, value: unknown) => {
+  const setFieldValue = <K extends Paths<T>>(field: K, value: unknown) => {
     setNestedValue(values as Record<string, unknown>, field, value);
   };
 
-  const setFieldTouched = (field: string, isTouched?: boolean) => {
+  const setFieldTouched = <K extends Paths<T>>(field: K, isTouched?: boolean) => {
     setNestedValue(touched as Record<string, unknown>, field, isTouched);
   };
 
@@ -137,6 +130,7 @@ const useFormik = <T extends object>({
 
   const handleFieldBlur = (e: FocusEvent) => {
     const target = e.target as FieldElement;
+    // @ts-expect-error - validate the type of target
     setFieldTouched(target.name, true);
   };
 
@@ -144,7 +138,9 @@ const useFormik = <T extends object>({
     const target = e.target as HTMLInputElement;
     const value = target.type === "checkbox" ? target.checked : target.value;
 
+    // @ts-expect-error - validate the type of target
     setFieldValue(target.name, value);
+    // @ts-expect-error - validate the type of target
     setFieldTouched(target.name, true);
   };
 

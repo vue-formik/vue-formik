@@ -60,7 +60,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { Formik } from "@/types";
+import { Formik, InputValidationRule } from "@/types";
 import useFormikContext from "@/composables/useFormikContext";
 import { constructLabel } from "@/helpers";
 
@@ -76,6 +76,7 @@ const props = defineProps<{
   disabled?: boolean;
   required?: boolean;
   inputProps?: InputProps;
+  validation?: InputValidationRule;
 }>();
 
 const { formik: fk } = useFormikContext(props.formik);

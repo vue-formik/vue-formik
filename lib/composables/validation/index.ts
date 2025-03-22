@@ -1,45 +1,36 @@
 import { ZodType } from "zod";
 import { ObjectSchema as JoiSchema } from "joi";
 import { ObjectSchema as YupSchema } from "yup";
-import { AllowedAny, CustomValidationSchema } from "@/types";
-import type ValidationRegistry from "./registry";
+import { CustomValidationSchema } from "@/types";
+import validateYup from "@/composables/validation/yup";
+import validateJoi from "@/composables/validation/joi";
+import validateZod from "@/composables/validation/zod";
+import validateCustom from "@/composables/validation/custom";
 
 const validate = <T extends object>(
   values: T,
-  vRegistry: ValidationRegistry,
   {
     yupSchema,
     joiSchema,
     zodSchema,
     validationSchema,
-    customValidators,
   }: {
     yupSchema?: YupSchema<T>;
     joiSchema?: JoiSchema<T>;
     zodSchema?: ZodType<T>;
     validationSchema?: CustomValidationSchema<T>;
-    customValidators?: AllowedAny;
   },
 ): Partial<Record<keyof T, unknown>> => {
   let validationErrors: Partial<Record<keyof T, unknown>> = {};
 
-  const validatorMap = {
-    zod: zodSchema,
-    yup: yupSchema,
-    joi: joiSchema,
-    custom: validationSchema,
-    ...customValidators,
-  };
-
-  for (const [key, schema] of Object.entries(validatorMap)) {
-    if (schema) {
-      const validator = vRegistry.getValidator(key);
-
-      if (validator) {
-        const result = validator(values, schema);
-        validationErrors = { ...validationErrors, ...result };
-      }
-    }
+  if (yupSchema) {
+    validationErrors = validateYup(values, yupSchema);
+  } else if (joiSchema) {
+    validationErrors = validateJoi(values, joiSchema);
+  } else if (zodSchema) {
+    validationErrors = validateZod(values, zodSchema);
+  } else if (validationSchema) {
+    validationErrors = validateCustom(values, validationSchema);
   }
 
   return validationErrors;

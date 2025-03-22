@@ -9,10 +9,15 @@ function useFieldArray(formik: Formik) {
    * Note: This function only works with arrays.
    */
   const push = (field: string, value: unknown, index?: number) => {
-    const fieldValue = formik.values[field];
+    const fieldValue = formik.getFieldValue(field);
 
     if (!Array.isArray(fieldValue)) {
       console.warn(`Field "${field}" is not an array`);
+      return;
+    }
+
+    if (!formik.setFieldValue || typeof formik.setFieldValue !== "function") {
+      console.warn(`formik.setFieldValue is not a function or not available`);
       return;
     }
 
@@ -38,7 +43,7 @@ function useFieldArray(formik: Formik) {
    * If no index is provided, removes the last value in the array.
    */
   const pop = (field: string, index?: number) => {
-    const fieldValue = formik.values[field];
+    const fieldValue = formik.getFieldValue(field);
 
     if (!Array.isArray(fieldValue)) {
       console.warn(`Field "${field}" is not an array`);
