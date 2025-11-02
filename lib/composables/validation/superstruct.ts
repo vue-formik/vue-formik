@@ -18,7 +18,7 @@ const validateSuperstruct = async <T extends object>(
       }
     }
   }
-  return errors;
+  return errors as Partial<Record<keyof T, unknown>>;
 };
 
 export default validateSuperstruct;

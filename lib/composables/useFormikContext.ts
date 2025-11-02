@@ -1,5 +1,5 @@
 import { inject, computed } from "vue";
-import { Formik } from "@/types";
+import type { Formik } from "@/types";
 
 export function useFormikContext(pFormik?: Formik) {
   const injectedFormik = inject<Formik | null>("formik", null);

@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import type { Mock } from "vitest";
 import * as Yup from "yup";
 
 export const initialValues = {
@@ -9,7 +10,7 @@ export const emptyInitialValues = {
   name: "",
   email: "",
 };
-export const onSubmit = vi.fn();
+export const onSubmit: Mock = vi.fn();
 
 export const validationSchema = {
   name: (value: string) => {

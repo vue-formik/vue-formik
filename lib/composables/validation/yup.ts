@@ -1,4 +1,4 @@
-import { ObjectSchema } from "yup";
+import type { ObjectSchema } from "yup";
 import { setNestedValue } from "@/helpers";
 
 const validateYup = async <T extends object>(
@@ -16,7 +16,7 @@ const validateYup = async <T extends object>(
       });
     }
   }
-  return errors;
+  return errors as Partial<Record<keyof T, unknown>>;
 };
 
 export default validateYup;

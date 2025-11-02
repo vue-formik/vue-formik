@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { FormikForm, useFormik } from "@/index";
-import { Formik } from "@/types";
+import type { Formik } from "@/types";
 
 const flush = async () => {
   await Promise.resolve();

@@ -11,10 +11,13 @@ const validateZod = async <T extends object>(
   const result = await schema.safeParseAsync(values);
   if (!result.success) {
     result.error.issues.forEach(({ path, message }) => {
-      setNestedValue(errors as Record<string, unknown>, constructPath(path), message);
+      const pathSegments = path.filter(
+        (p): p is string | number => typeof p === "string" || typeof p === "number",
+      ) as (string | number)[];
+      setNestedValue(errors as Record<string, unknown>, constructPath(pathSegments), message);
     });
   }
-  return errors;
+  return errors as Partial<Record<keyof T, unknown>>;
 };
 
 export default validateZod;

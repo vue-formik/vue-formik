@@ -1,5 +1,5 @@
 import { setNestedValue } from "@/helpers";
-import { ObjectSchema } from "joi";
+import type { ObjectSchema } from "joi";
 
 const validateJoi = async <T extends object>(
   values: T,
@@ -26,7 +26,7 @@ const validateJoi = async <T extends object>(
     }
   }
 
-  return errors;
+  return errors as Partial<Record<keyof T, unknown>>;
 };
 
 export default validateJoi;

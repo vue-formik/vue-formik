@@ -1,7 +1,7 @@
 import { ZodType } from "zod";
-import { ObjectSchema as JoiSchema } from "joi";
-import { ObjectSchema as YupSchema } from "yup";
-import { CustomValidationSchema } from "@/types";
+import type { ObjectSchema as JoiSchema } from "joi";
+import type { ObjectSchema as YupSchema } from "yup";
+import type { CustomValidationSchema } from "@/types";
 import validateYup from "@/composables/validation/yup";
 import validateJoi from "@/composables/validation/joi";
 import validateZod from "@/composables/validation/zod";

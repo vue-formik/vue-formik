@@ -1,5 +1,5 @@
 import { getNestedValue, setNestedValue } from "@/helpers";
-import { CustomValidationSchema, ValidationRule, AllowedAny } from "@/types";
+import type { CustomValidationSchema, ValidationRule, AllowedAny } from "@/types";
 
 const isValidationRule = <T>(rule: unknown): rule is ValidationRule<unknown, T> => {
   return typeof rule === "function";

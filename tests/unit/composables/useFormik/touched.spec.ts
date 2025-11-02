@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 import { useFormik } from "@/index";
-import { Formik } from "@/types";
+import type { Formik } from "@/types";
 import { nextTick } from "vue";
 
 const flush = async () => {
