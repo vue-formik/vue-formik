@@ -3,24 +3,3 @@
 exports[`FormikForm > renders form 1`] = `"<form class="vf-form"></form>"`;
 
 exports[`FormikForm > renders form with children 1`] = `"<form class="vf-form"><input name="name"></form>"`;
-
-exports[`FormikForm > submit button calls formik.handleSubmit 1`] = `
-[
-  {
-    "name": "",
-  },
-  {
-    "event": Event {
-      "_vts": 1762091636350,
-      "isTrusted": false,
-    },
-    "reset": [Function],
-    "setErrors": [Function],
-    "setFieldTouched": [Function],
-    "setFieldValue": [Function],
-    "setSubmitting": [Function],
-    "setTouched": [Function],
-    "setValues": [Function],
-  },
-]
-`;

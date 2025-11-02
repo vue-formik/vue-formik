@@ -56,7 +56,19 @@ describe("FormikForm", () => {
     await flush();
     expect(onSubmitMock).toHaveBeenCalledTimes(1);
     const calledWith = onSubmitMock.mock.calls[0];
-    expect(calledWith).toMatchSnapshot();
+    expect(calledWith[0]).toMatchObject({
+      name: "",
+    });
+    expect(calledWith[1]).toMatchObject({
+      reset: expect.any(Function),
+      setErrors: expect.any(Function),
+      setValues: expect.any(Function),
+      setSubmitting: expect.any(Function),
+      setTouched: expect.any(Function),
+      setFieldValue: expect.any(Function),
+      setFieldTouched: expect.any(Function),
+      event: expect.any(Event),
+    });
   });
 
   describe("reset", () => {
