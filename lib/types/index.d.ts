@@ -10,6 +10,7 @@ interface FormikHelpers<T> {
   setErrors: (errors: Partial<Record<keyof T, unknown>>) => void;
   setValues: (values: Partial<T>, options?: SetValuesOptions) => void;
   setSubmitting: (value: boolean) => void;
+  event?: Event;
 }
 
 type ValidationResult<T = AllowedAny> =

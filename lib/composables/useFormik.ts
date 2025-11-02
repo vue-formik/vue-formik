@@ -154,6 +154,7 @@ const useFormik = <T extends object>({
               setTouched,
               setFieldValue,
               setFieldTouched,
+              event: e,
             } as FormikHelpers<T>,
           ),
         );
