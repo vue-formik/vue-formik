@@ -10,6 +10,10 @@ exports[`FormikForm > submit button calls formik.handleSubmit 1`] = `
     "name": "",
   },
   {
+    "event": Event {
+      "_vts": 1762091636350,
+      "isTrusted": false,
+    },
     "reset": [Function],
     "setErrors": [Function],
     "setFieldTouched": [Function],

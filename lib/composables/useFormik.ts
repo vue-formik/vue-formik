@@ -73,7 +73,11 @@ const useFormik = <T extends object>({
     applyState(touched, newTouched, { replace: true });
   };
 
-  const reset = ({ values: newValues, keepTouched = false }: IResetOptions<T> = {}) => {
+  const reset = ({ values: newValues, keepTouched = false }: IResetOptions<T> = {}, e?: Event) => {
+    if (e && preventDefault) {
+      e.preventDefault();
+    }
+
     if (newValues) {
       applyState(initialValuesRef, newValues, { replace: true });
       setValues(newValues, { replace: true });
