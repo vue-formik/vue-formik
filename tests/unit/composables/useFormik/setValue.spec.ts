@@ -50,5 +50,15 @@ describe("useFormik value setters", async () => {
       expect(values.contacts[1].code).toBe("+91");
       expect(values.contacts[1].number).toBe("1234567890");
     });
+
+    test("replace option should replace entire values object", () => {
+      const { values, setValues } = useFormik({
+        initialValues: { name: "Jane", email: "jane@example.com" },
+      });
+
+      setValues({ name: "Alice" }, { replace: true });
+
+      expect(values).toEqual({ name: "Alice" });
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { Formik } from "@/types";
+import type { Formik } from "@/types";
 
 function useFieldArray(formik: Formik) {
   /**

@@ -1,9 +1,22 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 import { useFormik } from "@/index";
-import { Formik } from "@/types";
+import type { Formik } from "@/types";
 import { nextTick } from "vue";
 
-describe("useFormik touched", async () => {
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+const waitForValidation = async (form: Formik) => {
+  await flush();
+  while (form.isValidating.value) {
+    await flush();
+  }
+};
+
+describe("useFormik touched", () => {
   const initialValues = {
     name: "",
     addresses: [""],
@@ -75,7 +88,7 @@ describe("useFormik touched", async () => {
       contacts: [{}, { number: true }],
     });
     formik.setFieldValue("contacts[1].number", "123");
-    await nextTick();
+    await waitForValidation(formik);
     expect(formik.getFieldError("contacts[1].number")).toEqual(
       "Number must be at least 10 characters",
     );

@@ -2,6 +2,19 @@ import { test, expect, describe } from "vitest";
 import { useFormik } from "@/index";
 import { nextTick } from "vue";
 
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+const waitForValidation = async (form: ReturnType<typeof useFormik>) => {
+  await flush();
+  while (form.isValidating.value) {
+    await flush();
+  }
+};
+
 const validateRequiredField = (value: string | undefined) =>
   value ? undefined : "This field is required";
 
@@ -23,14 +36,15 @@ const validateObjectField = (
   return Object.keys(errors).length ? errors : undefined;
 };
 
-describe("useFormik custom validation", async () => {
+describe("useFormik custom validation", () => {
   test("should validate form with custom validation schema", async () => {
     const initialValues = { contact: "" };
     const validationSchema = {
       contact: (value: string) => validateRequiredField(value),
     };
-    const { errors } = useFormik({ initialValues, validationSchema });
-    expect(errors).toMatchSnapshot();
+    const form = useFormik({ initialValues, validationSchema });
+    await waitForValidation(form);
+    expect(form.errors).toMatchSnapshot();
   });
 
   test("should validate array field with custom validation schema", async () => {
@@ -38,8 +52,9 @@ describe("useFormik custom validation", async () => {
     const validationSchema = {
       contacts: (values: string[]) => validateArrayField(values, 3),
     };
-    const { errors } = useFormik({ initialValues, validationSchema });
-    expect(errors).toMatchSnapshot();
+    const form = useFormik({ initialValues, validationSchema });
+    await waitForValidation(form);
+    expect(form.errors).toMatchSnapshot();
   });
 
   test("should validate object field with custom validation schema", async () => {
@@ -51,9 +66,28 @@ describe("useFormik custom validation", async () => {
           city: validateRequiredField,
         }),
     };
-    const { errors } = useFormik({ initialValues, validationSchema });
-    await nextTick();
-    expect(errors).toMatchSnapshot();
+    const form = useFormik({ initialValues, validationSchema });
+    await waitForValidation(form);
+    expect(form.errors).toMatchSnapshot();
+  });
+
+  test("should support async custom validation rules", async () => {
+    const initialValues = { contact: "" };
+    const validationSchema = {
+      contact: async (value: string) => {
+        await Promise.resolve();
+        return value ? undefined : "Contact is required";
+      },
+    };
+
+    const form = useFormik({ initialValues, validationSchema });
+
+    expect(form.isValidating.value).toBe(true);
+
+    await waitForValidation(form);
+
+    expect(form.errors.contact).toBe("Contact is required");
+    expect(form.isValidating.value).toBe(false);
   });
 
   describe("validation on value update", () => {
@@ -62,16 +96,17 @@ describe("useFormik custom validation", async () => {
       const validationSchema = {
         contact: (value: string) => validateRequiredField(value) || validateMinLength(value, 3),
       };
-      const { errors, setValues } = useFormik({ initialValues, validationSchema });
-      expect(errors).toMatchSnapshot();
+      const form = useFormik({ initialValues, validationSchema });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setValues({ contact: "1" });
-      await nextTick();
-      expect(errors).toMatchSnapshot();
+      form.setValues({ contact: "1" });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setValues({ contact: "123" });
-      await nextTick();
-      expect(errors).toMatchSnapshot();
+      form.setValues({ contact: "123" });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
     });
 
     test("should validate array field on value update with custom validation schema", async () => {
@@ -79,16 +114,17 @@ describe("useFormik custom validation", async () => {
       const validationSchema = {
         contacts: (values: string[]) => validateArrayField(values, 3),
       };
-      const { errors, setValues } = useFormik({ initialValues, validationSchema });
-      expect(errors).toMatchSnapshot();
+      const form = useFormik({ initialValues, validationSchema });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setValues({ contacts: ["1", "12"] });
-      await nextTick();
-      expect(errors).toMatchSnapshot();
+      form.setValues({ contacts: ["1", "12"] });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setValues({ contacts: ["123", "123"] });
-      await nextTick();
-      expect(errors).toMatchSnapshot();
+      form.setValues({ contacts: ["123", "123"] });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
     });
 
     test("should validate object field on value update with custom validation schema", async () => {
@@ -100,20 +136,20 @@ describe("useFormik custom validation", async () => {
             city: validateRequiredField,
           }),
       };
-      const { errors, setValues } = useFormik({
+      const form = useFormik({
         initialValues,
         validationSchema,
       });
-      await nextTick();
-      expect(errors).toMatchSnapshot();
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setValues({ address: { street: "1", city: "" } });
-      await nextTick();
-      expect(errors).toMatchSnapshot();
+      form.setValues({ address: { street: "1", city: "" } });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setValues({ address: { street: "123", city: "1" } });
-      await nextTick();
-      expect(errors).toMatchSnapshot();
+      form.setValues({ address: { street: "123", city: "1" } });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
     });
   });
 
@@ -123,11 +159,13 @@ describe("useFormik custom validation", async () => {
       const validationSchema = {
         contact: (value: string) => validateRequiredField(value) || validateMinLength(value, 3),
       };
-      const { errors, setTouched } = useFormik({ initialValues, validationSchema });
-      expect(errors).toMatchSnapshot();
+      const form = useFormik({ initialValues, validationSchema });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setTouched({ contact: true });
-      expect(errors).toMatchSnapshot();
+      form.setTouched({ contact: true });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
     });
 
     test("should validate array field on blur with custom validation schema", async () => {
@@ -135,11 +173,13 @@ describe("useFormik custom validation", async () => {
       const validationSchema = {
         contacts: (values: string[]) => validateArrayField(values, 3),
       };
-      const { errors, setTouched } = useFormik({ initialValues, validationSchema });
-      expect(errors).toMatchSnapshot();
+      const form = useFormik({ initialValues, validationSchema });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setTouched({ contacts: [true, true] });
-      expect(errors).toMatchSnapshot();
+      form.setTouched({ contacts: [true, true] });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
     });
 
     test("should validate object field on blur with custom validation schema", async () => {
@@ -151,15 +191,17 @@ describe("useFormik custom validation", async () => {
             city: validateRequiredField,
           }),
       };
-      const { errors, setTouched } = useFormik({ initialValues, validationSchema });
-      expect(errors).toMatchSnapshot();
+      const form = useFormik({ initialValues, validationSchema });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
 
-      setTouched({ address: { street: true, city: true } });
-      expect(errors).toMatchSnapshot();
+      form.setTouched({ address: { street: true, city: true } });
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
     });
   });
 
-  test("custom validation with nested objects", () => {
+  test("custom validation with nested objects", async () => {
     const initialValues = {
       address: {
         street: "",
@@ -176,14 +218,15 @@ describe("useFormik custom validation", async () => {
       },
     };
 
-    const { errors } = useFormik({
+    const form = useFormik({
       initialValues,
       validationSchema,
     });
-    expect(errors).toMatchSnapshot();
+    await waitForValidation(form);
+    expect(form.errors).toMatchSnapshot();
   });
 
-  test("custom validation with a function", () => {
+  test("custom validation with a function", async () => {
     const initialValues = {
       name: "",
       email: "",
@@ -200,14 +243,15 @@ describe("useFormik custom validation", async () => {
       return errors;
     };
 
-    const { errors } = useFormik({
+    const form = useFormik({
       initialValues,
       validationSchema,
     });
-    expect(errors).toMatchSnapshot();
+    await waitForValidation(form);
+    expect(form.errors).toMatchSnapshot();
   });
 
-  test("dot notation for nested fields", () => {
+  test("dot notation for nested fields", async () => {
     const initialValues = {
       address: {
         street: "",
@@ -220,11 +264,12 @@ describe("useFormik custom validation", async () => {
       "address.city": (value: string) => validateRequiredField(value),
     };
 
-    const { errors } = useFormik({
+    const form = useFormik({
       initialValues,
       validationSchema,
     });
-    expect(errors).toMatchSnapshot();
+    await waitForValidation(form);
+    expect(form.errors).toMatchSnapshot();
   });
 
   describe("array fields", () => {
@@ -257,11 +302,12 @@ describe("useFormik custom validation", async () => {
         },
       });
 
+      await waitForValidation(formik);
       expect(formik.errors).toMatchSnapshot();
 
       formik.setFieldValue("addresses[0]", "123 Main St");
 
-      await nextTick();
+      await waitForValidation(formik);
 
       expect(formik.errors).toMatchSnapshot();
     });

@@ -24,10 +24,6 @@ exports[`useFormik reset > should reset form values with new values 1`] = `
 
 exports[`useFormik reset > should reset form values with new values 2`] = `
 {
-  "address": {
-    "city": "",
-    "country": "",
-  },
   "email": "alice@example.com",
   "name": "Alice Hansen",
 }

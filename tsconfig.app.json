@@ -9,9 +9,13 @@
     "tests/**/*"
   ],
   "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationDir": "dist",
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "module": "esnext",
-
     "paths": {
       "@/*": ["./lib/*"]
     }

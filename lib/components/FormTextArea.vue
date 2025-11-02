@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { Formik } from "@/types";
+import type { Formik } from "@/types";
 import useFormikContext from "@/composables/useFormikContext";
 import { constructLabel } from "@/helpers";
 

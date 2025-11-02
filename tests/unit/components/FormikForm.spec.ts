@@ -1,12 +1,20 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { FormikForm, useFormik } from "@/index";
-import { Formik } from "@/types";
+import type { Formik } from "@/types";
+
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
 
 describe("FormikForm", () => {
   let formik: Formik;
   const onSubmitMock = vi.fn();
   beforeEach(() => {
+    onSubmitMock.mockReset();
     formik = useFormik({
       initialValues: {
         name: "",
@@ -33,7 +41,7 @@ describe("FormikForm", () => {
     });
     expect(wrapper.html()).toMatchSnapshot();
   });
-  test("submit button calls formik.handleSubmit", () => {
+  test("submit button calls formik.handleSubmit", async () => {
     const wrapper = mount(FormikForm, {
       props: {
         formik,
@@ -44,7 +52,8 @@ describe("FormikForm", () => {
     });
     const button = wrapper.find("button");
     expect(onSubmitMock).not.toHaveBeenCalled();
-    button.trigger("submit");
+    await button.trigger("submit");
+    await flush();
     expect(onSubmitMock).toHaveBeenCalledTimes(1);
     const calledWith = onSubmitMock.mock.calls[0];
     expect(calledWith).toMatchSnapshot();

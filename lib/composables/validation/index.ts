@@ -1,7 +1,7 @@
 import { ZodType } from "zod";
-import { ObjectSchema as JoiSchema } from "joi";
-import { ObjectSchema as YupSchema } from "yup";
-import { CustomValidationSchema } from "@/types";
+import type { ObjectSchema as JoiSchema } from "joi";
+import type { ObjectSchema as YupSchema } from "yup";
+import type { CustomValidationSchema } from "@/types";
 import validateYup from "@/composables/validation/yup";
 import validateJoi from "@/composables/validation/joi";
 import validateZod from "@/composables/validation/zod";
@@ -9,7 +9,7 @@ import validateCustom from "@/composables/validation/custom";
 import { Struct } from "superstruct";
 import validateSuperstruct from "@/composables/validation/superstruct";
 
-const validate = <T extends object>(
+const validate = async <T extends object>(
   values: T,
   {
     yupSchema,
@@ -24,22 +24,28 @@ const validate = <T extends object>(
     structSchema?: Struct<T>;
     validationSchema?: CustomValidationSchema<T>;
   },
-): Partial<Record<keyof T, unknown>> => {
-  let validationErrors: Partial<Record<keyof T, unknown>> = {};
-
+): Promise<Partial<Record<keyof T, unknown>>> => {
   if (yupSchema) {
-    validationErrors = validateYup(values, yupSchema);
-  } else if (joiSchema) {
-    validationErrors = validateJoi(values, joiSchema);
-  } else if (zodSchema) {
-    validationErrors = validateZod(values, zodSchema);
-  } else if (validationSchema) {
-    validationErrors = validateCustom(values, validationSchema);
-  } else if (structSchema) {
-    validationErrors = validateSuperstruct(values, structSchema);
+    return validateYup(values, yupSchema);
   }
 
-  return validationErrors;
+  if (joiSchema) {
+    return validateJoi(values, joiSchema);
+  }
+
+  if (zodSchema) {
+    return validateZod(values, zodSchema);
+  }
+
+  if (structSchema) {
+    return validateSuperstruct(values, structSchema);
+  }
+
+  if (validationSchema) {
+    return validateCustom(values, validationSchema);
+  }
+
+  return {};
 };
 
 export default validate;

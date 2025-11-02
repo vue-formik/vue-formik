@@ -2,16 +2,16 @@
 
 exports[`useFormik/jodValidation > form with array fields 1`] = `
 {
-  "email": "Invalid email",
+  "email": "Invalid email address",
   "friends": [
     {
-      "name": "String must contain at least 3 character(s)",
+      "name": "Too small: expected string to have >=3 characters",
     },
     {
-      "name": "String must contain at least 3 character(s)",
+      "name": "Too small: expected string to have >=3 characters",
     },
   ],
-  "name": "String must contain at least 3 character(s)",
+  "name": "Too small: expected string to have >=3 characters",
 }
 `;
 
@@ -21,7 +21,7 @@ exports[`useFormik/jodValidation > form with array fields 3`] = `
 {
   "friends": [
     {
-      "name": "String must contain at least 3 character(s)",
+      "name": "Too small: expected string to have >=3 characters",
     },
   ],
 }
@@ -29,8 +29,8 @@ exports[`useFormik/jodValidation > form with array fields 3`] = `
 
 exports[`useFormik/jodValidation > simple form validation 1`] = `
 {
-  "email": "Invalid email",
-  "name": "String must contain at least 3 character(s)",
+  "email": "Invalid email address",
+  "name": "Too small: expected string to have >=3 characters",
 }
 `;
 

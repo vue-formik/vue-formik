@@ -3,6 +3,12 @@ import * as s from "superstruct";
 import { useFormik } from "@/index";
 import { nextTick } from "vue";
 
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
 describe("superstruct validation", () => {
   const userSchema = s.object({
     name: s.nonempty(s.string()),
@@ -25,13 +31,14 @@ describe("superstruct validation", () => {
     address: {},
   } as s.Infer<typeof userSchema>;
 
-  test("validate string", () => {
+  test("validate string", async () => {
     const fk = useFormik({
       initialValues: user,
       structSchema: userSchema,
       validateOnMount: true,
     });
 
+    await flush();
     expect(fk.isValid.value).toBe(false);
     expect(fk.errors).toMatchSnapshot();
   });
@@ -47,7 +54,7 @@ describe("superstruct validation", () => {
     fk.setFieldValue("hobbies[0]", "");
     fk.setFieldTouched("hobbies[0]", true);
 
-    await nextTick();
+    await flush();
 
     expect(fk.isValid.value).toBe(false);
     expect(fk.errors).toMatchSnapshot();
@@ -62,7 +69,7 @@ describe("superstruct validation", () => {
     fk.setFieldValue("address.street", "A");
     fk.setFieldTouched("address.street", true);
 
-    await nextTick();
+    await flush();
 
     expect(fk.isValid.value).toBe(false);
     expect(fk.errors).toMatchSnapshot();
@@ -93,7 +100,7 @@ describe("superstruct validation", () => {
 
     fk.setFieldValue("criteria[0].property", "test");
 
-    await nextTick();
+    await flush();
 
     expect(fk.isValid.value).toBe(false);
     expect(fk.errors).toMatchSnapshot();

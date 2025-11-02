@@ -39,4 +39,22 @@ describe("useFormik reset", () => {
     expect(values).toMatchSnapshot();
     expect(isDirty.value).toBe(false);
   });
+
+  test("should remove keys that are not present in new reset values", () => {
+    const { reset, values } = useFormik({
+      initialValues: {
+        name: "Jane",
+        email: "jane@example.com",
+        phone: "555-1000",
+      },
+    });
+
+    reset({
+      values: {
+        name: "Alice",
+      },
+    });
+
+    expect(values).toEqual({ name: "Alice" });
+  });
 });

@@ -2,7 +2,20 @@ import { describe, expect, test } from "vitest";
 import { useFormik } from "../../../../lib";
 import { nextTick } from "vue";
 
-describe("useFormik flags", async () => {
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+const waitForValidation = async (form: ReturnType<typeof useFormik>) => {
+  await flush();
+  while (form.isValidating.value) {
+    await flush();
+  }
+};
+
+describe("useFormik flags", () => {
   const options = (contacts = "9856256525") => ({
     initialValues: { contacts },
     validationSchema: {
@@ -14,30 +27,37 @@ describe("useFormik flags", async () => {
     },
   });
   describe("isValid", () => {
-    test("should return true if there are no errors", () => {
-      const { isValid } = useFormik(options());
+    test("should return true if there are no errors", async () => {
+      const form = useFormik(options());
 
-      expect(isValid.value).toBe(true);
+      await waitForValidation(form);
+
+      expect(form.isValid.value).toBe(true);
     });
 
-    test("should return false if there are errors", () => {
-      const { isValid } = useFormik(options(""));
+    test("should return false if there are errors", async () => {
+      const form = useFormik(options(""));
 
-      expect(isValid.value).toBe(false);
+      await waitForValidation(form);
+
+      expect(form.isValid.value).toBe(false);
     });
 
     test("on field update", async () => {
-      const { isValid, setFieldValue } = useFormik(options());
-      setFieldValue("contacts", "");
-      await nextTick();
-      expect(isValid.value).toBe(false);
-      setFieldValue("contacts", "9856256525");
-      await nextTick();
-      expect(isValid.value).toBe(true);
+      const form = useFormik(options());
+      await waitForValidation(form);
+
+      form.setFieldValue("contacts", "");
+      await waitForValidation(form);
+      expect(form.isValid.value).toBe(false);
+
+      form.setFieldValue("contacts", "9856256525");
+      await waitForValidation(form);
+      expect(form.isValid.value).toBe(true);
     });
 
     test("array field", async () => {
-      const { isValid, setFieldValue } = useFormik({
+      const form = useFormik({
         initialValues: { contacts: [] },
         validationSchema: {
           contacts: (value: string[]) => {
@@ -47,15 +67,15 @@ describe("useFormik flags", async () => {
           },
         },
       });
-      await nextTick();
-      expect(isValid.value).toBe(false);
-      setFieldValue("contacts", ["9856256525"]);
-      await nextTick();
-      expect(isValid.value).toBe(true);
+      await waitForValidation(form);
+      expect(form.isValid.value).toBe(false);
+      form.setFieldValue("contacts", ["9856256525"]);
+      await waitForValidation(form);
+      expect(form.isValid.value).toBe(true);
     });
 
     test("object field", async () => {
-      const { isValid, setFieldValue } = useFormik({
+      const form = useFormik({
         initialValues: { contacts: { code: "", number: "" } },
         validationSchema: {
           contacts: (value) => {
@@ -68,49 +88,53 @@ describe("useFormik flags", async () => {
           },
         },
       });
-      expect(isValid.value).toBe(false);
-      setFieldValue("contacts.code", "+91");
-      setFieldValue("contacts.number", "9856256525");
-      await nextTick();
-      expect(isValid.value).toBe(true);
+      await waitForValidation(form);
+      expect(form.isValid.value).toBe(false);
+      form.setFieldValue("contacts.code", "+91");
+      form.setFieldValue("contacts.number", "9856256525");
+      await waitForValidation(form);
+      expect(form.isValid.value).toBe(true);
     });
   });
 
   describe("isDirty", () => {
-    test("should return false if there are no changes", () => {
-      const { isDirty } = useFormik(options());
-
-      expect(isDirty.value).toBe(false);
+    test("should return false if there are no changes", async () => {
+      const form = useFormik(options());
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(false);
     });
 
-    test("should return true if there are changes", () => {
-      const { isDirty, setFieldValue } = useFormik(options(""));
-      setFieldValue("contacts", "9856256525");
-      expect(isDirty.value).toBe(true);
-      setFieldValue("contacts", "");
-      expect(isDirty.value).toBe(false);
+    test("should return true if there are changes", async () => {
+      const form = useFormik(options(""));
+      await waitForValidation(form);
+      form.setFieldValue("contacts", "9856256525");
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(true);
+      form.setFieldValue("contacts", "");
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(false);
     });
 
     test("should return true if there are changes in array field", async () => {
-      const { isDirty, setFieldValue } = useFormik({
+      const form = useFormik({
         initialValues: { contacts: [] },
       });
-      await nextTick();
-      expect(isDirty.value).toBe(false);
-      setFieldValue("contacts", ["9856256525"]);
-      await nextTick();
-      expect(isDirty.value).toBe(true);
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(false);
+      form.setFieldValue("contacts", ["9856256525"]);
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(true);
     });
 
     test("should return true if there are changes in object field", async () => {
-      const { isDirty, setFieldValue } = useFormik({
+      const form = useFormik({
         initialValues: { contacts: { code: "", number: "" } },
       });
-      await nextTick();
-      expect(isDirty.value).toBe(false);
-      setFieldValue("contacts.code", "+91");
-      await nextTick();
-      expect(isDirty.value).toBe(true);
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(false);
+      form.setFieldValue("contacts.code", "+91");
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(true);
     });
   });
 });

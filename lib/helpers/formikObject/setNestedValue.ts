@@ -36,7 +36,7 @@ function setNestedValue<T extends object>(obj: T, path: string, value: any): T {
 
   for (let i = 0; i < segments.length; i++) {
     const isLast = i === segments.length - 1;
-    const segment = segments[i];
+    const segment = segments[i]!;
     const { key, indices } = parseSegment(segment);
 
     if (!key) throw new Error(`Invalid path segment: ${segment}`);
@@ -45,7 +45,7 @@ function setNestedValue<T extends object>(obj: T, path: string, value: any): T {
     let targetKey: string | number = key;
 
     for (let j = 0; j < indices.length; j++) {
-      const idx = indices[j];
+      const idx = indices[j]!;
       const hasMoreSegments = i < segments.length - 1;
       const hasMoreIndices = j < indices.length - 1;
       const needsObject = hasMoreSegments || hasMoreIndices;
@@ -71,7 +71,7 @@ function setNestedValue<T extends object>(obj: T, path: string, value: any): T {
     }
 
     if (!isLast) {
-      const nextSegment = segments[i + 1];
+      const nextSegment = segments[i + 1]!;
       const nextNeedsArray = parseSegment(nextSegment).indices.length > 0;
 
       if (parent[targetKey] === undefined || parent[targetKey] === null) {

@@ -1,12 +1,21 @@
-import { computed, reactive, toRaw, watch, ref, type UnwrapRef } from "vue";
-import { clearObject, getNestedValue, setNestedValue, deepClone } from "@/helpers";
-import type { FormikHelpers, Paths } from "@/types";
-import { ObjectSchema as YupSchema } from "yup";
-import { ObjectSchema as JoiSchema } from "joi";
-import { ZodType } from "zod";
-import { CustomValidationSchema, FormikOnSubmit, IResetOptions } from "@/types";
+import { computed, reactive, ref, toRaw, watch, type UnwrapRef } from "vue";
+import cloneDeep from "lodash.clonedeep";
+import {
+  getNestedValue,
+  setNestedValue,
+  applyState,
+  clearState,
+  deepEqual,
+  debounce,
+} from "@/helpers";
+import type {
+  FormikHelpers,
+  Paths,
+  SetValuesOptions,
+  UseFormikOptions,
+  IResetOptions,
+} from "@/types";
 import validation from "@/composables/validation";
-import { Struct } from "superstruct";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -19,23 +28,25 @@ const useFormik = <T extends object>({
   structSchema,
   onSubmit,
   validateOnMount = true,
+  validateOnChange = true,
+  validateOnBlur = true,
+  validationDebounce = 0,
   preventDefault = true,
-}: {
-  initialValues: T;
-  validateOnMount?: boolean;
-  preventDefault?: boolean;
-  onSubmit?: FormikOnSubmit<T>;
-  yupSchema?: YupSchema<T>;
-  joiSchema?: JoiSchema<T>;
-  zodSchema?: ZodType<T>;
-  structSchema?: Struct<T>;
-  validationSchema?: CustomValidationSchema<T>;
-}) => {
+  initialErrors,
+  initialTouched,
+}: UseFormikOptions<T>) => {
   // Refs for tracking form state
   const isSubmitting = ref(false);
   const isValidating = ref(false);
   const submitCount = ref(0);
-  const initialValuesRef = reactive<T>(deepClone(initialValues));
+  const initialValuesRef = reactive<T>(cloneDeep(initialValues));
+
+  type ValidationErrors = Partial<Record<keyof T, unknown>>;
+
+  // Reactive form state
+  const values = reactive<T>(cloneDeep(initialValues));
+  const errors = reactive<ValidationErrors>(initialErrors ? cloneDeep(initialErrors) : {});
+  const touched = reactive<ValidationErrors>(initialTouched ? cloneDeep(initialTouched) : {});
 
   const validate = () => {
     return validation(toRaw(values) as T, {
@@ -47,38 +58,31 @@ const useFormik = <T extends object>({
     });
   };
 
-  // Reactive form state
-  const values = reactive<T>({ ...deepClone(initialValues) });
-  const errors = reactive<Partial<Record<keyof T, unknown>>>({});
-  const touched = reactive<Partial<Record<keyof T, unknown>>>({});
-
   const isValid = computed(() => Object.keys(errors).length === 0);
-  const isDirty = computed(() => JSON.stringify(values) !== JSON.stringify(initialValuesRef));
+  const isDirty = computed(() => !deepEqual(toRaw(values), toRaw(initialValuesRef)));
 
-  const setValues = (newValues: Partial<T>) => {
-    Object.assign(values, newValues);
+  const setValues = (newValues: Partial<T>, options: SetValuesOptions = {}) => {
+    applyState(values, newValues, options);
   };
 
-  const setErrors = (newErrors: Partial<Record<keyof T, unknown>>) => {
-    clearObject(errors);
-    Object.assign(errors, newErrors);
+  const setErrors = (newErrors: ValidationErrors) => {
+    applyState(errors, newErrors, { replace: true });
   };
 
-  const setTouched = (newTouched: Partial<Record<keyof T, unknown>>) => {
-    clearObject(touched);
-    Object.assign(touched, newTouched);
+  const setTouched = (newTouched: ValidationErrors) => {
+    applyState(touched, newTouched, { replace: true });
   };
 
   const reset = ({ values: newValues, keepTouched = false }: IResetOptions<T> = {}) => {
     if (newValues) {
-      setValues(Object.assign(initialValuesRef, deepClone(newValues)));
-      Object.assign(initialValuesRef, deepClone(newValues));
+      applyState(initialValuesRef, newValues, { replace: true });
+      setValues(newValues, { replace: true });
     } else {
-      setValues(deepClone(initialValuesRef));
+      setValues(toRaw(initialValuesRef) as T, { replace: true });
     }
 
     if (!keepTouched) {
-      clearObject(touched);
+      clearState(touched);
     }
 
     submitCount.value = 0;
@@ -96,7 +100,36 @@ const useFormik = <T extends object>({
     isSubmitting.value = value;
   };
 
-  const handleSubmit = (e?: Event) => {
+  let validationRunId = 0;
+
+  const performValidation = async () => {
+    const runId = ++validationRunId;
+    isValidating.value = true;
+
+    try {
+      const validationErrors = await validate();
+
+      if (runId === validationRunId) {
+        setErrors(validationErrors);
+      }
+
+      return validationErrors;
+    } catch (error) {
+      console.error("Validation error:", error);
+
+      if (runId === validationRunId) {
+        setErrors({});
+      }
+
+      return {} as ValidationErrors;
+    } finally {
+      if (runId === validationRunId) {
+        isValidating.value = false;
+      }
+    }
+  };
+
+  const handleSubmit = async (e?: Event) => {
     if (typeof onSubmit !== "function") return;
 
     if (preventDefault && e) {
@@ -105,69 +138,79 @@ const useFormik = <T extends object>({
 
     submitCount.value++;
     setSubmitting(true);
-    isValidating.value = true;
 
     try {
-      const validationErrors = validate();
-      setErrors(validationErrors);
+      const validationErrors = await performValidation();
 
       if (Object.keys(validationErrors).length === 0) {
-        onSubmit(
-          toRaw(values) as T,
-          {
-            reset,
-            setErrors,
-            setValues,
-            setSubmitting,
-            setTouched,
-            setFieldValue,
-            setFieldTouched,
-          } as FormikHelpers<T>,
+        await Promise.resolve(
+          onSubmit(
+            toRaw(values) as T,
+            {
+              reset,
+              setErrors,
+              setValues,
+              setSubmitting,
+              setTouched,
+              setFieldValue,
+              setFieldTouched,
+            } as FormikHelpers<T>,
+          ),
         );
       }
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
-      isValidating.value = false;
+      setSubmitting(false);
     }
   };
 
   const handleFieldBlur = (e: FocusEvent) => {
     const target = e.target as FieldElement;
-    // @ts-expect-error - validate the type of target
-    setFieldTouched(target.name, true);
+    const fieldName = target.name;
+    if (fieldName) {
+      setFieldTouched(fieldName as Paths<T>, true);
+    }
+
+    // Trigger field validation on blur if enabled
+    if (validateOnBlur) {
+      void performValidation();
+    }
   };
 
   const handleFieldChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const value = target.type === "checkbox" ? target.checked : target.value;
+    const fieldName = target.name;
 
-    // @ts-expect-error - validate the type of target
-    setFieldValue(target.name, value);
-    // @ts-expect-error - validate the type of target
-    setFieldTouched(target.name, true);
-  };
+    if (fieldName) {
+      setFieldValue(fieldName as Paths<T>, value);
+      setFieldTouched(fieldName as Paths<T>, true);
+    }
 
-  const performValidation = () => {
-    isValidating.value = true;
-    const validationErrors = validate();
-    clearObject(errors);
-    Object.assign(errors, validationErrors);
-    isValidating.value = false;
+    // Field-level validation on change is handled by watch
   };
 
   if (validateOnMount) {
-    performValidation();
+    void performValidation();
   }
 
-  // Debounced validation on value changes
-  watch(
-    () => values,
-    () => {
-      performValidation();
-    },
-    { deep: true },
-  );
+  // Create debounced validation if debounce is enabled
+  const debouncedValidation =
+    validationDebounce > 0
+      ? debounce(() => void performValidation(), validationDebounce)
+      : () => void performValidation();
+
+  // Conditional validation on value changes
+  if (validateOnChange) {
+    watch(
+      () => values,
+      () => {
+        debouncedValidation();
+      },
+      { deep: true },
+    );
+  }
 
   const hasFieldError = (field: string): boolean => {
     const errorValue = getNestedValue(errors as Record<string, unknown>, field);

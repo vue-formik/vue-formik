@@ -60,7 +60,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { Formik, InputValidationRule } from "@/types";
+import type { Formik, InputValidationRule } from "@/types";
 import useFormikContext from "@/composables/useFormikContext";
 import { constructLabel } from "@/helpers";
 

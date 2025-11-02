@@ -3,7 +3,13 @@ import Joi from "joi";
 import { useFormik } from "@/index";
 import { nextTick } from "vue";
 
-describe("joiValidation", async () => {
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+describe("joiValidation", () => {
   const initialValues = {
     name: "",
     email: "",
@@ -24,7 +30,7 @@ describe("joiValidation", async () => {
       validateOnMount: true,
     });
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("name", "John Doe");
@@ -32,12 +38,12 @@ describe("joiValidation", async () => {
     formik.setFieldValue("password", "password");
     formik.setFieldValue("confirmPassword", "password");
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
     expect(formik.isValid.value).toBe(true);
 
     formik.setFieldValue("confirmPassword", "password123");
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
     expect(formik.isValid.value).toBe(false);
   });
@@ -58,17 +64,17 @@ describe("joiValidation", async () => {
       validateOnMount: true,
     });
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("name", "John Doe");
     formik.setFieldValue("skills", ["Vue", "React"]);
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("skills", ["Vue", ""]);
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
   });
 
@@ -94,18 +100,18 @@ describe("joiValidation", async () => {
       validateOnMount: true,
     });
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("name", "John Doe");
     formik.setFieldValue("address.city", "New York");
     formik.setFieldValue("address.country", "USA");
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("address.city", "");
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
   });
 
@@ -132,7 +138,7 @@ describe("joiValidation", async () => {
       validateOnMount: true,
     });
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("name", "John Doe");
@@ -141,11 +147,11 @@ describe("joiValidation", async () => {
     formik.setFieldValue("friends[1].name", "John Doe");
     formik.setFieldValue("friends[1].email", "john@ex.com");
 
-    await nextTick();
+    await flush();
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("friends[1].email", "john@ex");
-    await nextTick();
+    await flush();
 
     expect(formik.errors).toMatchSnapshot();
   });

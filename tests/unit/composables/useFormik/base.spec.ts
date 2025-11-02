@@ -3,7 +3,20 @@ import { useFormik } from "../../../../lib";
 import { nextTick } from "vue";
 import { emptyInitialValues, initialValues, onSubmit, validationSchema } from "./fixtures";
 
-describe("useFormik base features", async () => {
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+const waitForValidation = async (form: ReturnType<typeof useFormik>) => {
+  await flush();
+  while (form.isValidating.value) {
+    await flush();
+  }
+};
+
+describe("useFormik base features", () => {
   test("should initialize form with initial values", () => {
     const { values } = useFormik({ initialValues, onSubmit });
     expect(values).toMatchSnapshot();
@@ -21,27 +34,27 @@ describe("useFormik base features", async () => {
   });
 
   test("should reset form", async () => {
-    const { reset, values, touched, setFieldTouched, setFieldValue } = useFormik({
+    const form = useFormik({
       initialValues,
       onSubmit,
     });
 
-    setFieldTouched("name", true);
-    setFieldTouched("email", true);
-    setFieldValue("name", "Updated Name");
-    setFieldValue("email", "updated@mail.cc");
+    form.setFieldTouched("name", true);
+    form.setFieldTouched("email", true);
+    form.setFieldValue("name", "Updated Name");
+    form.setFieldValue("email", "updated@mail.cc");
 
-    await nextTick();
+    await waitForValidation(form);
 
-    expect(values).toMatchSnapshot();
-    expect(touched).toMatchSnapshot();
+    expect(form.values).toMatchSnapshot();
+    expect(form.touched).toMatchSnapshot();
 
-    reset();
+    form.reset();
 
-    await nextTick();
+    await waitForValidation(form);
 
-    expect(values).toMatchSnapshot();
-    expect(touched).toMatchSnapshot();
+    expect(form.values).toMatchSnapshot();
+    expect(form.touched).toMatchSnapshot();
   });
 
   test("should set field value", () => {
@@ -58,40 +71,42 @@ describe("useFormik base features", async () => {
 
   describe("status", () => {
     test("'isValid' should return true when form is valid", async () => {
-      const { isValid, handleFieldChange, handleFieldBlur } = useFormik({
+      const form = useFormik({
         initialValues,
         onSubmit,
         validationSchema,
       });
-      expect(isValid.value).toBe(true);
+      await waitForValidation(form);
+      expect(form.isValid.value).toBe(true);
 
-      handleFieldChange({ target: { name: "email", value: "Kiran" } } as never as Event);
-      handleFieldBlur({ target: { name: "email" } } as never as FocusEvent);
+      form.handleFieldChange({ target: { name: "email", value: "Kiran" } } as never as Event);
+      form.handleFieldBlur({ target: { name: "email" } } as never as FocusEvent);
 
-      await nextTick();
+      await waitForValidation(form);
 
-      expect(isValid.value).toBe(false);
+      expect(form.isValid.value).toBe(false);
     });
     test("'isDirty' should return true when form is dirty", async () => {
-      const { isDirty, handleFieldChange, handleFieldBlur, reset } = useFormik({
+      const form = useFormik({
         initialValues,
         onSubmit,
         validationSchema,
       });
-      expect(isDirty.value).toBe(false);
+      await waitForValidation(form);
+      expect(form.isDirty.value).toBe(false);
 
-      handleFieldChange({ target: { name: "email", value: "Kiran" } } as never as Event);
-      handleFieldBlur({ target: { name: "email" } } as never as FocusEvent);
+      form.handleFieldChange({ target: { name: "email", value: "Kiran" } } as never as Event);
+      form.handleFieldBlur({ target: { name: "email" } } as never as FocusEvent);
 
-      await nextTick();
+      await waitForValidation(form);
 
-      expect(isDirty.value).toBe(true);
+      expect(form.isDirty.value).toBe(true);
 
-      reset();
+      form.reset();
 
-      await nextTick();
+      await waitForValidation(form);
 
-      expect(isDirty.value).toBe(false);
+      expect(form.isDirty.value).toBe(false);
     });
   });
   describe("setSubmitting", () => {
@@ -110,14 +125,15 @@ describe("useFormik base features", async () => {
   });
 
   describe("validate on mount", () => {
-    test("should validate on mount when turned on", () => {
-      const { errors } = useFormik({
+    test("should validate on mount when turned on", async () => {
+      const form = useFormik({
         initialValues: emptyInitialValues,
         onSubmit,
         validationSchema,
         validateOnMount: true,
       });
-      expect(errors).toMatchSnapshot();
+      await waitForValidation(form);
+      expect(form.errors).toMatchSnapshot();
     });
     test("should not validate on mount when turned off", () => {
       const { errors } = useFormik({

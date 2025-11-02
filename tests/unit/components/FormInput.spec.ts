@@ -5,7 +5,13 @@ import FormInput from "@/components/FormInput.vue";
 import useFormik from "@/composables/useFormik";
 import { nextTick } from "vue";
 
-describe("FormInput", async () => {
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+describe("FormInput", () => {
   const formik = useFormik({
     initialValues: {
       fullName: "",
@@ -70,7 +76,7 @@ describe("FormInput", async () => {
   let wrapper: VueWrapper<unknown>;
 
   describe("formik prop usage", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       formik.reset();
       wrapper = mount(FormInput, {
         props: {
@@ -78,9 +84,11 @@ describe("FormInput", async () => {
           formik,
         },
       });
+      await flush();
     });
 
-    test("renders input", () => {
+    test("renders input", async () => {
+      await flush();
       expect(wrapper.html()).toMatchSnapshot();
     });
 
@@ -92,36 +100,39 @@ describe("FormInput", async () => {
 
     test("renders label", async () => {
       await wrapper.setProps({ label: "Full Name" });
-      await nextTick();
+      await flush();
       expect(wrapper.html()).toMatchSnapshot();
     });
 
     test("shows error message on blur", async () => {
       await wrapper.find("input").setValue("");
       await wrapper.find("input").trigger("blur");
-      await nextTick();
+      await flush();
       expect(wrapper.html()).toMatchSnapshot();
     });
 
     describe("Field with array index", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         wrapper = mount(FormInput, {
           props: {
             name: "addresses[0]",
             formik: formik,
           },
         });
+        await flush();
       });
 
-      test("renders input", () => {
+      test("renders input", async () => {
+        await flush();
         expect(wrapper.html()).toMatchSnapshot();
       });
 
       test("various errors", async () => {
         await wrapper.find("input").trigger("blur");
-        await nextTick();
+        await flush();
         expect(wrapper.html()).toMatchSnapshot();
         await wrapper.find("input").setValue("$%");
+        await flush();
         expect(wrapper.html()).toMatchSnapshot();
       });
 
@@ -133,24 +144,27 @@ describe("FormInput", async () => {
     });
 
     describe("Field with object type", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         wrapper = mount(FormInput, {
           props: {
             name: "contact.code",
             formik: formik,
           },
         });
+        await flush();
       });
 
-      test("renders input", () => {
+      test("renders input", async () => {
+        await flush();
         expect(wrapper.html()).toMatchSnapshot();
       });
 
       test("various errors", async () => {
         await wrapper.find("input").trigger("blur");
-        await nextTick();
+        await flush();
         expect(wrapper.html()).toMatchSnapshot();
         await wrapper.find("input").setValue("123");
+        await flush();
         expect(wrapper.html()).toMatchSnapshot();
       });
 
@@ -174,13 +188,13 @@ describe("FormInput", async () => {
 
     test("required prop", async () => {
       await wrapper.setProps({ required: true });
-      await nextTick();
+      await flush();
       expect(wrapper.html()).toMatchSnapshot();
     });
   });
 
   describe("provide formik and inject usage", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       formik.reset();
       wrapper = shallowMount(FormInput, {
         props: {
@@ -192,11 +206,12 @@ describe("FormInput", async () => {
           },
         },
       });
+      await flush();
     });
 
     test("handleChange", async () => {
       await wrapper.find("input").setValue("John Doe");
-      await nextTick();
+      await flush();
       expect(formik.values.fullName).toBe("John Doe");
       expect(wrapper.find("input").element.value).toBe("John Doe");
     });
