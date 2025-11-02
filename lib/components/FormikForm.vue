@@ -12,8 +12,8 @@ const { formik: fk } = useFormikContext(props.formik);
 <template>
   <form
     class="vf-form"
-    @submit="() => fk?.handleSubmit()"
-    @reset="() => fk?.reset(resetOptions)"
+    @submit="(e) => fk?.handleSubmit(e)"
+    @reset="(e) => fk?.reset(resetOptions, e)"
     v-bind="$attrs"
   >
     <slot />
