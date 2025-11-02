@@ -2,6 +2,20 @@ import { describe, test, expect, vi } from "vitest";
 import { nextTick } from "vue";
 import * as yup from "yup";
 import { useFormik } from "@/index";
+import type { Formik } from "@/types";
+
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+const waitForValidation = async (form: Formik) => {
+  await flush();
+  while (form.isValidating.value) {
+    await flush();
+  }
+};
 
 /**
  * Test fixtures
@@ -60,11 +74,11 @@ describe("useFormik Error Handling", () => {
 
       // Trigger validation
       formik.setFieldValue("user.email", "invalid-email");
-      await nextTick();
+      await flush();
 
       expect(formik.hasFieldError("user.email")).toBe(false);
       formik.setFieldTouched("user.email", true);
-      await nextTick();
+      await flush();
       expect(formik.hasFieldError("user.email")).toBe(true);
       expect(formik.getFieldError("user.email")).toBe("Invalid email");
     });
@@ -81,7 +95,7 @@ describe("useFormik Error Handling", () => {
       formik.setFieldTouched("user.email", true);
       formik.setFieldTouched("user.age", true);
 
-      await nextTick();
+      await flush();
 
       expect(formik.hasFieldError("user.email")).toBe(true);
       expect(formik.hasFieldError("user.age")).toBe(true);
@@ -98,12 +112,12 @@ describe("useFormik Error Handling", () => {
 
       formik.setFieldValue("user.name", "");
       formik.setFieldTouched("user.name", true);
-      await nextTick();
+      await flush();
 
       expect(formik.getFieldError("user.name")).toBe("Name is required");
 
       formik.setFieldValue("user.name", "John");
-      await nextTick();
+      await flush();
       expect(formik.getFieldError("user.name")).toBe("");
     });
   });
@@ -116,11 +130,11 @@ describe("useFormik Error Handling", () => {
       });
 
       formik.setFieldTouched("addresses[0].street", true);
-      await nextTick();
+      await flush();
       expect(formik.getFieldError("addresses[0].street")).toBe("Street is required");
 
       formik.setFieldValue("addresses[0].street", "123 Main St");
-      await nextTick();
+      await flush();
       expect(formik.getFieldError("addresses[0].street")).toBe("");
     });
   });
@@ -135,12 +149,12 @@ describe("useFormik Error Handling", () => {
       // Set some errors
       formik.setFieldValue("user.email", "invalid");
       formik.setFieldTouched("user.email", true);
-      await nextTick();
+      await flush();
       expect(formik.hasFieldError("user.email")).toBe(true);
 
       // Reset form
       formik.reset();
-      await nextTick();
+      await flush();
       expect(formik.hasFieldError("user.email")).toBe(false);
     });
 
@@ -155,11 +169,11 @@ describe("useFormik Error Handling", () => {
       formik.setFieldValue("user.age", 16);
       formik.setFieldTouched("user.email", true);
       formik.setFieldTouched("user.age", true);
-      await nextTick();
+      await flush();
 
       // Fix one field
       formik.setFieldValue("user.email", "valid@email.com");
-      await nextTick();
+      await flush();
 
       expect(formik.hasFieldError("user.email")).toBe(false);
       expect(formik.hasFieldError("user.age")).toBe(true);
@@ -175,8 +189,8 @@ describe("useFormik Error Handling", () => {
         onSubmit,
       });
 
-      formik.handleSubmit();
-      await nextTick();
+      await formik.handleSubmit();
+      await flush();
 
       expect(onSubmit).not.toHaveBeenCalled();
       expect(formik.isValid.value).toBe(false);
@@ -189,9 +203,9 @@ describe("useFormik Error Handling", () => {
       formik.setFieldValue("addresses[0].city", "Boston");
       formik.setFieldValue("addresses[0].country", "USA");
 
-      await nextTick();
-      formik.handleSubmit();
-      await nextTick();
+      await flush();
+      await formik.handleSubmit();
+      await flush();
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
@@ -210,15 +224,15 @@ describe("useFormik Error Handling", () => {
       });
 
       formik.setFieldTouched("user.password", true);
-      await nextTick();
+      await waitForValidation(formik);
       expect(formik.getFieldError("user.password")).toBe("Password required");
 
       formik.setFieldValue("user.password", "123");
-      await nextTick();
+      await waitForValidation(formik);
       expect(formik.getFieldError("user.password")).toBe("Password too short");
 
       formik.setFieldValue("user.password", "12345678");
-      await nextTick();
+      await waitForValidation(formik);
       expect(formik.getFieldError("user.password")).toBe("");
     });
   });

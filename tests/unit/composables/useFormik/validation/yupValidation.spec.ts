@@ -1,8 +1,15 @@
 import { describe, vi, test, expect } from "vitest";
 import * as Yup from "yup";
+import { nextTick } from "vue";
 import { useFormik } from "@/index";
 
-describe("yupValidation", async () => {
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+describe("yupValidation", () => {
   const onSubmit = vi.fn();
 
   test("should validate form with validation schema", async () => {
@@ -17,6 +24,7 @@ describe("yupValidation", async () => {
       yupSchema: validationSchema,
       onSubmit,
     });
+    await flush();
     expect(errors).toMatchSnapshot();
   });
   test("should validate array field with validation schema", async () => {
@@ -31,9 +39,10 @@ describe("yupValidation", async () => {
       yupSchema: validationSchema,
       onSubmit,
     });
+    await flush();
     expect(errors).toMatchSnapshot();
   });
-  test("should validate object field with validation schema", () => {
+  test("should validate object field with validation schema", async () => {
     const initialValues = {
       contact: {
         code: "",
@@ -51,6 +60,7 @@ describe("yupValidation", async () => {
       yupSchema: validationSchema,
       onSubmit,
     });
+    await flush();
     expect(errors).toMatchSnapshot();
   });
   test("should validate object array field with validation schema", async () => {
@@ -73,6 +83,7 @@ describe("yupValidation", async () => {
       yupSchema: validationSchema,
       onSubmit,
     });
+    await flush();
     expect(errors).toMatchSnapshot();
   });
 });

@@ -1,12 +1,14 @@
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 type AllowedAny = any;
 
+type MaybePromise<T> = T | Promise<T>;
+
 import useFormik from "@/composables/useFormik";
 
 interface FormikHelpers<T> {
-  reset: () => void;
-  setErrors: (errors: Partial<Record<keyof T, string | Record<string, string>>>) => void;
-  setValues: (values: T) => void;
+  reset: (options?: IResetOptions<T>) => void;
+  setErrors: (errors: Partial<Record<keyof T, unknown>>) => void;
+  setValues: (values: Partial<T>, options?: SetValuesOptions) => void;
   setSubmitting: (value: boolean) => void;
 }
 
@@ -21,12 +23,12 @@ type ValidationResult<T = AllowedAny> =
 type ValidationRule<TValue = AllowedAny, TForm = AllowedAny> = (
   value: TValue,
   values: TForm,
-) => ValidationResult<TValue>;
+) => MaybePromise<ValidationResult<TValue>>;
 
 type InputValidationRule<TValue = AllowedAny, TForm = AllowedAny> = (
   value: TValue,
   values?: TForm,
-) => ValidationResult<TValue>;
+) => MaybePromise<ValidationResult<TValue>>;
 
 type NestedValidationRules<T> = {
   [K in keyof T]: T[K] extends object
@@ -56,10 +58,10 @@ type DotBasedValidationSchema<T> = Partial<{
 
 type CustomValidationSchema<T> =
   | ObjectValidationSchema<T>
-  | ((values: T) => Partial<Record<keyof T, string | Record<string, string>>>)
+  | ((values: T) => MaybePromise<Partial<Record<keyof T, string | Record<string, string>>>>)
   | DotBasedValidationSchema<T>;
 
-type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => void;
+type FormikOnSubmit<T> = (values: T, helpers: FormikHelpers<T>) => MaybePromise<void>;
 
 interface AnyFormValues {
   [key: string]: unknown;
@@ -70,6 +72,27 @@ type IResetOptions<T> = {
   values?: Partial<T>;
   keepTouched?: boolean;
 };
+
+type SetValuesOptions = {
+  replace?: boolean;
+};
+
+interface UseFormikOptions<T extends object> {
+  initialValues: T;
+  validateOnMount?: boolean;
+  validateOnChange?: boolean;
+  validateOnBlur?: boolean;
+  validationDebounce?: number;
+  preventDefault?: boolean;
+  onSubmit?: FormikOnSubmit<T>;
+  yupSchema?: import("yup").ObjectSchema<T>;
+  joiSchema?: import("joi").ObjectSchema<T>;
+  zodSchema?: import("zod").ZodType<T>;
+  structSchema?: import("superstruct").Struct<T>;
+  validationSchema?: CustomValidationSchema<T>;
+  initialErrors?: Partial<Record<keyof T, unknown>>;
+  initialTouched?: Partial<Record<keyof T, unknown>>;
+}
 
 type Paths<T> = T extends object
   ? { [K in keyof T]: `${Exclude<K, symbol>}${"" | `.${Paths<T[K]>}`}` }[keyof T]
@@ -89,4 +112,10 @@ export type {
   InputValidationRule,
   DotNotationKeys,
   Paths,
+  MaybePromise,
+  SetValuesOptions,
+  UseFormikOptions,
 };
+
+// Re-export nested path types for convenience
+export type { NestedPaths, NestedArrayPaths, NestedValue } from "./nestedPath";

@@ -17,52 +17,52 @@ const isNestedValidationRules = <T>(
   return typeof rules === "object" && rules !== null && !Array.isArray(rules);
 };
 
-const validateCustom = <T extends Record<string, AllowedAny>>(
+const validateCustom = async <T extends Record<string, AllowedAny>>(
   values: T,
   schema: CustomValidationSchema<T>,
-): Partial<Record<keyof T, unknown>> => {
+): Promise<Partial<Record<keyof T, unknown>>> => {
   if (isValidationSchemaFunction<T>(schema)) {
-    return schema(values);
+    return await schema(values);
   }
 
   const errors: Partial<Record<keyof T, unknown>> = {};
 
-  const processValidationRule = (
+  const processValidationRule = async (
     rule: ValidationRule<AllowedAny, T>,
     fullKey: string,
     parentErrors: Record<string, unknown>,
   ) => {
     const value = getNestedValue(values, fullKey);
-    const error = rule(value, values);
+    const error = await Promise.resolve(rule(value, values));
 
     if (error !== undefined && error !== null) {
       setNestedValue(parentErrors, fullKey, error);
     }
   };
 
-  const processNestedRules = (
+  const processNestedRules = async (
     rules: Record<string, unknown>,
     baseKey: string,
     parentErrors: Record<string, unknown>,
   ) => {
-    Object.entries(rules).forEach(([nestedKey, ruleOrNested]) => {
+    for (const [nestedKey, ruleOrNested] of Object.entries(rules)) {
       const fullKey = baseKey ? `${baseKey}.${nestedKey}` : nestedKey;
 
       if (isValidationRule<T>(ruleOrNested)) {
-        processValidationRule(ruleOrNested, fullKey, parentErrors);
+        await processValidationRule(ruleOrNested, fullKey, parentErrors);
       } else if (isNestedValidationRules<T>(ruleOrNested)) {
-        processNestedRules(ruleOrNested, fullKey, parentErrors);
+        await processNestedRules(ruleOrNested, fullKey, parentErrors);
       }
-    });
+    }
   };
 
-  Object.entries(schema).forEach(([key, ruleOrNested]) => {
+  for (const [key, ruleOrNested] of Object.entries(schema)) {
     if (isValidationRule<T>(ruleOrNested)) {
-      processValidationRule(ruleOrNested, key, errors);
+      await processValidationRule(ruleOrNested, key, errors);
     } else if (isNestedValidationRules<T>(ruleOrNested)) {
-      processNestedRules(ruleOrNested, key, errors);
+      await processNestedRules(ruleOrNested, key, errors);
     }
-  });
+  }
 
   return errors;
 };

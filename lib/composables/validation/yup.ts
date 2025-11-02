@@ -1,13 +1,13 @@
 import { ObjectSchema } from "yup";
 import { setNestedValue } from "@/helpers";
 
-const validateYup = <T extends object>(
+const validateYup = async <T extends object>(
   values: T,
   schema: ObjectSchema<T>,
-): Partial<Record<keyof T, unknown>> => {
-  const errors = {};
+): Promise<Partial<Record<keyof T, unknown>>> => {
+  const errors: Record<string, unknown> = {};
   try {
-    schema.validateSync(values, { abortEarly: false });
+    await schema.validate(values, { abortEarly: false });
   } catch (e) {
     const err = e as { inner: { path: string; message: string[] | string }[] };
     if (err?.inner?.length) {

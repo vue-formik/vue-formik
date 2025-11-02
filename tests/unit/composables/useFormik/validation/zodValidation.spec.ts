@@ -3,7 +3,20 @@ import { z } from "zod";
 import { useFormik } from "@/index";
 import { nextTick } from "vue";
 
-describe("useFormik/jodValidation", async () => {
+const flush = async () => {
+  await Promise.resolve();
+  await nextTick();
+  await Promise.resolve();
+};
+
+const waitForValidation = async (form: ReturnType<typeof useFormik>) => {
+  await flush();
+  while (form.isValidating.value) {
+    await flush();
+  }
+};
+
+describe("useFormik/jodValidation", () => {
   test("simple form validation", async () => {
     const initialValues = {
       name: "",
@@ -20,11 +33,12 @@ describe("useFormik/jodValidation", async () => {
       validateOnMount: true,
     });
 
+    await waitForValidation(formik);
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("name", "John");
     formik.setFieldValue("email", "john@ex.com");
-    await nextTick();
+    await waitForValidation(formik);
     expect(formik.errors).toMatchSnapshot();
     expect(formik.isValid.value).toBe(true);
   });
@@ -51,19 +65,20 @@ describe("useFormik/jodValidation", async () => {
       validateOnMount: true,
     });
 
+    await waitForValidation(formik);
     expect(formik.errors).toMatchSnapshot();
 
     formik.setFieldValue("name", "John");
     formik.setFieldValue("email", "john@ex.com");
     formik.setFieldValue("friends[0].name", "Jane");
     formik.setFieldValue("friends[1].name", "Doe");
-    await nextTick();
+    await waitForValidation(formik);
 
     expect(formik.errors).toMatchSnapshot();
     expect(formik.isValid.value).toBe(true);
 
     formik.setFieldValue("friends[0].name", "J");
-    await nextTick();
+    await waitForValidation(formik);
 
     expect(formik.errors).toMatchSnapshot();
     expect(formik.isValid.value).toBe(false);

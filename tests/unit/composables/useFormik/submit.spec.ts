@@ -1,68 +1,115 @@
 import { describe, expect, test, vi } from "vitest";
-import { useFormik } from "../../../../lib";
-import { FormikHelpers } from "@/types";
 import { nextTick } from "vue";
+import { useFormik } from "../../../../lib";
+import type { FormikHelpers } from "@/types";
 
-describe("useFormik submit", async () => {
+const createSubmitEvent = () => ({ preventDefault: vi.fn() }) as never as SubmitEvent;
+
+describe("useFormik submit", () => {
   const initialValues = {
     name: "John Doe",
     email: "john@example.com",
   };
-  const onSubmit = vi.fn();
 
-  test("should do nothing when onSubmit is not provided", () => {
+  test("should do nothing when onSubmit is not provided", async () => {
     const { handleSubmit, isSubmitting } = useFormik({ initialValues });
-    handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
-    expect(onSubmit).not.toHaveBeenCalled();
+
+    await handleSubmit(createSubmitEvent());
+
     expect(isSubmitting.value).toBe(false);
   });
 
-  test("submitting form should call onSubmit", () => {
-    const { handleSubmit } = useFormik({ initialValues, onSubmit });
-    handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onSubmit).toHaveBeenCalledWith(initialValues, expect.any(Object));
-  });
-  test("'isSubmitting' should return true when form is submitting", async () => {
-    const onSubmit = (
-      values: typeof initialValues,
-      { setSubmitting }: FormikHelpers<typeof initialValues>,
-    ) => {
-      expect(isSubmitting.value).toBe(true);
-      setSubmitting(false);
-      expect(isSubmitting.value).toBe(false);
-      expect(values).toEqual(initialValues);
-    };
+  test("submitting form should call onSubmit", async () => {
+    const submitSpy = vi.fn();
+    const { handleSubmit } = useFormik({ initialValues, onSubmit: submitSpy });
 
-    const { isSubmitting, handleSubmit } = useFormik({ initialValues, onSubmit });
+    await handleSubmit(createSubmitEvent());
+
+    expect(submitSpy).toHaveBeenCalledTimes(1);
+    expect(submitSpy).toHaveBeenCalledWith(initialValues, expect.any(Object));
+  });
+
+  test("awaits async submit handlers and resets submitting flag", async () => {
+    const submitSpy = vi.fn().mockImplementation(async () => {
+      await Promise.resolve();
+    });
+    const { handleSubmit, isSubmitting } = useFormik({ initialValues, onSubmit: submitSpy });
+
+    const submitPromise = handleSubmit(createSubmitEvent());
+
+    expect(isSubmitting.value).toBe(true);
+
+    await submitPromise;
+
     expect(isSubmitting.value).toBe(false);
-
-    handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
+    expect(submitSpy).toHaveBeenCalledTimes(1);
   });
+
+  test("'isSubmitting' should reflect helper updates during submit", async () => {
+    const submitSpy = vi.fn(
+      (values: typeof initialValues, { setSubmitting }: FormikHelpers<typeof initialValues>) => {
+        expect(values).toEqual(initialValues);
+        setSubmitting(false);
+      },
+    );
+
+    const { isSubmitting, handleSubmit } = useFormik({ initialValues, onSubmit: submitSpy });
+
+    const submitPromise = handleSubmit(createSubmitEvent());
+    expect(isSubmitting.value).toBe(true);
+
+    await submitPromise;
+
+    expect(isSubmitting.value).toBe(false);
+    expect(submitSpy).toHaveBeenCalledTimes(1);
+  });
+
   describe("preventDefault", () => {
-    test("should prevent default form submission", () => {
-      const { handleSubmit } = useFormik({ initialValues, onSubmit, preventDefault: true });
-      const e = { preventDefault: vi.fn() } as never as SubmitEvent;
-      handleSubmit(e);
-      expect(e.preventDefault).toHaveBeenCalled();
+    test("should prevent default form submission", async () => {
+      const submitSpy = vi.fn();
+      const { handleSubmit } = useFormik({
+        initialValues,
+        onSubmit: submitSpy,
+        preventDefault: true,
+      });
+      const event = createSubmitEvent();
+
+      await handleSubmit(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
     });
 
-    test("should not prevent default form submission", () => {
-      const { handleSubmit } = useFormik({ initialValues, onSubmit, preventDefault: false });
-      const e = { preventDefault: vi.fn() } as never as SubmitEvent;
-      handleSubmit(e);
-      expect(e.preventDefault).not.toHaveBeenCalled();
+    test("should not prevent default form submission", async () => {
+      const submitSpy = vi.fn();
+      const { handleSubmit } = useFormik({
+        initialValues,
+        onSubmit: submitSpy,
+        preventDefault: false,
+      });
+      const event = createSubmitEvent();
+
+      await handleSubmit(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
     });
   });
+
   describe("submitting", () => {
-    test("set submitting to true", () => {
-      const { handleSubmit, isSubmitting } = useFormik({ initialValues, onSubmit });
-      handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
+    test("sets submitting to true during submission", async () => {
+      const submitSpy = vi.fn();
+      const { handleSubmit, isSubmitting } = useFormik({ initialValues, onSubmit: submitSpy });
+
+      const submitPromise = handleSubmit(createSubmitEvent());
       expect(isSubmitting.value).toBe(true);
+
+      await submitPromise;
+
+      expect(isSubmitting.value).toBe(false);
     });
 
-    test("set submitting to false", async () => {
-      const { isSubmitting, setSubmitting } = useFormik({ initialValues, onSubmit });
+    test("set submitting to false via helper", async () => {
+      const submitSpy = vi.fn();
+      const { isSubmitting, setSubmitting } = useFormik({ initialValues, onSubmit: submitSpy });
 
       setSubmitting(true);
       expect(isSubmitting.value).toBe(true);
@@ -72,18 +119,44 @@ describe("useFormik submit", async () => {
       setSubmitting(false);
       expect(isSubmitting.value).toBe(false);
     });
+
+    test("resets submitting when validation fails", async () => {
+      const submitSpy = vi.fn();
+      const { handleSubmit, isSubmitting, errors } = useFormik({
+        initialValues: { name: "" },
+        validationSchema: {
+          name: (value: string) => {
+            if (!value) {
+              return "Required";
+            }
+          },
+        },
+        onSubmit: submitSpy,
+      });
+
+      await handleSubmit(createSubmitEvent());
+
+      expect(submitSpy).not.toHaveBeenCalled();
+      expect(isSubmitting.value).toBe(false);
+      expect(errors.name).toBe("Required");
+    });
   });
 
   describe("submit count", () => {
-    test("should increment submit count", () => {
-      const { handleSubmit, submitCount } = useFormik({ initialValues, onSubmit });
-      handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
+    test("should increment submit count", async () => {
+      const submitSpy = vi.fn();
+      const { handleSubmit, submitCount } = useFormik({ initialValues, onSubmit: submitSpy });
+
+      await handleSubmit(createSubmitEvent());
       expect(submitCount.value).toBe(1);
-      handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
+
+      await handleSubmit(createSubmitEvent());
       expect(submitCount.value).toBe(2);
-      handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
+
+      await handleSubmit(createSubmitEvent());
       expect(submitCount.value).toBe(3);
-      handleSubmit({ preventDefault: vi.fn() } as never as SubmitEvent);
+
+      await handleSubmit(createSubmitEvent());
       expect(submitCount.value).toBe(4);
     });
   });
