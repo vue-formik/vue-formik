@@ -7,13 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      lodash.clonedeep:
-        specifier: ^4.5.0
-        version: 4.5.0
-      vue:
-        specifier: ^3.5.13
-        version: 3.5.13(typescript@5.9.3)
     devDependencies:
       '@tsconfig/node22':
         specifier: ^22.0.0
@@ -69,6 +62,9 @@ importers:
       jsdom:
         specifier: ^27.1.0
         version: 27.1.0
+      lodash.clonedeep:
+        specifier: ^4.5.0
+        version: 4.5.0
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -96,6 +92,9 @@ importers:
       vitest:
         specifier: ^4.0.6
         version: 4.0.6(@types/node@24.9.2)(@vitest/ui@4.0.6)(jsdom@27.1.0)(sass-embedded@1.93.3)(sass@1.93.3)
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.13(typescript@5.9.3)
       vue-tsc:
         specifier: ^3.1.2
         version: 3.1.2(typescript@5.9.3)
