@@ -4,7 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import dts from 'vite-plugin-dts'
 import path from 'path'
-import { writeFileSync, readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -19,8 +19,16 @@ export default defineConfig({
       outDir: "dist",
       insertTypesEntry: false,
       copyDtsFiles: true,
+      beforeWriteFile: (filePath, content) => {
+        // Transform @/ aliases to relative paths for pnpm link compatibility in all declaration files
+        const transformed = content.replace(
+          /from ['"]@\/([^'"]+)['"]/g,
+          (_, p) => `from '../lib/${p}'`
+        );
+        return { filePath, content: transformed };
+      },
       afterBuild: () => {
-        // Read lib/index.ts and transform for pnpm link compatibility
+        // Generate index.d.ts from lib/index.ts for proper exports
         const libIndex = readFileSync(path.resolve(process.cwd(), 'lib/index.ts'), 'utf-8');
         const exports = libIndex.match(/export \{([^}]+)\}/)?.[1] || '';
         const exportNames = exports.split(',').map((e) => e.trim()).filter(Boolean);
