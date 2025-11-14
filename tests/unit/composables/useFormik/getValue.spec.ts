@@ -40,4 +40,15 @@ describe("useFormik getValue", async () => {
       expect(getFieldValue("address.city")).toBe("New York");
     });
   });
+  describe("value exctraction from formik object", () => {
+    it("should return formik object", async () => {
+      const payload = { name: "" };
+      const { values, setFieldValue } = useFormik({
+        initialValues: payload,
+      });
+      expect(values.name).toBe("");
+      setFieldValue("name", "John Doe");
+      expect(values.name).toBe("John Doe");
+    });
+  });
 });

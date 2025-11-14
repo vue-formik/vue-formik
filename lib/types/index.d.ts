@@ -78,7 +78,7 @@ type SetValuesOptions = {
   replace?: boolean;
 };
 
-interface UseFormikOptions<T extends object> {
+interface UseFormikOptions<T extends object = object> {
   initialValues: T;
   validateOnMount?: boolean;
   validateOnChange?: boolean;
@@ -117,6 +117,9 @@ export type {
   SetValuesOptions,
   UseFormikOptions,
 };
+
+// Helper function type to infer form values from initialValues
+export type InferFormValues<T> = T extends { initialValues: infer V } ? V : never;
 
 // Re-export nested path types for convenience
 export type { NestedPaths, NestedArrayPaths, NestedValue } from "./nestedPath";
