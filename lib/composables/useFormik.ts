@@ -19,7 +19,7 @@ import validation from "@/composables/validation";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
-const useFormik = <T extends object>({
+const useFormik = <T extends object = object>({
   initialValues,
   validationSchema,
   yupSchema,
