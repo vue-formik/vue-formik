@@ -19,7 +19,7 @@
  * // "contacts" | "contacts[number]" | "contacts[number].email" | "contacts[number].phones[number]"
  * ```
  */
-type NestedPaths<T> = T extends object
+export type NestedPaths<T> = T extends object
   ? {
       [K in keyof T]: K extends string
         ? T[K] extends (infer U)[]
@@ -54,7 +54,7 @@ type NestedPaths<T> = T extends object
  * // `[${number}]` | `[${number}][${number}]`
  * ```
  */
-type NestedArrayPaths<U> = U extends (infer V)[]
+export type NestedArrayPaths<U> = U extends (infer V)[]
   ? `[${number}]` | `[${number}]${NestedArrayPaths<V>}`
   : U extends object
     ? `[${number}].${NestedPaths<U>}`
@@ -95,7 +95,7 @@ type NestedIndexedValue<T, I extends string, Rest extends string> = T extends
     : never
   : never;
 
-type NestedValue<T, P extends string> = P extends keyof T
+export type NestedValue<T, P extends string> = P extends keyof T
   ? T[P]
   : P extends `[${infer I}]${infer Rest}`
     ? // Path starts with an array index (e.g. nested/chained "[0][1]"): index into T directly.

@@ -7,15 +7,15 @@ import {
   clearState,
   deepEqual,
   debounce,
-} from "@/helpers";
+} from "../helpers";
 import type {
   FormikHelpers,
   Paths,
   SetValuesOptions,
   UseFormikOptions,
   IResetOptions,
-} from "@/types";
-import validation from "@/composables/validation";
+} from "../types";
+import validation from "./validation";
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -59,7 +59,10 @@ const useFormik = <T extends object = object>({
   };
 
   const isValid = computed(() => Object.keys(errors).length === 0);
-  const isDirty = computed(() => !deepEqual(toRaw(values), toRaw(initialValuesRef)));
+  // Compare the reactive proxies directly (not toRaw) so the computed tracks
+  // property reads and recomputes when values change. deepEqual only reads
+  // properties, so traversing the proxies is correct.
+  const isDirty = computed(() => !deepEqual(values, initialValuesRef));
 
   const setValues = (newValues: Partial<T>, options: SetValuesOptions = {}) => {
     applyState(values, newValues, options);

@@ -1,7 +1,7 @@
 import { ZodType } from "zod";
 
-import { setNestedValue } from "@/helpers";
-import { constructPath } from "@/helpers/formikObject/objectPath";
+import { setNestedValue } from "../../helpers";
+import { constructPath } from "../../helpers/formikObject/objectPath";
 
 const validateZod = async <T extends object>(
   values: T,

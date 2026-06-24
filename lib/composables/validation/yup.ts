@@ -1,5 +1,5 @@
 import type { ObjectSchema } from "yup";
-import { setNestedValue } from "@/helpers";
+import { setNestedValue } from "../../helpers";
 
 const validateYup = async <T extends object>(
   values: T,

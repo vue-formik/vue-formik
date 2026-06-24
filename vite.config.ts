@@ -3,49 +3,29 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import dts from 'vite-plugin-dts'
-import path from 'path'
-import { readFileSync, writeFileSync } from 'fs'
+import path from 'node:path'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     vue(),
     vueJsx(),
-    vueDevTools(),
+    // Dev-server-only tooling; excluded from the library build.
+    ...(command === 'serve' ? [vueDevTools()] : []),
     dts({
+      // The root tsconfig.json is a solution-style file (no `include`), so point
+      // the plugin at the app config that actually includes lib/**/*.
+      tsconfigPath: 'tsconfig.app.json',
       include: ['lib/**/*.ts', 'lib/**/*.vue'],
       exclude: ['node_modules', 'dist', 'tests', 'env.d.ts'],
-      entryRoot: "lib",
-      outDir: "dist",
-      insertTypesEntry: false,
-      copyDtsFiles: true,
-      beforeWriteFile: (filePath, content) => {
-        // Transform @/ aliases to relative paths for pnpm link compatibility in all declaration files
-        const transformed = content.replace(
-          /from ['"]@\/([^'"]+)['"]/g,
-          (_, p) => `from '../lib/${p}'`
-        );
-        return { filePath, content: transformed };
-      },
-      afterBuild: () => {
-        // Generate index.d.ts from lib/index.ts for proper exports
-        const libIndex = readFileSync(path.resolve(process.cwd(), 'lib/index.ts'), 'utf-8');
-        const exports = libIndex.match(/export \{([^}]+)\}/)?.[1] || '';
-        const exportNames = exports.split(',').map((e) => e.trim()).filter(Boolean);
-
-        const indexContent = exportNames
-          .map((name) => {
-            const isComposable = name.startsWith('use');
-            const filePath = isComposable
-              ? `../lib/composables/${name}`
-              : `../lib/components/${name}.vue`;
-            return `export { default as ${name} } from '${filePath}';`;
-          })
-          .join('\n');
-
-        writeFileSync(path.resolve(process.cwd(), 'dist/index.d.ts'), indexContent);
-      },
-    })
+      entryRoot: 'lib',
+      outDirs: ['dist'],
+      // Emit the full per-module declaration tree into dist (with a dist/index.d.ts
+      // entry). All cross-module type imports are relative and resolve within dist,
+      // so the published package is self-contained without shipping lib/ sources.
+      insertTypesEntry: true,
+      cleanVueFileName: true,
+    }),
   ],
   resolve: {
     alias: {
@@ -68,5 +48,5 @@ export default defineConfig({
         },
       },
     },
-  }
-})
+  },
+}))

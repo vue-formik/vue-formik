@@ -1,6 +1,6 @@
 import { type Struct, assert, StructError } from "superstruct";
-import { setNestedValue } from "@/helpers";
-import { constructPath } from "@/helpers/formikObject/objectPath";
+import { setNestedValue } from "../../helpers";
+import { constructPath } from "../../helpers/formikObject/objectPath";
 
 const validateSuperstruct = async <T extends object>(
   values: T,

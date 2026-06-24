@@ -1,4 +1,5 @@
-import parseSegment from "@/helpers/formikObject/parseSegment";
+import parseSegment from "./parseSegment";
+import type { NestedPaths, NestedValue } from "../../types/nestedPath";
 
 /**
  * Safely retrieves a nested value from an object using a dot-notation path with array indices.

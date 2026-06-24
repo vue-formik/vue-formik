@@ -60,9 +60,9 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import type { Formik, InputValidationRule } from "@/types";
-import useFormikContext from "@/composables/useFormikContext";
-import { constructLabel } from "@/helpers";
+import type { Formik, InputValidationRule } from "../types";
+import useFormikContext from "../composables/useFormikContext";
+import { constructLabel } from "../helpers";
 
 type InputProps = Record<keyof HTMLInputElement, never>;
 
