@@ -8,6 +8,9 @@ export default mergeConfig(
     test: {
       environment: 'jsdom',
       root: fileURLToPath(new URL('./', import.meta.url)),
+      typecheck: {
+        tsconfig: './tsconfig.vitest.json',
+      },
       coverage: {
         enabled: true,
         provider: 'istanbul',

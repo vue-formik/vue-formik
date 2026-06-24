@@ -36,7 +36,7 @@
       ></textarea>
       <slot name="append" />
     </div>
-    <p v-if="fk?.hasFieldError(name)" class="vf-error" :id="name + '-error'">
+    <p v-if="fk?.hasFieldError(name)" class="vf-error" :id="name + '-error'" role="alert">
       {{ fk?.getFieldError(name) }}
     </p>
     <slot />
