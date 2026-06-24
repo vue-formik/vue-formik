@@ -12,7 +12,7 @@ exports[`FormInput > formik prop usage > Field with array index > various errors
 "<div class="vf-field vf-text-field vf-field--error">
   <!--v-if-->
   <div class="vf-input"><input id="addresses[0]" name="addresses[0]" type="text" class="vf-input--error" aria-invalid="true" value="" aria-describedby="addresses[0]-error"></div>
-  <ul class="vf-error" id="addresses[0]-error">
+  <ul class="vf-error" id="addresses[0]-error" role="alert">
     <li>Address is required</li>
     <li>Address is too short</li>
   </ul>
@@ -23,7 +23,7 @@ exports[`FormInput > formik prop usage > Field with array index > various errors
 "<div class="vf-field vf-text-field vf-field--error">
   <!--v-if-->
   <div class="vf-input"><input id="addresses[0]" name="addresses[0]" type="text" class="vf-input--error" aria-invalid="true" value="$%" aria-describedby="addresses[0]-error"></div>
-  <ul class="vf-error" id="addresses[0]-error">
+  <ul class="vf-error" id="addresses[0]-error" role="alert">
     <li>Address is required</li>
     <li>Address is too short</li>
   </ul>
@@ -42,7 +42,7 @@ exports[`FormInput > formik prop usage > Field with object type > various errors
 "<div class="vf-field vf-text-field vf-field--error">
   <!--v-if-->
   <div class="vf-input"><input id="contact.code" name="contact.code" type="text" class="vf-input--error" aria-invalid="true" value="" aria-describedby="contact.code-error"></div>
-  <p class="vf-error" id="contact.code-error">Code is too short</p>
+  <p class="vf-error" id="contact.code-error" role="alert">Code is too short</p>
 </div>"
 `;
 
@@ -50,7 +50,7 @@ exports[`FormInput > formik prop usage > Field with object type > various errors
 "<div class="vf-field vf-text-field vf-field--error">
   <!--v-if-->
   <div class="vf-input"><input id="contact.code" name="contact.code" type="text" class="vf-input--error" aria-invalid="true" value="123" aria-describedby="contact.code-error"></div>
-  <p class="vf-error" id="contact.code-error">Code is too short</p>
+  <p class="vf-error" id="contact.code-error" role="alert">Code is too short</p>
 </div>"
 `;
 
@@ -81,6 +81,6 @@ exports[`FormInput > formik prop usage > shows error message on blur 1`] = `
 "<div class="vf-field vf-text-field vf-field--error">
   <!--v-if-->
   <div class="vf-input"><input id="fullName" name="fullName" type="text" class="vf-input--error" aria-invalid="true" value="" aria-describedby="fullName-error"></div>
-  <p class="vf-error" id="fullName-error">Full Name is required</p>
+  <p class="vf-error" id="fullName-error" role="alert">Full Name is required</p>
 </div>"
 `;

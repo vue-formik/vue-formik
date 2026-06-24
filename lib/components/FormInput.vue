@@ -42,11 +42,11 @@
     </div>
 
     <template v-if="hasError">
-      <p v-if="typeof getError === 'string'" class="vf-error" :id="name + '-error'">
+      <p v-if="typeof getError === 'string'" class="vf-error" :id="name + '-error'" role="alert">
         {{ getError }}
       </p>
       <template v-else-if="Array.isArray(getError)">
-        <ul class="vf-error" :id="name + '-error'">
+        <ul class="vf-error" :id="name + '-error'" role="alert">
           <li v-for="(error, index) in getError" :key="index">
             {{ error }}
           </li>

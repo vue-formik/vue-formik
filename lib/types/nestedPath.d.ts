@@ -83,20 +83,38 @@ type NestedArrayPaths<U> = U extends (infer V)[]
  * type Phone = NestedValue<User, "contacts[0].phones[1]">; // string
  * ```
  */
+type NestedArrayElement<U, Rest extends string> = Rest extends ""
+  ? Exclude<U, undefined>
+  : NestedValue<Exclude<U, undefined>, Rest extends `.${infer R}` ? R : Rest>;
+
+type NestedIndexedValue<T, I extends string, Rest extends string> = T extends
+  | (infer U)[]
+  | undefined
+  ? I extends `${number}`
+    ? NestedArrayElement<U, Rest>
+    : never
+  : never;
+
 type NestedValue<T, P extends string> = P extends keyof T
   ? T[P]
-  : P extends `${infer K}[${infer I}]${infer Rest}`
-    ? K extends keyof T
-      ? T[K] extends (infer U)[] | undefined
-        ? I extends `${number}`
-          ? NestedValue<Exclude<U, undefined>, Rest extends `.${infer R}` ? R : Rest>
-          : never
-        : never
-      : never
+  : P extends `[${infer I}]${infer Rest}`
+    ? // Path starts with an array index (e.g. nested/chained "[0][1]"): index into T directly.
+      NestedIndexedValue<T, I, Rest>
     : P extends `${infer K}.${infer Rest}`
-      ? K extends keyof T
-        ? NestedValue<T[K], Rest>
-        : T extends Record<string, any>
-          ? any
+      ? K extends `${string}[${string}]${string}`
+        ? // The dotted key itself contains a bracket (e.g. "items[0].x"); fall through to bracket handling.
+          P extends `${infer K2}[${infer I2}]${infer Rest2}`
+          ? K2 extends keyof T
+            ? NestedIndexedValue<T[K2], I2, Rest2>
+            : never
           : never
-      : any;
+        : K extends keyof T
+          ? NestedValue<T[K], Rest>
+          : T extends Record<string, any>
+            ? any
+            : never
+      : P extends `${infer K}[${infer I}]${infer Rest}`
+        ? K extends keyof T
+          ? NestedIndexedValue<T[K], I, Rest>
+          : never
+        : any;
