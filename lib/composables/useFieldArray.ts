@@ -76,7 +76,110 @@ function useFieldArray(formik: Formik) {
     }
   };
 
-  return { push, pop };
+  // Internal helper: read + array-guard a field, returning a shallow clone or null.
+  const cloneArrayField = (field: string, op: string): unknown[] | null => {
+    const fieldValue = formik.getFieldValue(field);
+    if (!Array.isArray(fieldValue)) {
+      console.warn(`Cannot ${op}: field "${field}" is not an array`);
+      return null;
+    }
+    return [...fieldValue];
+  };
+
+  /**
+   * Inserts a value at the given index, shifting subsequent items right.
+   * Index must be within [0, length].
+   */
+  const insert = (field: string, index: number, value: unknown) => {
+    const updatedArray = cloneArrayField(field, "insert");
+    if (!updatedArray) return;
+
+    if (index < 0 || index > updatedArray.length) {
+      console.warn(`Index ${index} out of bounds for field "${field}"`);
+      return;
+    }
+
+    updatedArray.splice(index, 0, value);
+    formik.setFieldValue(field, updatedArray);
+  };
+
+  /**
+   * Removes the item at the given index, shifting subsequent items left.
+   * Index must be within [0, length).
+   */
+  const remove = (field: string, index: number) => {
+    const updatedArray = cloneArrayField(field, "remove");
+    if (!updatedArray) return;
+
+    if (index < 0 || index >= updatedArray.length) {
+      console.warn(`Index ${index} out of bounds for field "${field}"`);
+      return;
+    }
+
+    updatedArray.splice(index, 1);
+    formik.setFieldValue(field, updatedArray);
+    formik.setFieldTouched(`${field}[${index}]`);
+  };
+
+  /**
+   * Moves an item from one index to another, shifting items in between.
+   * Both indices must be within [0, length).
+   */
+  const move = (field: string, from: number, to: number) => {
+    const updatedArray = cloneArrayField(field, "move");
+    if (!updatedArray) return;
+
+    if (from < 0 || from >= updatedArray.length || to < 0 || to >= updatedArray.length) {
+      console.warn(`Index out of bounds (from ${from}, to ${to}) for field "${field}"`);
+      return;
+    }
+    if (from === to) return;
+
+    const [moved] = updatedArray.splice(from, 1);
+    updatedArray.splice(to, 0, moved);
+    formik.setFieldValue(field, updatedArray);
+  };
+
+  /**
+   * Swaps the items at two indices. Both indices must be within [0, length).
+   */
+  const swap = (field: string, indexA: number, indexB: number) => {
+    const updatedArray = cloneArrayField(field, "swap");
+    if (!updatedArray) return;
+
+    if (
+      indexA < 0 ||
+      indexA >= updatedArray.length ||
+      indexB < 0 ||
+      indexB >= updatedArray.length
+    ) {
+      console.warn(`Index out of bounds (${indexA}, ${indexB}) for field "${field}"`);
+      return;
+    }
+    if (indexA === indexB) return;
+
+    [updatedArray[indexA], updatedArray[indexB]] = [updatedArray[indexB], updatedArray[indexA]];
+    formik.setFieldValue(field, updatedArray);
+  };
+
+  /**
+   * Replaces the item at the given index with a new value.
+   * Index must be within [0, length).
+   */
+  const replace = (field: string, index: number, value: unknown) => {
+    const updatedArray = cloneArrayField(field, "replace");
+    if (!updatedArray) return;
+
+    if (index < 0 || index >= updatedArray.length) {
+      console.warn(`Index ${index} out of bounds for field "${field}"`);
+      return;
+    }
+
+    updatedArray[index] = value;
+    formik.setFieldValue(field, updatedArray);
+  };
+
+  return { push, pop, insert, remove, move, swap, replace };
 }
 
 export default useFieldArray;

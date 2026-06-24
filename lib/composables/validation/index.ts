@@ -2,12 +2,14 @@ import { ZodType } from "zod";
 import type { ObjectSchema as JoiSchema } from "joi";
 import type { ObjectSchema as YupSchema } from "yup";
 import type { CustomValidationSchema } from "../../types";
+import type { StandardSchemaV1 } from "../../types/standardSchema";
 import validateYup from "./yup";
 import validateJoi from "./joi";
 import validateZod from "./zod";
 import validateCustom from "./custom";
 import { Struct } from "superstruct";
 import validateSuperstruct from "./superstruct";
+import validateStandardSchema from "./standardSchema";
 
 const validate = async <T extends object>(
   values: T,
@@ -16,12 +18,14 @@ const validate = async <T extends object>(
     joiSchema,
     zodSchema,
     structSchema,
+    standardSchema,
     validationSchema,
   }: {
     yupSchema?: YupSchema<T>;
     joiSchema?: JoiSchema<T>;
     zodSchema?: ZodType<T>;
     structSchema?: Struct<T>;
+    standardSchema?: StandardSchemaV1<T>;
     validationSchema?: CustomValidationSchema<T>;
   },
 ): Promise<Partial<Record<keyof T, unknown>>> => {
@@ -39,6 +43,10 @@ const validate = async <T extends object>(
 
   if (structSchema) {
     return validateSuperstruct(values, structSchema);
+  }
+
+  if (standardSchema) {
+    return validateStandardSchema(values, standardSchema);
   }
 
   if (validationSchema) {

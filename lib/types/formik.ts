@@ -1,6 +1,7 @@
 import useFormik from "../composables/useFormik";
 import type { MaybePromise } from "./common";
 import type { CustomValidationSchema } from "./validation";
+import type { StandardSchemaV1 } from "./standardSchema";
 
 export type IResetOptions<T> = {
   values?: Partial<T>;
@@ -39,6 +40,8 @@ export interface UseFormikOptions<T extends object = object> {
   joiSchema?: import("joi").ObjectSchema<T>;
   zodSchema?: import("zod").ZodType<T>;
   structSchema?: import("superstruct").Struct<T>;
+  /** Any Standard Schema (https://standardschema.dev): Zod, Valibot, ArkType, etc. */
+  standardSchema?: StandardSchemaV1<T>;
   validationSchema?: CustomValidationSchema<T>;
   initialErrors?: Partial<Record<keyof T, unknown>>;
   initialTouched?: Partial<Record<keyof T, unknown>>;
