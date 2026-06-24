@@ -20,10 +20,7 @@ describe("getNestedValue", () => {
   ])("should get nested value from object", (obj, path, expected) => {
     // @ts-expect-error - because we are testing null for obj
     const actual = getNestedValue(obj, path);
-    if (typeof expected === "object") {
-      expect(actual).toEqual(expected);
-    } else {
-      expect(actual).toBe(expected);
-    }
+    // toEqual handles both primitives and objects/arrays, avoiding a conditional expect.
+    expect(actual).toEqual(expected);
   });
 });

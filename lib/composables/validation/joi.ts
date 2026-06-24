@@ -1,4 +1,4 @@
-import { setNestedValue } from "@/helpers";
+import { setNestedValue } from "../../helpers";
 import type { ObjectSchema } from "joi";
 
 const validateJoi = async <T extends object>(

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import parseSegment from "@/helpers/formikObject/parseSegment";
+import parseSegment from "./parseSegment";
+import type { NestedPaths, NestedValue } from "../../types/nestedPath";
 
 function setNestedValue<T extends object, P extends string>(
   obj: T,

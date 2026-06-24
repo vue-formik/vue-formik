@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Formik, IResetOptions } from "@/types";
-import useFormikContext from "@/composables/useFormikContext";
+import type { Formik, IResetOptions } from "../types";
+import useFormikContext from "../composables/useFormikContext";
 
 const props = defineProps<{
   formik?: Formik;

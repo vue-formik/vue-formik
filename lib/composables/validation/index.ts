@@ -1,13 +1,13 @@
 import { ZodType } from "zod";
 import type { ObjectSchema as JoiSchema } from "joi";
 import type { ObjectSchema as YupSchema } from "yup";
-import type { CustomValidationSchema } from "@/types";
-import validateYup from "@/composables/validation/yup";
-import validateJoi from "@/composables/validation/joi";
-import validateZod from "@/composables/validation/zod";
-import validateCustom from "@/composables/validation/custom";
+import type { CustomValidationSchema } from "../../types";
+import validateYup from "./yup";
+import validateJoi from "./joi";
+import validateZod from "./zod";
+import validateCustom from "./custom";
 import { Struct } from "superstruct";
-import validateSuperstruct from "@/composables/validation/superstruct";
+import validateSuperstruct from "./superstruct";
 
 const validate = async <T extends object>(
   values: T,
