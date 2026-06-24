@@ -1,4 +1,4 @@
-import { computed, reactive, ref, toRaw, watch, type UnwrapRef } from "vue";
+import { computed, reactive, ref, toRaw, watch } from "vue";
 import cloneDeep from "lodash.clonedeep";
 import {
   getNestedValue,
@@ -10,7 +10,9 @@ import {
 } from "../helpers";
 import type {
   FormikHelpers,
-  Paths,
+  InputValidationRule,
+  NestedPaths,
+  NestedValue,
   SetValuesOptions,
   UseFormikOptions,
   IResetOptions,
@@ -26,6 +28,7 @@ const useFormik = <T extends object = object>({
   zodSchema,
   joiSchema,
   structSchema,
+  standardSchema,
   onSubmit,
   validateOnMount = true,
   validateOnChange = true,
@@ -55,6 +58,7 @@ const useFormik = <T extends object = object>({
       zodSchema,
       validationSchema,
       structSchema,
+      standardSchema,
     });
   };
 
@@ -95,12 +99,23 @@ const useFormik = <T extends object = object>({
     submitCount.value = 0;
   };
 
-  const setFieldValue = <K extends Paths<T>>(field: K, value: unknown) => {
+  // Untyped internal writers used by DOM event handlers (field name/value come
+  // from the DOM and are inherently untyped). The public setters below add the
+  // NestedPaths/NestedValue type-safety on top.
+  const setFieldValueRaw = (field: string, value: unknown) => {
     setNestedValue(values as Record<string, unknown>, field, value);
   };
 
-  const setFieldTouched = <K extends Paths<T>>(field: K, isTouched?: boolean) => {
+  const setFieldTouchedRaw = (field: string, isTouched?: boolean) => {
     setNestedValue(touched as Record<string, unknown>, field, isTouched);
+  };
+
+  const setFieldValue = <K extends NestedPaths<T>>(field: K, value: NestedValue<T, K>) => {
+    setFieldValueRaw(field, value as unknown);
+  };
+
+  const setFieldTouched = <K extends NestedPaths<T>>(field: K, isTouched?: boolean) => {
+    setFieldTouchedRaw(field, isTouched);
   };
 
   const setSubmitting = (value: boolean) => {
@@ -109,12 +124,44 @@ const useFormik = <T extends object = object>({
 
   let validationRunId = 0;
 
+  // Field-level validators registered by components (e.g. FormInput's `validation`
+  // prop, via useField). They run after schema validation and take precedence for
+  // their own path. See registerFieldValidation / unregisterFieldValidation.
+  const fieldValidators = new Map<string, InputValidationRule>();
+
+  const registerFieldValidation = (field: string, rule: InputValidationRule) => {
+    fieldValidators.set(field, rule);
+  };
+
+  const unregisterFieldValidation = (field: string) => {
+    fieldValidators.delete(field);
+  };
+
+  const applyFieldValidators = async (validationErrors: ValidationErrors) => {
+    if (fieldValidators.size === 0) return;
+    const raw = toRaw(values) as T;
+    await Promise.all(
+      Array.from(fieldValidators.entries()).map(async ([field, rule]) => {
+        const fieldValue = getNestedValue(values as Record<string, unknown>, field);
+        const error = await Promise.resolve(rule(fieldValue, raw));
+        if (error !== undefined && error !== null && error !== "") {
+          setNestedValue(validationErrors as Record<string, unknown>, field, error);
+        }
+      }),
+    );
+  };
+
   const performValidation = async () => {
     const runId = ++validationRunId;
     isValidating.value = true;
 
     try {
       const validationErrors = await validate();
+      // Only pay the extra async tick when field validators are registered, so
+      // schema-only validation keeps its original timing.
+      if (fieldValidators.size > 0) {
+        await applyFieldValidators(validationErrors);
+      }
 
       if (runId === validationRunId) {
         setErrors(validationErrors);
@@ -177,7 +224,7 @@ const useFormik = <T extends object = object>({
     const target = e.target as FieldElement;
     const fieldName = target.name;
     if (fieldName) {
-      setFieldTouched(fieldName as Paths<T>, true);
+      setFieldTouchedRaw(fieldName, true);
     }
 
     // Trigger field validation on blur if enabled
@@ -192,8 +239,8 @@ const useFormik = <T extends object = object>({
     const fieldName = target.name;
 
     if (fieldName) {
-      setFieldValue(fieldName as Paths<T>, value);
-      setFieldTouched(fieldName as Paths<T>, true);
+      setFieldValueRaw(fieldName, value);
+      setFieldTouchedRaw(fieldName, true);
     }
 
     // Field-level validation on change is handled by watch
@@ -220,13 +267,13 @@ const useFormik = <T extends object = object>({
     );
   }
 
-  const hasFieldError = (field: string): boolean => {
+  const hasFieldError = (field: NestedPaths<T>): boolean => {
     const errorValue = getNestedValue(errors as Record<string, unknown>, field);
     const touchedValue = getNestedValue(touched as Record<string, unknown>, field);
     return Boolean(errorValue && touchedValue);
   };
 
-  const getFieldError = (field: string) => {
+  const getFieldError = (field: NestedPaths<T>) => {
     if (hasFieldError(field)) {
       return getNestedValue(errors as Record<string, unknown>, field);
     } else {
@@ -234,11 +281,13 @@ const useFormik = <T extends object = object>({
     }
   };
 
-  const getFieldValue = <K extends keyof UnwrapRef<T>>(field: K | string) => {
-    return getNestedValue(values as Record<string, unknown>, field as string);
+  const getFieldValue = <K extends NestedPaths<T>>(field: K): NestedValue<T, K> | undefined => {
+    return getNestedValue(values as Record<string, unknown>, field) as
+      | NestedValue<T, K>
+      | undefined;
   };
 
-  const getFieldTouched = (field: string) => {
+  const getFieldTouched = (field: NestedPaths<T>) => {
     return getNestedValue(touched as Record<string, unknown>, field);
   };
 
@@ -268,6 +317,10 @@ const useFormik = <T extends object = object>({
     setFieldValue,
     setFieldTouched,
     setSubmitting,
+
+    // Field-level validation registry (used by components / useField)
+    registerFieldValidation,
+    unregisterFieldValidation,
 
     // Form Actions
     reset,

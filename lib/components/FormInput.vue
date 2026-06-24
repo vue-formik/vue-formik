@@ -22,8 +22,8 @@
         :readonly="readonly"
         :required="required"
         :disabled="disabled"
-        @input="handleInput"
-        @blur="fk?.handleFieldBlur"
+        @input="field.onInput"
+        @blur="field.onBlur"
         :class="{
           'vf-input--error': hasError,
           'vf-input--readonly': readonly,
@@ -42,11 +42,17 @@
     </div>
 
     <template v-if="hasError">
-      <p v-if="typeof getError === 'string'" class="vf-error" :id="name + '-error'" role="alert">
+      <p
+        v-if="typeof getError === 'string'"
+        class="vf-error"
+        :id="name + '-error'"
+        role="alert"
+        aria-live="assertive"
+      >
         {{ getError }}
       </p>
       <template v-else-if="Array.isArray(getError)">
-        <ul class="vf-error" :id="name + '-error'" role="alert">
+        <ul class="vf-error" :id="name + '-error'" role="alert" aria-live="assertive">
           <li v-for="(error, index) in getError" :key="index">
             {{ error }}
           </li>
@@ -61,7 +67,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import type { Formik, InputValidationRule } from "../types";
-import useFormikContext from "../composables/useFormikContext";
+import useField from "../composables/useField";
 import { constructLabel } from "../helpers";
 
 type InputProps = Record<keyof HTMLInputElement, never>;
@@ -79,17 +85,15 @@ const props = defineProps<{
   validation?: InputValidationRule;
 }>();
 
-const { formik: fk } = useFormikContext(props.formik);
+const field = useField(() => props.name, {
+  formik: props.formik,
+  validation: () => props.validation,
+});
 
-const inputValue = computed(() => fk?.getFieldValue(props.name) as string);
-
-const handleInput = (e: Event) => {
-  const value = (e.target as HTMLInputElement).value;
-  fk?.setFieldValue(props.name, value);
-};
+const inputValue = computed(() => (field.value.value ?? "") as string);
 
 const typeClass = computed(() => `vf-${props.type || "text"}-field`);
 
-const hasError = computed(() => fk?.hasFieldError(props.name));
-const getError = computed(() => fk?.getFieldError(props.name));
+const hasError = field.hasError;
+const getError = field.error;
 </script>

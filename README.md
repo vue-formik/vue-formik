@@ -15,13 +15,15 @@ Inspired by the powerful [Formik](https://formik.org/) library in React, Vue-For
 
 
 ## 🔥 Key Features
-- 📋 **Simplified Form Management**: Handle complex forms with ease using intuitive APIs
-- ✅ **Comprehensive Validation**: Seamlessly integrate your own validation logic or use popular libraries (Yup, Zod, Joi, Superstruct)
-- 🖼️ **Vue 3 Powered**: Built from the ground up for Vue.js v3 Composition API
+- 🎯 **End-to-end type safety**: `setFieldValue`/`getFieldValue` infer typed paths (incl. `tags[0]`, `address.city`) **and** the value type at that path — autocomplete and compile-time checks for free
+- ✅ **Validate with anything**: Yup, Zod, Joi, Superstruct, custom rules — or **any [Standard Schema](https://standardschema.dev)** (Zod, Valibot, ArkType…) via a single adapter
+- 🧩 **Familiar Formik API**: `values` / `errors` / `touched` / `handleSubmit` / field arrays — the mental model React developers already know, native to Vue 3
+- 🪝 **Headless `useField`**: bind any input (your own or a UI library's) to form state without the bundled components
+- 🔁 **Full field-array ops**: `push`, `pop`, `insert`, `remove`, `move`, `swap`, `replace`
+- 🦾 **Accessible by default**: ARIA wiring, error live-regions, and focus-to-first-error on submit
 - ⚡ **Performance Optimized**: Debounced validation and efficient dirty checking
-- 🎯 **TypeScript First**: Full TypeScript support with intelligent autocompletion
-- 🔄 **Flexible Configuration**: Control validation timing with validateOnChange, validateOnBlur, and validateOnMount options
-- 🎨 **Component Library**: Pre-built form components (FormInput, FormTextArea, FormSelect, etc.)
+- 🔄 **Flexible Configuration**: Control validation timing with `validateOnChange`, `validateOnBlur`, `validateOnMount`
+- 🎨 **Component Library**: Pre-built form components (FormInput, FormTextArea, FormSelectField, FormContentEditable, FormikForm)
 
 ## 💡 Quick Start
 
@@ -118,8 +120,75 @@ const form = useFormik({
 </script>
 ```
 
+### Type-safe field access
+
+When you type your form (or let it be inferred from `initialValues`), field paths and
+values are fully typed — including nested objects and array indices:
+
+```ts
+import { useFormik } from 'vue-formik'
+
+const form = useFormik({
+  initialValues: {
+    name: '',
+    address: { city: '' },
+    tags: [] as string[],
+  },
+})
+
+form.setFieldValue('address.city', 'Kathmandu') // ✅ ok
+form.setFieldValue('tags[0]', 'vue')            // ✅ ok
+form.setFieldValue('name', 123)                 // ❌ type error: expected string
+form.setFieldValue('nope', 'x')                 // ❌ type error: not a valid path
+
+const city = form.getFieldValue('address.city') // string | undefined
+```
+
+### Validate with any Standard Schema
+
+[Standard Schema](https://standardschema.dev) is a shared interface implemented by Zod,
+Valibot, ArkType and others. Pass any of them via the single `standardSchema` option:
+
+```ts
+import { useFormik } from 'vue-formik'
+import * as v from 'valibot' // or zod, arktype, …
+
+const form = useFormik({
+  initialValues: { email: '' },
+  standardSchema: v.object({ email: v.pipe(v.string(), v.email('Invalid email')) }),
+})
+```
+
+### Headless `useField`
+
+Bind any input — including third-party UI components — without the bundled components:
+
+```ts
+import { useField } from 'vue-formik'
+
+const { value, error, hasError, onInput, onBlur, attrs } = useField('email')
+```
+
+### Dynamic lists with `useFieldArray`
+
+```ts
+import { useFieldArray } from 'vue-formik'
+
+const fa = useFieldArray(form)
+fa.push('tags', 'new')
+fa.insert('tags', 0, 'first')
+fa.move('tags', 0, 2)
+fa.swap('tags', 1, 3)
+fa.remove('tags', 2)
+fa.replace('tags', 0, 'updated')
+```
+
 ## 📚 Documentation
 See the [full documentation](https://vue-formik.netlify.app/) for more information.
+
+> **v0.3.0 note:** `setFieldValue` / `setFieldTouched` / `getFieldValue` are now strictly
+> typed via `NestedPaths`/`NestedValue`. If you were passing dynamically-built field-name
+> strings, cast them (`name as NestedPaths<typeof values>`) or type the form explicitly.
 
 
 ## 🤝 Contributing

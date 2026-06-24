@@ -129,4 +129,48 @@ describe("FormikForm", () => {
       expect(formik.values.name).toBe("Jane");
     });
   });
+
+  describe("focusOnError", () => {
+    test("focuses the first invalid field after a failed submit", async () => {
+      const fk = useFormik({
+        initialValues: { name: "" },
+        validationSchema: { name: (v: string) => (v ? undefined : "required") },
+        onSubmit: vi.fn(),
+      });
+      const wrapper = mount(FormikForm, {
+        attachTo: document.body,
+        props: { formik: fk },
+        slots: {
+          default: "<input name='name' aria-invalid='true' /><button type='submit'>Submit</button>",
+        },
+      });
+
+      await wrapper.find("form").trigger("submit");
+      await flush();
+
+      expect(document.activeElement).toBe(wrapper.find("input").element);
+      wrapper.unmount();
+    });
+
+    test("does not focus when focusOnError is false", async () => {
+      const fk = useFormik({
+        initialValues: { name: "" },
+        validationSchema: { name: (v: string) => (v ? undefined : "required") },
+        onSubmit: vi.fn(),
+      });
+      const wrapper = mount(FormikForm, {
+        attachTo: document.body,
+        props: { formik: fk, focusOnError: false },
+        slots: {
+          default: "<input name='name' aria-invalid='true' />",
+        },
+      });
+
+      await wrapper.find("form").trigger("submit");
+      await flush();
+
+      expect(document.activeElement).not.toBe(wrapper.find("input").element);
+      wrapper.unmount();
+    });
+  });
 });

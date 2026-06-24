@@ -3,7 +3,7 @@
     :class="{
       'vf-field': true,
       'vf-content-editable-field': true,
-      'vf-field--error': fk?.hasFieldError(name),
+      'vf-field--error': hasError,
       'vf-field--disabled': disabled,
       'vf-field--readonly': readonly,
     }"
@@ -17,21 +17,21 @@
         :id="name"
         role="textbox"
         :aria-labelledby="label ? name + '-label' : undefined"
-        :aria-describedby="fk?.hasFieldError(name) ? name + '-error' : undefined"
-        :aria-invalid="fk?.hasFieldError(name) ? 'true' : 'false'"
+        :aria-describedby="hasError ? name + '-error' : undefined"
+        :aria-invalid="hasError ? 'true' : 'false'"
         :aria-required="required ? 'true' : undefined"
         :aria-disabled="disabled ? 'true' : undefined"
         :aria-readonly="readonly ? 'true' : undefined"
         :contenteditable="!disabled && !readonly"
         :class="{
-          'vf-input--error': fk?.hasFieldError(name),
+          'vf-input--error': hasError,
           'vf-input--placeholder': !hasValue,
           'vf-input--disabled': disabled,
           'vf-input--readonly': readonly,
         }"
         v-bind="contentProps"
         @input="handleInput"
-        @blur="fk?.handleFieldBlur"
+        @blur="field.onBlur"
         @focus="handleFocus"
         :tabindex="disabled ? -1 : 0"
       >
@@ -40,8 +40,8 @@
       </div>
       <slot name="append" />
     </div>
-    <p v-if="fk?.hasFieldError(name)" class="vf--error" :id="name + '-error'" role="alert">
-      {{ fk?.getFieldError(name) }}
+    <p v-if="hasError" class="vf--error" :id="name + '-error'" role="alert" aria-live="assertive">
+      {{ getError }}
     </p>
     <slot />
   </div>
@@ -49,8 +49,8 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import type { Formik } from "../types";
-import useFormikContext from "../composables/useFormikContext";
+import type { Formik, InputValidationRule } from "../types";
+import useField from "../composables/useField";
 import { constructLabel } from "../helpers";
 
 const props = defineProps<{
@@ -62,17 +62,22 @@ const props = defineProps<{
   disabled?: boolean;
   readonly?: boolean;
   required?: boolean;
+  validation?: InputValidationRule;
 }>();
 
-const { formik: fk } = useFormikContext(props.formik);
+const field = useField(() => props.name, {
+  formik: props.formik,
+  validation: () => props.validation,
+});
 
-const inputValue = computed(() => fk?.getFieldValue(props.name) as string);
+const inputValue = computed(() => (field.value.value ?? "") as string);
 const hasValue = computed(() => inputValue.value.trim().length > 0);
+const hasError = field.hasError;
+const getError = field.error;
 
 const handleInput = (e: Event) => {
   if (props.disabled || props.readonly) return;
-  const value = (e.target as HTMLElement).innerText;
-  fk?.setFieldValue(props.name, value);
+  field.setValue((e.target as HTMLElement).innerText);
 };
 
 const handleFocus = (e: Event) => {

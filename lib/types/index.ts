@@ -19,3 +19,12 @@ export type {
   InferFormValues,
 } from "./formik";
 export type { NestedPaths, NestedArrayPaths, NestedValue } from "./nestedPath";
+export type {
+  StandardSchemaV1,
+  StandardSchemaIssue,
+  StandardSchemaResult,
+  StandardSchemaProps,
+  StandardSchemaPathSegment,
+  StandardSchemaSuccessResult,
+  StandardSchemaFailureResult,
+} from "./standardSchema";

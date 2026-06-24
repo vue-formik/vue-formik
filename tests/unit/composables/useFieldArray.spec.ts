@@ -166,12 +166,17 @@ describe("useFieldArray composable", () => {
     });
   });
 
-  test("should return push and pop methods", () => {
+  test("should return the array manipulation methods", () => {
     const fk = useFormik({ initialValues: { names: ["John", "Doe"] } });
     const ufa = useFieldArray(fk);
     expect(ufa).toEqual({
       push: expect.any(Function),
       pop: expect.any(Function),
+      insert: expect.any(Function),
+      remove: expect.any(Function),
+      move: expect.any(Function),
+      swap: expect.any(Function),
+      replace: expect.any(Function),
     });
   });
 
@@ -260,6 +265,96 @@ describe("useFieldArray composable", () => {
       expect(fk.values.names).toBeNull();
       expect(console.warn).toHaveBeenCalled();
       expect(console.warn).toHaveBeenCalledWith('Field "names" is not an array');
+    });
+  });
+
+  describe("insert method", () => {
+    test("inserts at the given index", () => {
+      const fk = useFormik({ initialValues: { names: ["a", "c"] } });
+      useFieldArray(fk).insert("names", 1, "b");
+      expect(fk.values.names).toEqual(["a", "b", "c"]);
+    });
+
+    test("inserts at the end when index === length", () => {
+      const fk = useFormik({ initialValues: { names: ["a"] } });
+      useFieldArray(fk).insert("names", 1, "b");
+      expect(fk.values.names).toEqual(["a", "b"]);
+    });
+
+    test("warns and no-ops on out-of-bounds index", () => {
+      console.warn = vi.fn();
+      const fk = useFormik({ initialValues: { names: ["a"] } });
+      useFieldArray(fk).insert("names", 5, "b");
+      expect(fk.values.names).toEqual(["a"]);
+      expect(console.warn).toHaveBeenCalled();
+    });
+  });
+
+  describe("remove method", () => {
+    test("removes at the given index", () => {
+      const fk = useFormik({ initialValues: { names: ["a", "b", "c"] } });
+      useFieldArray(fk).remove("names", 1);
+      expect(fk.values.names).toEqual(["a", "c"]);
+    });
+
+    test("warns and no-ops on out-of-bounds index", () => {
+      console.warn = vi.fn();
+      const fk = useFormik({ initialValues: { names: ["a"] } });
+      useFieldArray(fk).remove("names", 3);
+      expect(fk.values.names).toEqual(["a"]);
+      expect(console.warn).toHaveBeenCalled();
+    });
+  });
+
+  describe("move method", () => {
+    test("moves an item forward", () => {
+      const fk = useFormik({ initialValues: { names: ["a", "b", "c"] } });
+      useFieldArray(fk).move("names", 0, 2);
+      expect(fk.values.names).toEqual(["b", "c", "a"]);
+    });
+
+    test("moves an item backward", () => {
+      const fk = useFormik({ initialValues: { names: ["a", "b", "c"] } });
+      useFieldArray(fk).move("names", 2, 0);
+      expect(fk.values.names).toEqual(["c", "a", "b"]);
+    });
+
+    test("no-ops when from === to", () => {
+      const fk = useFormik({ initialValues: { names: ["a", "b"] } });
+      useFieldArray(fk).move("names", 1, 1);
+      expect(fk.values.names).toEqual(["a", "b"]);
+    });
+  });
+
+  describe("swap method", () => {
+    test("swaps two items", () => {
+      const fk = useFormik({ initialValues: { names: ["a", "b", "c"] } });
+      useFieldArray(fk).swap("names", 0, 2);
+      expect(fk.values.names).toEqual(["c", "b", "a"]);
+    });
+
+    test("warns and no-ops on out-of-bounds index", () => {
+      console.warn = vi.fn();
+      const fk = useFormik({ initialValues: { names: ["a", "b"] } });
+      useFieldArray(fk).swap("names", 0, 9);
+      expect(fk.values.names).toEqual(["a", "b"]);
+      expect(console.warn).toHaveBeenCalled();
+    });
+  });
+
+  describe("replace method", () => {
+    test("replaces the item at the given index", () => {
+      const fk = useFormik({ initialValues: { names: ["a", "b"] } });
+      useFieldArray(fk).replace("names", 1, "B");
+      expect(fk.values.names).toEqual(["a", "B"]);
+    });
+
+    test("warns and no-ops on out-of-bounds index", () => {
+      console.warn = vi.fn();
+      const fk = useFormik({ initialValues: { names: ["a"] } });
+      useFieldArray(fk).replace("names", 4, "x");
+      expect(fk.values.names).toEqual(["a"]);
+      expect(console.warn).toHaveBeenCalled();
     });
   });
 });

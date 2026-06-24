@@ -2,7 +2,7 @@
   <div
     :class="{
       'vf-field vf-textarea-field': true,
-      'vf-field--error': fk?.hasFieldError(name),
+      'vf-field--error': hasError,
     }"
   >
     <label v-if="label" :for="name" :id="name + '-label'">
@@ -15,12 +15,12 @@
         :name="name"
         :placeholder="placeholder"
         :value="inputValue"
-        @input="handleInput"
-        @blur="fk?.handleFieldBlur"
+        @input="field.onInput"
+        @blur="field.onBlur"
         :class="{
           'vf-input--disabled': disabled,
           'vf-input--readonly': readonly,
-          'vf-input--error': fk?.hasFieldError(name),
+          'vf-input--error': hasError,
         }"
         :readonly="readonly"
         :disabled="disabled"
@@ -28,16 +28,16 @@
         :required="required"
         v-bind="inputProps"
         :aria-labelledby="label ? name + '-label' : undefined"
-        :aria-describedby="fk?.hasFieldError(name) ? name + '-error' : undefined"
-        :aria-invalid="fk?.hasFieldError(name) ? 'true' : 'false'"
+        :aria-describedby="hasError ? name + '-error' : undefined"
+        :aria-invalid="hasError ? 'true' : 'false'"
         :aria-required="required ? 'true' : undefined"
         :aria-readonly="readonly ? 'true' : undefined"
         :aria-disabled="disabled ? 'true' : undefined"
       ></textarea>
       <slot name="append" />
     </div>
-    <p v-if="fk?.hasFieldError(name)" class="vf-error" :id="name + '-error'" role="alert">
-      {{ fk?.getFieldError(name) }}
+    <p v-if="hasError" class="vf-error" :id="name + '-error'" role="alert" aria-live="assertive">
+      {{ getError }}
     </p>
     <slot />
   </div>
@@ -45,8 +45,8 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import type { Formik } from "../types";
-import useFormikContext from "../composables/useFormikContext";
+import type { Formik, InputValidationRule } from "../types";
+import useField from "../composables/useField";
 import { constructLabel } from "../helpers";
 
 const props = defineProps<{
@@ -59,14 +59,15 @@ const props = defineProps<{
   disabled?: boolean;
   required?: boolean;
   inputProps?: Record<keyof HTMLTextAreaElement, never>;
+  validation?: InputValidationRule;
 }>();
 
-const { formik: fk } = useFormikContext(props.formik);
+const field = useField(() => props.name, {
+  formik: props.formik,
+  validation: () => props.validation,
+});
 
-const inputValue = computed(() => fk?.getFieldValue(props.name) as string);
-
-const handleInput = (e: Event) => {
-  const value = (e.target as HTMLTextAreaElement).value;
-  fk?.setFieldValue(props.name, value);
-};
+const inputValue = computed(() => (field.value.value ?? "") as string);
+const hasError = field.hasError;
+const getError = field.error;
 </script>
